@@ -7,22 +7,22 @@
    CSS CUSTOM PROPERTIES - Design Tokens
    ============================================ */
 :root {
-  /* Brand Colors - Professional Palette */
-  --brand-primary: #2E7D32;        /* Deep forest green */
-  --brand-primary-dark: #1B5E20;
-  --brand-primary-light: #4CAF50;
-  --brand-secondary: #558B2F;      /* Sage green */
-  --brand-accent: #FFA726;         /* Warm orange */
-  --brand-accent-light: #FFB74D;
+  /* Brand Colors - Redwood Forest Palette */
+  --brand-primary: #2D5F4F;        /* Lush forest green */
+  --brand-primary-dark: #1B4D3E;   /* Deep forest */
+  --brand-primary-light: #3A7D5C;  /* Moss green */
+  --brand-secondary: #8B5A3C;      /* Clay tone */
+  --brand-accent: #A0785A;         /* Clay light */
+  --brand-accent-light: #BCAAA4;   /* Pinecone light */
 
-  /* Semantic Colors */
-  --success: #66BB6A;
+  /* Semantic Colors - Redwood Theme */
+  --success: #3A7D5C;
   --success-light: #E8F5E9;
-  --warning: #FFA726;
+  --warning: #A0785A;
   --warning-light: #FFF3E0;
-  --error: #EF5350;
+  --error: #8B5A3C;
   --error-light: #FFEBEE;
-  --info: #42A5F5;
+  --info: #6D4C41;
   --info-light: #E3F2FD;
 
   /* Neutral Colors - Enhanced Contrast */

@@ -8,12 +8,12 @@
    MODERN COLOR PALETTE & GRADIENTS
    ============================================ */
 :root {
-  /* Premium Brand Colors - Enhanced Vibrancy */
-  --brand-forest: #1B5E20;
-  --brand-emerald: #10B981;
-  --brand-lime: #84CC16;
-  --brand-mint: #6EE7B7;
-  --brand-sage: #A7F3D0;
+  /* Premium Brand Colors - Redwood Forest Theme */
+  --brand-forest: #1B4D3E;
+  --brand-emerald: #3A7D5C;
+  --brand-lime: #2D5F4F;
+  --brand-mint: #4A9D7E;
+  --brand-sage: #5BAF8A;
 
   /* Accent Colors - Modern & Vibrant */
   --accent-purple: #8B5CF6;
@@ -41,24 +41,24 @@
   --glass-shadow: rgba(31, 38, 135, 0.15);
 
   /* Modern Gradients */
-  --gradient-primary: linear-gradient(135deg, #10B981 0%, #059669 100%);
+  --gradient-primary: linear-gradient(135deg, #3A7D5C 0%, #2D5F4F 100%);
   --gradient-accent: linear-gradient(135deg, #8B5CF6 0%, #6366F1 100%);
   --gradient-sunset: linear-gradient(135deg, #F59E0B 0%, #EF4444 100%);
   --gradient-ocean: linear-gradient(135deg, #06B6D4 0%, #3B82F6 100%);
-  --gradient-forest: linear-gradient(135deg, #10B981 0%, #1B5E20 100%);
+  --gradient-forest: linear-gradient(135deg, #3A7D5C 0%, #1B4D3E 100%);
   --gradient-cosmic: linear-gradient(135deg, #8B5CF6 0%, #EC4899 100%);
   --gradient-mesh:
     radial-gradient(at 40% 20%, rgba(139, 92, 246, 0.3) 0px, transparent 50%),
     radial-gradient(at 80% 0%, rgba(59, 130, 246, 0.3) 0px, transparent 50%),
-    radial-gradient(at 0% 50%, rgba(16, 185, 129, 0.3) 0px, transparent 50%),
+    radial-gradient(at 0% 50%, rgba(58, 125, 92, 0.3) 0px, transparent 50%),
     radial-gradient(at 80% 50%, rgba(245, 158, 11, 0.3) 0px, transparent 50%),
     radial-gradient(at 0% 100%, rgba(236, 72, 153, 0.3) 0px, transparent 50%),
     radial-gradient(at 80% 100%, rgba(6, 182, 212, 0.3) 0px, transparent 50%);
 
   /* Enhanced Shadows - Layered Depth */
-  --shadow-glow-sm: 0 0 15px rgba(16, 185, 129, 0.2);
-  --shadow-glow-md: 0 0 25px rgba(16, 185, 129, 0.3);
-  --shadow-glow-lg: 0 0 40px rgba(16, 185, 129, 0.4);
+  --shadow-glow-sm: 0 0 15px rgba(58, 125, 92, 0.2);
+  --shadow-glow-md: 0 0 25px rgba(58, 125, 92, 0.3);
+  --shadow-glow-lg: 0 0 40px rgba(58, 125, 92, 0.4);
   --shadow-neo-sm: 5px 5px 10px rgba(0, 0, 0, 0.1), -5px -5px 10px rgba(255, 255, 255, 0.8);
   --shadow-neo-md: 8px 8px 16px rgba(0, 0, 0, 0.15), -8px -8px 16px rgba(255, 255, 255, 0.9);
   --shadow-elevation-1: 0 2px 4px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.1);
@@ -99,7 +99,7 @@
   --gradient-mesh:
     radial-gradient(at 40% 20%, rgba(139, 92, 246, 0.15) 0px, transparent 50%),
     radial-gradient(at 80% 0%, rgba(59, 130, 246, 0.15) 0px, transparent 50%),
-    radial-gradient(at 0% 50%, rgba(16, 185, 129, 0.15) 0px, transparent 50%),
+    radial-gradient(at 0% 50%, rgba(58, 125, 92, 0.15) 0px, transparent 50%),
     radial-gradient(at 80% 50%, rgba(245, 158, 11, 0.15) 0px, transparent 50%);
 }
 
@@ -243,7 +243,7 @@
 }
 
 .modern-nav-item:hover {
-  background: linear-gradient(90deg, rgba(16, 185, 129, 0.1) 0%, transparent 100%);
+  background: linear-gradient(90deg, rgba(58, 125, 92, 0.1) 0%, transparent 100%);
   transform: translateX(4px);
 }
 
@@ -263,7 +263,7 @@
 }
 
 .animated-gradient {
-  background: linear-gradient(-45deg, #10B981, #059669, #1B5E20, #10B981);
+  background: linear-gradient(-45deg, #3A7D5C, #2D5F4F, #1B4D3E, #3A7D5C);
   background-size: 400% 400%;
   animation: gradientShift 15s ease infinite;
 }
@@ -285,7 +285,7 @@
   width: 100%;
   height: 100%;
   background-image:
-    radial-gradient(circle at 20% 50%, rgba(16, 185, 129, 0.05) 0%, transparent 50%),
+    radial-gradient(circle at 20% 50%, rgba(58, 125, 92, 0.05) 0%, transparent 50%),
     radial-gradient(circle at 80% 80%, rgba(139, 92, 246, 0.05) 0%, transparent 50%),
     radial-gradient(circle at 40% 20%, rgba(59, 130, 246, 0.05) 0%, transparent 50%);
   animation: particleFloat 20s ease-in-out infinite;
@@ -487,10 +487,10 @@
 
 @keyframes pulse-glow {
   0%, 100% {
-    box-shadow: 0 0 10px rgba(16, 185, 129, 0.3);
+    box-shadow: 0 0 10px rgba(58, 125, 92, 0.3);
   }
   50% {
-    box-shadow: 0 0 25px rgba(16, 185, 129, 0.6);
+    box-shadow: 0 0 25px rgba(58, 125, 92, 0.6);
   }
 }
 
@@ -548,9 +548,9 @@
 .skeleton-modern {
   background: linear-gradient(
     90deg,
-    rgba(16, 185, 129, 0.1) 0px,
-    rgba(16, 185, 129, 0.2) 40px,
-    rgba(16, 185, 129, 0.1) 80px
+    rgba(58, 125, 92, 0.1) 0px,
+    rgba(58, 125, 92, 0.2) 40px,
+    rgba(58, 125, 92, 0.1) 80px
   );
   background-size: 1000px 100%;
   animation: shimmerGlow 2s infinite linear;
@@ -615,7 +615,7 @@
 }
 
 .badge-success {
-  background: linear-gradient(135deg, #10B981, #059669);
+  background: linear-gradient(135deg, #3A7D5C, #2D5F4F);
   color: white;
   box-shadow: var(--shadow-elevation-1);
 }
@@ -653,7 +653,7 @@
 .input-modern:focus {
   outline: none;
   border-color: var(--brand-emerald);
-  box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1);
+  box-shadow: 0 0 0 4px rgba(58, 125, 92, 0.1);
 }
 
 .input-modern::placeholder {
@@ -755,7 +755,7 @@
 }
 
 .metric-trend.up {
-  color: #10B981;
+  color: #3A7D5C;
 }
 
 .metric-trend.down {

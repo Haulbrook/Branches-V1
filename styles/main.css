@@ -2,35 +2,35 @@
    🎨 Deep Roots Dashboard - Supercharged Modern Styles
    ======================================== */
 
-/* CSS Variables - Enhanced Premium Design System */
+/* CSS Variables - Redwood Forest Theme */
 :root {
-  /* Premium Colors */
-  --primary-color: #10B981;
-  --secondary-color: #059669;
-  --accent-color: #8B5CF6;
+  /* Redwood Forest Colors */
+  --primary-color: #2D5F4F;
+  --secondary-color: #3A7D5C;
+  --accent-color: #8B5A3C;
   --background-color: #F9FAFB;
   --surface-color: #FFFFFF;
   --text-primary: #111827;
   --text-secondary: #6B7280;
   --border-color: #E5E7EB;
 
-  /* Modern Gradients */
-  --gradient-primary: linear-gradient(135deg, #10B981 0%, #059669 100%);
-  --gradient-accent: linear-gradient(135deg, #8B5CF6 0%, #6366F1 100%);
-  --gradient-background: linear-gradient(135deg, #F9FAFB 0%, #EFF6FF 100%);
+  /* Redwood Forest Gradients */
+  --gradient-primary: linear-gradient(135deg, #1B4D3E 0%, #2D5F4F 50%, #3A7D5C 100%);
+  --gradient-accent: linear-gradient(135deg, #2D5F4F 0%, #8B5A3C 100%);
+  --gradient-background: linear-gradient(135deg, #F9FAFB 0%, #F5F3F0 100%);
 
   /* Enhanced Shadows */
-  --shadow-light: 0 2px 8px rgba(16, 185, 129, 0.08);
-  --shadow-medium: 0 4px 16px rgba(16, 185, 129, 0.12);
-  --shadow-heavy: 0 8px 32px rgba(16, 185, 129, 0.16);
-  --shadow-glow: 0 0 20px rgba(16, 185, 129, 0.3);
+  --shadow-light: 0 2px 8px rgba(58, 125, 92, 0.08);
+  --shadow-medium: 0 4px 16px rgba(58, 125, 92, 0.12);
+  --shadow-heavy: 0 8px 32px rgba(58, 125, 92, 0.16);
+  --shadow-glow: 0 0 20px rgba(58, 125, 92, 0.3);
 
-  /* Tool Colors - Vibrant */
-  --inventory-color: #10B981;
-  --grading-color: #F59E0B;
-  --scheduler-color: #3B82F6;
-  --tools-color: #8B5CF6;
-  --chessmap-color: #EC4899;
+  /* Tool Colors - Redwood Forest */
+  --inventory-color: #3A7D5C;
+  --grading-color: #A0785A;
+  --scheduler-color: #6D4C41;
+  --tools-color: #8B5A3C;
+  --chessmap-color: #8D6E63;
 
   /* Spacing */
   --spacing-xs: 0.25rem;
@@ -109,7 +109,7 @@ body::before {
   width: 100%;
   height: 100%;
   background-image:
-    radial-gradient(at 20% 30%, rgba(16, 185, 129, 0.08) 0px, transparent 50%),
+    radial-gradient(at 20% 30%, rgba(58, 125, 92, 0.08) 0px, transparent 50%),
     radial-gradient(at 80% 20%, rgba(139, 92, 246, 0.08) 0px, transparent 50%),
     radial-gradient(at 40% 70%, rgba(59, 130, 246, 0.06) 0px, transparent 50%);
   pointer-events: none;
@@ -365,7 +365,7 @@ body::before {
 }
 
 .nav-item:hover {
-  background: linear-gradient(90deg, rgba(16, 185, 129, 0.1) 0%, transparent 100%);
+  background: linear-gradient(90deg, rgba(58, 125, 92, 0.1) 0%, transparent 100%);
   transform: translateX(4px);
 }
 
