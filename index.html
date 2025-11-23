@@ -760,109 +760,155 @@
 
     <!-- Ultra-Modern UI Interactions Script -->
     <script>
-        // Command Palette
-        const commandPalette = document.getElementById('commandPalette');
-        const commandTrigger = document.getElementById('commandTrigger');
-        const commandInput = document.getElementById('commandInput');
+        // Wait for app to be ready
+        function initModernUI() {
+            // Command Palette
+            const commandPalette = document.getElementById('commandPalette');
+            const commandTrigger = document.getElementById('commandTrigger');
+            const commandInput = document.getElementById('commandInput');
 
-        // Open command palette
-        function openCommandPalette() {
-            commandPalette.classList.add('active');
-            setTimeout(() => commandInput.focus(), 100);
-        }
-
-        // Close command palette
-        function closeCommandPalette() {
-            commandPalette.classList.remove('active');
-            commandInput.value = '';
-        }
-
-        // Command trigger click
-        commandTrigger?.addEventListener('click', openCommandPalette);
-
-        // Keyboard shortcut (Cmd/Ctrl + K)
-        document.addEventListener('keydown', (e) => {
-            if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
-                e.preventDefault();
-                openCommandPalette();
+            // Open command palette
+            function openCommandPalette() {
+                commandPalette.classList.add('active');
+                setTimeout(() => commandInput.focus(), 100);
             }
-            if (e.key === 'Escape' && commandPalette.classList.contains('active')) {
-                closeCommandPalette();
+
+            // Close command palette
+            function closeCommandPalette() {
+                commandPalette.classList.remove('active');
+                commandInput.value = '';
             }
-        });
 
-        // Close on backdrop click
-        commandPalette?.addEventListener('click', (e) => {
-            if (e.target === commandPalette) {
-                closeCommandPalette();
-            }
-        });
+            // Command trigger click
+            commandTrigger?.addEventListener('click', openCommandPalette);
 
-        // Command item clicks
-        document.querySelectorAll('.command-item').forEach(item => {
-            item.addEventListener('click', () => {
-                const action = item.dataset.action;
-                console.log('Command action:', action);
-                closeCommandPalette();
-                // Handle tool opening here
-                const toolCard = document.querySelector(`.card-modern[data-tool="${action}"]`);
-                if (toolCard) {
-                    toolCard.click();
-                }
-            });
-        });
-
-        // Tool card clicks
-        document.querySelectorAll('.card-modern').forEach(card => {
-            card.addEventListener('click', () => {
-                const tool = card.dataset.tool;
-                console.log('Opening tool:', tool);
-                // This will be connected to the existing tool opening logic
-                if (tool === 'chat') {
-                    // Open chat interface
-                    const newChatBtn = document.getElementById('newChatBtn');
-                    if (newChatBtn) newChatBtn.click();
-                } else {
-                    // Open tool iframe
-                    const toolItem = document.querySelector(`.tool-item[data-tool="${tool}"]`);
-                    if (toolItem) toolItem.click();
-                }
-            });
-        });
-
-        // FAB button
-        const fabButton = document.getElementById('fabButton');
-        fabButton?.addEventListener('click', () => {
-            openCommandPalette();
-        });
-
-        // Bottom bar navigation
-        document.querySelectorAll('.bottom-bar-item').forEach(item => {
-            item.addEventListener('click', function() {
-                document.querySelectorAll('.bottom-bar-item').forEach(i => i.classList.remove('active'));
-                this.classList.add('active');
-
-                const action = this.dataset.action;
-                console.log('Bottom bar action:', action);
-
-                if (action === 'search') {
+            // Keyboard shortcut (Cmd/Ctrl + K)
+            document.addEventListener('keydown', (e) => {
+                if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+                    e.preventDefault();
                     openCommandPalette();
-                } else if (action === 'dashboard') {
-                    window.location.href = '#';
+                }
+                if (e.key === 'Escape' && commandPalette.classList.contains('active')) {
+                    closeCommandPalette();
                 }
             });
-        });
 
-        // Navigation menu
-        document.querySelectorAll('.nav-link-modern').forEach(link => {
-            link.addEventListener('click', function() {
-                document.querySelectorAll('.nav-link-modern').forEach(l => l.classList.remove('active'));
-                this.classList.add('active');
-
-                const view = this.dataset.view;
-                console.log('Nav to:', view);
+            // Close on backdrop click
+            commandPalette?.addEventListener('click', (e) => {
+                if (e.target === commandPalette) {
+                    closeCommandPalette();
+                }
             });
-        });
+
+            // Command item clicks
+            document.querySelectorAll('.command-item').forEach(item => {
+                item.addEventListener('click', () => {
+                    const action = item.dataset.action;
+                    console.log('Command action:', action);
+                    closeCommandPalette();
+
+                    // Use the app's openTool method
+                    if (window.app && action === 'chat') {
+                        // Open chat interface
+                        const newChatBtn = document.getElementById('newChatBtn');
+                        if (newChatBtn) newChatBtn.click();
+                    } else if (window.app && window.app.openTool) {
+                        window.app.openTool(action);
+                    } else {
+                        console.error('App not ready or openTool method not available');
+                    }
+                });
+            });
+
+            // Tool card clicks - FIXED!
+            document.querySelectorAll('.card-modern').forEach(card => {
+                card.addEventListener('click', () => {
+                    const tool = card.dataset.tool;
+                    console.log('Opening tool:', tool);
+
+                    // Use the app's openTool method directly
+                    if (tool === 'chat') {
+                        // Open chat interface
+                        const newChatBtn = document.getElementById('newChatBtn');
+                        if (newChatBtn) newChatBtn.click();
+                    } else if (window.app && window.app.openTool) {
+                        window.app.openTool(tool);
+                    } else {
+                        console.error('App not ready or openTool method not available');
+                    }
+                });
+            });
+
+            // FAB button
+            const fabButton = document.getElementById('fabButton');
+            fabButton?.addEventListener('click', () => {
+                openCommandPalette();
+            });
+
+            // Bottom bar navigation
+            document.querySelectorAll('.bottom-bar-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    document.querySelectorAll('.bottom-bar-item').forEach(i => i.classList.remove('active'));
+                    this.classList.add('active');
+
+                    const action = this.dataset.action;
+                    console.log('Bottom bar action:', action);
+
+                    if (action === 'search') {
+                        openCommandPalette();
+                    } else if (action === 'dashboard') {
+                        // Hide all views
+                        document.getElementById('toolContainer')?.classList.add('hidden');
+                        document.getElementById('chatInterface')?.classList.add('hidden');
+
+                        // Show hero and tools section
+                        const heroSection = document.getElementById('heroSection');
+                        const toolsSection = document.getElementById('toolsSection');
+                        if (heroSection) heroSection.style.display = 'block';
+                        if (toolsSection) toolsSection.style.display = 'block';
+
+                        // Hide tool header buttons
+                        document.getElementById('toolBackBtn').style.display = 'none';
+                        document.getElementById('toolRefreshBtn').style.display = 'none';
+                        document.getElementById('toolFullscreenBtn').style.display = 'none';
+                    } else if (action === 'tools') {
+                        // Scroll to tools section
+                        document.getElementById('toolsSection')?.scrollIntoView({ behavior: 'smooth' });
+                    } else if (action === 'profile') {
+                        // Open settings
+                        const settingsBtn = document.getElementById('settingsBtn');
+                        if (settingsBtn) settingsBtn.click();
+                    }
+                });
+            });
+
+            // Navigation menu
+            document.querySelectorAll('.nav-link-modern').forEach(link => {
+                link.addEventListener('click', function() {
+                    document.querySelectorAll('.nav-link-modern').forEach(l => l.classList.remove('active'));
+                    this.classList.add('active');
+
+                    const view = this.dataset.view;
+                    console.log('Nav to:', view);
+
+                    if (view === 'dashboard') {
+                        // Show dashboard
+                        document.getElementById('toolContainer')?.classList.add('hidden');
+                        document.getElementById('chatInterface')?.classList.add('hidden');
+                        document.getElementById('heroSection').style.display = 'block';
+                        document.getElementById('toolsSection').style.display = 'block';
+                    } else if (view === 'tools') {
+                        // Scroll to tools
+                        document.getElementById('toolsSection')?.scrollIntoView({ behavior: 'smooth' });
+                    }
+                });
+            });
+
+            console.log('✅ Modern UI initialized');
+        }
+
+        // Initialize after a short delay to ensure app is ready
+        setTimeout(initModernUI, 500);
 
         // Hide loading screen
         setTimeout(() => {

@@ -8,18 +8,28 @@
    ADVANCED COLOR SYSTEM
    ============================================ */
 :root {
-  /* Brand Signature Colors - Unique Palette */
-  --signature-green: #00D9A3;
-  --signature-emerald: #00B383;
-  --signature-teal: #00E5CC;
-  --signature-lime: #7FFF00;
+  /* Redwood Forest - Natural Earth Tones */
+  --forest-deep: #1B4D3E;
+  --forest-lush: #2D5F4F;
+  --forest-moss: #3A7D5C;
+  --forest-bright: #4A9D7E;
 
-  /* Accent Spectrum */
-  --accent-coral: #FF6B6B;
-  --accent-violet: #A855F7;
-  --accent-sky: #38BDF8;
-  --accent-amber: #FBBF24;
-  --accent-rose: #FB7185;
+  /* Clay & Bark Tones */
+  --clay-dark: #6D4C41;
+  --clay-medium: #8B5A3C;
+  --clay-light: #A0785A;
+  --bark-warm: #8D6E63;
+
+  /* Coffee Bean Browns */
+  --coffee-darkest: #3E2723;
+  --coffee-dark: #4E342E;
+  --coffee-medium: #5D4037;
+  --coffee-light: #6D4C41;
+
+  /* Pinecone Accents */
+  --pinecone-dark: #8D6E63;
+  --pinecone-light: #BCAAA4;
+  --pinecone-cream: #D7CCC8;
 
   /* Modern Neutrals - Deep Contrast */
   --surface-0: #FFFFFF;
@@ -31,16 +41,17 @@
   --surface-dark-2: #1E293B;
   --surface-dark-3: #334155;
 
-  /* Premium Gradients - Signature Styles */
-  --gradient-hero: linear-gradient(135deg, #00D9A3 0%, #00B383 50%, #A855F7 100%);
-  --gradient-card: linear-gradient(135deg, rgba(0, 217, 163, 0.1) 0%, rgba(168, 85, 247, 0.1) 100%);
-  --gradient-overlay: linear-gradient(180deg, transparent 0%, rgba(10, 14, 26, 0.8) 100%);
-  --gradient-glow: radial-gradient(circle at center, rgba(0, 217, 163, 0.3) 0%, transparent 70%);
+  /* Redwood Forest Gradients */
+  --gradient-hero: linear-gradient(135deg, var(--forest-deep) 0%, var(--forest-lush) 50%, var(--forest-moss) 100%);
+  --gradient-hero-alt: linear-gradient(135deg, var(--forest-lush) 0%, var(--clay-medium) 100%);
+  --gradient-card: linear-gradient(135deg, rgba(58, 125, 92, 0.1) 0%, rgba(139, 90, 60, 0.1) 100%);
+  --gradient-overlay: linear-gradient(180deg, transparent 0%, rgba(62, 39, 35, 0.8) 100%);
+  --gradient-glow: radial-gradient(circle at center, rgba(58, 125, 92, 0.3) 0%, transparent 70%);
   --gradient-mesh:
-    radial-gradient(at 20% 30%, rgba(0, 217, 163, 0.15) 0px, transparent 50%),
-    radial-gradient(at 80% 20%, rgba(168, 85, 247, 0.15) 0px, transparent 50%),
-    radial-gradient(at 40% 70%, rgba(56, 189, 248, 0.12) 0px, transparent 50%),
-    radial-gradient(at 90% 80%, rgba(255, 107, 107, 0.12) 0px, transparent 50%);
+    radial-gradient(at 20% 30%, rgba(58, 125, 92, 0.12) 0px, transparent 50%),
+    radial-gradient(at 80% 20%, rgba(139, 90, 60, 0.12) 0px, transparent 50%),
+    radial-gradient(at 40% 70%, rgba(109, 76, 65, 0.10) 0px, transparent 50%),
+    radial-gradient(at 90% 80%, rgba(141, 110, 99, 0.10) 0px, transparent 50%);
 
   /* Advanced Shadows - Multi-layer System */
   --shadow-neo-sm:
@@ -50,13 +61,13 @@
     6px 6px 12px rgba(0, 0, 0, 0.15),
     -6px -6px 12px rgba(255, 255, 255, 0.9);
   --shadow-float:
-    0 10px 40px rgba(0, 217, 163, 0.2),
-    0 5px 20px rgba(168, 85, 247, 0.15);
+    0 10px 40px rgba(58, 125, 92, 0.2),
+    0 5px 20px rgba(109, 76, 65, 0.15);
   --shadow-premium:
     0 20px 60px rgba(0, 0, 0, 0.3),
-    0 10px 30px rgba(0, 217, 163, 0.2);
-  --shadow-glow-green: 0 0 30px rgba(0, 217, 163, 0.4);
-  --shadow-glow-violet: 0 0 30px rgba(168, 85, 247, 0.4);
+    0 10px 30px rgba(58, 125, 92, 0.2);
+  --shadow-glow-forest: 0 0 30px rgba(58, 125, 92, 0.4);
+  --shadow-glow-clay: 0 0 30px rgba(139, 90, 60, 0.4);
 
   /* Typography Scale - Modern System */
   --font-display: 'Inter', -apple-system, system-ui, sans-serif;
@@ -237,9 +248,9 @@
 }
 
 .search-trigger:hover {
-  background: rgba(0, 217, 163, 0.05);
-  border-color: var(--signature-green);
-  box-shadow: 0 0 0 4px rgba(0, 217, 163, 0.1);
+  background: rgba(58, 125, 92, 0.05);
+  border-color: var(--forest-moss);
+  box-shadow: 0 0 0 4px rgba(58, 125, 92, 0.1);
 }
 
 .search-icon {
@@ -297,8 +308,8 @@
 }
 
 .nav-link-modern:hover {
-  background: rgba(0, 217, 163, 0.1);
-  color: var(--signature-green);
+  background: rgba(58, 125, 92, 0.1);
+  color: var(--forest-moss);
 }
 
 .nav-link-modern.active::before {
@@ -306,8 +317,8 @@
 }
 
 .nav-link-modern.active {
-  color: var(--signature-green);
-  background: rgba(0, 217, 163, 0.1);
+  color: var(--forest-deep);
+  background: rgba(58, 125, 92, 0.1);
 }
 
 /* User Profile */
@@ -523,9 +534,9 @@
 .card-modern:hover {
   transform: translateY(-8px);
   box-shadow:
-    0 20px 40px rgba(0, 217, 163, 0.15),
-    0 10px 20px rgba(168, 85, 247, 0.1);
-  border-color: var(--signature-green);
+    0 20px 40px rgba(58, 125, 92, 0.15),
+    0 10px 20px rgba(109, 76, 65, 0.1);
+  border-color: var(--forest-moss);
 }
 
 .card-icon-modern {
@@ -576,7 +587,7 @@
   display: inline-flex;
   align-items: center;
   gap: var(--space-2);
-  color: var(--signature-green);
+  color: var(--forest-moss);
   font-weight: 600;
   font-size: var(--text-sm);
   transition: gap 0.3s var(--ease-smooth);
@@ -702,7 +713,7 @@
 }
 
 .command-item:hover {
-  background: rgba(0, 217, 163, 0.1);
+  background: rgba(58, 125, 92, 0.1);
 }
 
 .command-item-icon {
@@ -771,7 +782,7 @@
 .bottom-bar-item.active {
   background: var(--gradient-hero);
   color: white;
-  box-shadow: var(--shadow-glow-green);
+  box-shadow: var(--shadow-glow-forest);
 }
 
 /* ============================================
