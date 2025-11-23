@@ -589,8 +589,8 @@ Recommendations: ${report.recommendations.length}
             console.log('✅ Chat button listener attached');
         }
 
-        // Tool navigation
-        const toolButtons = document.querySelectorAll('.tool-item');
+        // Tool navigation - support both old (.tool-item) and new (.card-modern) layouts
+        const toolButtons = document.querySelectorAll('.tool-item, .card-modern[data-tool]');
         console.log(`Found ${toolButtons.length} tool buttons`);
 
         toolButtons.forEach((btn, index) => {

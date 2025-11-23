@@ -820,24 +820,8 @@
                 });
             });
 
-            // Tool card clicks - FIXED!
-            document.querySelectorAll('.card-modern').forEach(card => {
-                card.addEventListener('click', () => {
-                    const tool = card.dataset.tool;
-                    console.log('Opening tool:', tool);
-
-                    // Use the app's openTool method directly
-                    if (tool === 'chat') {
-                        // Open chat interface
-                        const newChatBtn = document.getElementById('newChatBtn');
-                        if (newChatBtn) newChatBtn.click();
-                    } else if (window.app && window.app.openTool) {
-                        window.app.openTool(tool);
-                    } else {
-                        console.error('App not ready or openTool method not available');
-                    }
-                });
-            });
+            // Tool card clicks - now handled by main.js
+            // (Removed duplicate listeners - main.js handles .card-modern elements)
 
             // FAB button
             const fabButton = document.getElementById('fabButton');
