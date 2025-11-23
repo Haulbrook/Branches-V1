@@ -740,6 +740,14 @@ Recommendations: ${report.recommendations.length}
         document.getElementById('chatInterface')?.classList.add('hidden');
         document.getElementById('toolContainer')?.classList.add('hidden');
 
+        // Show modern layout elements
+        const heroSection = document.getElementById('heroSection');
+        const toolsSection = document.getElementById('toolsSection');
+        const mainContent = document.querySelector('.main-content-modern');
+        if (heroSection) heroSection.style.display = 'block';
+        if (toolsSection) toolsSection.style.display = 'block';
+        if (mainContent) mainContent.style.display = 'block';
+
         // Update navigation
         document.querySelectorAll('.nav-item').forEach(item => {
             item.classList.remove('active');
@@ -813,9 +821,14 @@ Recommendations: ${report.recommendations.length}
 
         this.currentTool = toolId;
 
-        // Update UI
+        // Update UI - hide both old and new layouts
         document.getElementById('dashboardView')?.classList.add('hidden');
         document.getElementById('chatInterface')?.classList.add('hidden');
+        document.getElementById('heroSection')?.style.setProperty('display', 'none');
+        document.getElementById('toolsSection')?.style.setProperty('display', 'none');
+        const mainContent = document.querySelector('.main-content-modern');
+        if (mainContent) mainContent.style.display = 'none';
+
         document.getElementById('toolContainer')?.classList.remove('hidden');
         
         // Update navigation
