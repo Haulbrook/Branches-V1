@@ -335,12 +335,7 @@
 }
 
 .tool-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 1rem 1.5rem;
-  background: var(--surface-color, #ffffff);
-  border-bottom: 1px solid var(--border-color, #e5e7eb);
+  display: none; /* Hidden - user has other navigation options */
 }
 
 .tool-info {
