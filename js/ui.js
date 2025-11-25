@@ -269,6 +269,15 @@ class UIManager {
             if (chessmapUrl) chessmapUrl.value = config.chessmap?.url || '';
         }
 
+        // Load Claude API Key
+        const claudeApiKey = document.getElementById('claudeApiKey');
+        if (claudeApiKey) {
+            const savedClaudeKey = localStorage.getItem('claudeApiKey');
+            if (savedClaudeKey) {
+                claudeApiKey.value = savedClaudeKey;
+            }
+        }
+
         // Load OpenAI API Key
         const openaiApiKey = document.getElementById('openaiApiKey');
         if (openaiApiKey) {

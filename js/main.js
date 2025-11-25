@@ -599,7 +599,13 @@ Recommendations: ${report.recommendations.length}
 
             btn.addEventListener('click', (e) => {
                 console.log(`Tool button clicked: ${toolId}`);
-                this.openTool(toolId);
+
+                // Special handling for chat - it's not a URL-based tool
+                if (toolId === 'chat') {
+                    this.showChatInterface();
+                } else {
+                    this.openTool(toolId);
+                }
             });
         });
 
@@ -959,6 +965,13 @@ Recommendations: ${report.recommendations.length}
             enableDeconstructionSkill: document.getElementById('enableDeconstructionSkill')?.checked ?? true,
             enableForwardThinkerSkill: document.getElementById('enableForwardThinkerSkill')?.checked ?? true
         };
+
+        // Save Claude API Key separately (more secure)
+        const claudeApiKey = document.getElementById('claudeApiKey');
+        if (claudeApiKey && claudeApiKey.value && claudeApiKey.value.trim() !== '') {
+            localStorage.setItem('claudeApiKey', claudeApiKey.value.trim());
+            console.log('✅ Claude API key saved');
+        }
 
         // Save OpenAI API Key separately (more secure)
         const openaiApiKey = document.getElementById('openaiApiKey');

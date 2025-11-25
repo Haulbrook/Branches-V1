@@ -205,6 +205,175 @@ class APIManager {
     }
 
     /**
+     * Claude API Integration (Anthropic)
+     * Calls Claude API for intelligent chat responses
+     */
+    async callClaude(message, context = {}) {
+        const apiKey = localStorage.getItem('claudeApiKey');
+
+        if (!apiKey) {
+            throw new Error('Claude API key not configured. Please add it in Settings.');
+        }
+
+        // Build conversation history for context
+        const messages = [];
+
+        // Add conversation history if provided
+        if (context.history && Array.isArray(context.history)) {
+            context.history.slice(-10).forEach(m => {
+                messages.push({
+                    role: m.role,
+                    content: m.content
+                });
+            });
+        }
+
+        // Add current message
+        messages.push({
+            role: 'user',
+            content: message
+        });
+
+        try {
+            const response = await fetch('https://api.anthropic.com/v1/messages', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-api-key': apiKey,
+                    'anthropic-version': '2023-06-01',
+                    'anthropic-dangerous-direct-browser-access': 'true'
+                },
+                body: JSON.stringify({
+                    model: 'claude-sonnet-4-20250514',
+                    max_tokens: 1024,
+                    system: this.getClaudeSystemPrompt(context),
+                    messages: messages,
+                    tools: this.getClaudeTools(context)
+                })
+            });
+
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.error?.message || 'Claude API request failed');
+            }
+
+            const data = await response.json();
+
+            // Handle tool use
+            const toolUseBlock = data.content.find(block => block.type === 'tool_use');
+            if (toolUseBlock) {
+                return {
+                    type: 'tool_use',
+                    toolName: toolUseBlock.name,
+                    toolInput: toolUseBlock.input,
+                    message: data
+                };
+            }
+
+            // Get text response
+            const textBlock = data.content.find(block => block.type === 'text');
+            return {
+                type: 'message',
+                content: textBlock?.text || 'No response',
+                usage: data.usage
+            };
+
+        } catch (error) {
+            console.error('Claude API error:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Get system prompt for Claude based on context
+     */
+    getClaudeSystemPrompt(context) {
+        const tools = context.tools || [];
+        const toolsList = tools.map(t => `- ${t.name}: ${t.description}`).join('\n');
+
+        return `You are a helpful AI assistant for Deep Roots Landscape Operations Dashboard.
+
+You help manage:
+- Inventory (plants, materials, equipment)
+- Crew scheduling and assignments
+- Equipment checkout and tracking
+- Logistics and crew location mapping
+- Equipment repair vs replace decisions
+
+Available tools:
+${toolsList || 'No tools currently available'}
+
+Current date/time: ${new Date().toLocaleString()}
+
+IMPORTANT INSTRUCTIONS:
+- When users ask about inventory, crew locations, scheduling, or tools, you MUST use the appropriate tool to open it automatically
+- Do NOT just say you will open a tool - actually use the tool
+- Always prefer using tools over just describing what you would do
+- Be brief - the user will see the tool open automatically
+
+Examples:
+User: "show me the crew map" → Use open_tool with toolId='chessmap'
+User: "what tools do I need?" → Use open_tool with toolId='tools'
+User: "find boxwood" → Use search_inventory with query='boxwood'
+User: "schedule tomorrow" → Use open_tool with toolId='scheduler'`;
+    }
+
+    /**
+     * Define tools for Claude API
+     */
+    getClaudeTools(context) {
+        return [
+            {
+                name: 'open_tool',
+                description: 'Open a dashboard tool. Use this for ANY query about inventory, scheduling, tools, crew, or locations.',
+                input_schema: {
+                    type: 'object',
+                    properties: {
+                        toolId: {
+                            type: 'string',
+                            enum: ['inventory', 'grading', 'scheduler', 'tools', 'chessmap'],
+                            description: 'Which tool: inventory (plants/materials/search), grading (repair decisions), scheduler (crew/scheduling), tools (equipment checkout/what tools needed), chessmap (crew locations/nearest crew)'
+                        },
+                        reason: {
+                            type: 'string',
+                            description: 'Brief reason'
+                        }
+                    },
+                    required: ['toolId']
+                }
+            },
+            {
+                name: 'search_inventory',
+                description: 'Search inventory for specific items.',
+                input_schema: {
+                    type: 'object',
+                    properties: {
+                        query: {
+                            type: 'string',
+                            description: 'Item to search'
+                        }
+                    },
+                    required: ['query']
+                }
+            },
+            {
+                name: 'check_crew_location',
+                description: 'Find crew locations or nearest crew.',
+                input_schema: {
+                    type: 'object',
+                    properties: {
+                        query: {
+                            type: 'string',
+                            description: 'Location to search'
+                        }
+                    },
+                    required: ['query']
+                }
+            }
+        ];
+    }
+
+    /**
      * Get system prompt for OpenAI based on context
      */
     getOpenAISystemPrompt(context) {

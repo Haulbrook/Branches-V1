@@ -151,6 +151,7 @@ class ChatManager {
 
     async processMessage(message) {
         let response = { content: '', type: 'general' };
+        let operationId = null;
 
         // Try OpenAI first if API key is configured
         const hasOpenAI = localStorage.getItem('openaiApiKey');
@@ -160,6 +161,18 @@ class ChatManager {
                 return result;
             } catch (error) {
                 console.error('OpenAI processing failed, falling back to keyword matching:', error);
+                // Fall through to keyword matching below
+            }
+        }
+
+        // Try Claude API if configured
+        const hasClaudeAPI = localStorage.getItem('claudeApiKey');
+        if (hasClaudeAPI) {
+            try {
+                const result = await this.processWithClaude(message);
+                return result;
+            } catch (error) {
+                console.error('Claude API processing failed, falling back to keyword matching:', error);
                 // Fall through to keyword matching below
             }
         }
@@ -356,6 +369,83 @@ class ChatManager {
             content: aiResponse.content,
             type: 'ai_response',
             usage: aiResponse.usage
+        };
+    }
+
+    /**
+     * Process message using Claude API (Anthropic)
+     */
+    async processWithClaude(message) {
+        const api = window.app?.api;
+        if (!api) {
+            throw new Error('API manager not available');
+        }
+
+        // Build context for Claude
+        const context = {
+            history: this.messageHistory.slice(-10).map(m => ({
+                role: m.sender === 'user' ? 'user' : 'assistant',
+                content: m.content
+            })),
+            tools: this.getAvailableTools(),
+            currentTime: new Date().toISOString()
+        };
+
+        // Call Claude
+        const aiResponse = await api.callClaude(message, context);
+
+        // Handle tool use
+        if (aiResponse.type === 'tool_use') {
+            return await this.handleClaudeToolUse(aiResponse);
+        }
+
+        // Regular message response
+        return {
+            content: aiResponse.content,
+            type: 'ai_response',
+            usage: aiResponse.usage
+        };
+    }
+
+    /**
+     * Handle Claude tool use responses
+     */
+    async handleClaudeToolUse(aiResponse) {
+        const { toolName, toolInput } = aiResponse;
+
+        let result = '';
+        let toolId = null;
+        let shouldOpenTool = false;
+
+        switch (toolName) {
+            case 'open_tool':
+                toolId = toolInput.toolId;
+                shouldOpenTool = true;
+                result = `Opening ${this.getToolName(toolId)}...`;
+                break;
+
+            case 'search_inventory':
+                result = `Searching for "${toolInput.query}"...`;
+                toolId = 'inventory';
+                shouldOpenTool = true;
+                break;
+
+            case 'check_crew_location':
+                result = `Finding crew near "${toolInput.query}"...`;
+                toolId = 'chessmap';
+                shouldOpenTool = true;
+                break;
+
+            default:
+                result = `Executing ${toolName}...`;
+        }
+
+        return {
+            content: result,
+            type: 'tool_use_result',
+            toolId,
+            shouldOpenTool,
+            toolName: this.getToolName(toolId)
         };
     }
 
