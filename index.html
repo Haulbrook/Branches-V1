@@ -12,20 +12,40 @@
             localStorage.setItem('theme', 'light');
         }
     </script>
+    <!-- Emergency fallback: Show app after 5 seconds even if JS fails -->
+    <style>
+        @keyframes showAppFallback {
+            to {
+                display: flex !important;
+                opacity: 1 !important;
+            }
+        }
+        /* Ensure loading screen hides after timeout */
+        .loading-screen {
+            animation: hideLoading 0.5s ease 4s forwards;
+        }
+        @keyframes hideLoading {
+            to {
+                opacity: 0;
+                visibility: hidden;
+                pointer-events: none;
+            }
+        }
+    </style>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌱</text></svg>">
     <!-- Ultra-Modern Redesign - Complete Visual Overhaul -->
-    <link rel="stylesheet" href="styles/ultra-modern-redesign.css?v=20251122">
-    <link rel="stylesheet" href="styles/main.css?v=20251122">
-    <link rel="stylesheet" href="styles/components.css?v=20251122">
+    <link rel="stylesheet" href="styles/ultra-modern-redesign.css?v=20251125">
+    <link rel="stylesheet" href="styles/main.css?v=20251125">
+    <link rel="stylesheet" href="styles/components.css?v=20251125">
     <!-- Supercharged Modern Design System -->
-    <link rel="stylesheet" href="styles/supercharged-modern.css?v=20251122">
-    <link rel="stylesheet" href="styles/dashboard-modern.css?v=20251122">
+    <link rel="stylesheet" href="styles/supercharged-modern.css?v=20251125">
+    <link rel="stylesheet" href="styles/dashboard-modern.css?v=20251125">
     <!-- Enhanced v2.0 Professional Components -->
-    <link rel="stylesheet" href="styles/enhanced-theme.css?v=20251122">
-    <link rel="stylesheet" href="styles/enhanced-components.css?v=20251122">
+    <link rel="stylesheet" href="styles/enhanced-theme.css?v=20251125">
+    <link rel="stylesheet" href="styles/enhanced-components.css?v=20251125">
     <!-- AI Skills Styles -->
-    <link rel="stylesheet" href="styles/wizard.css?v=20251122">
-    <link rel="stylesheet" href="styles/skills.css?v=20251122">
+    <link rel="stylesheet" href="styles/wizard.css?v=20251125">
+    <link rel="stylesheet" href="styles/skills.css?v=20251125">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -45,12 +65,12 @@
     </div>
 
     <!-- Ultra-Modern Application Container -->
-    <div id="app" class="app app-container-modern hidden">
+    <div id="app" class="app app-container-modern" style="display: flex !important; flex-direction: column !important; opacity: 1 !important; visibility: visible !important;">
         <!-- Animated Background Layer -->
         <div class="app-background"></div>
 
         <!-- Main Content Wrapper -->
-        <div class="app-content-wrapper">
+        <div class="app-content-wrapper" style="display: flex !important; flex-direction: column !important; opacity: 1 !important; visibility: visible !important;">
 
             <!-- Modern Top Navigation -->
             <nav class="top-nav-modern">
@@ -91,7 +111,7 @@
             </nav>
 
             <!-- Hero Section -->
-            <section class="hero-section" id="heroSection">
+            <section class="hero-section" id="heroSection" style="display: block !important; opacity: 1 !important; visibility: visible !important;">
                 <div class="hero-content">
                     <h1 class="hero-title">Operations Dashboard</h1>
                     <p class="hero-subtitle">Real-time insights for Deep Roots Landscape</p>
@@ -119,15 +139,15 @@
             </section>
 
             <!-- Main Content Area -->
-            <main class="main-content-modern">
+            <main class="main-content-modern" style="display: block !important; opacity: 1 !important; visibility: visible !important;">
                 <!-- Tools Section -->
-                <section id="toolsSection">
+                <section id="toolsSection" style="display: block !important; opacity: 1 !important; visibility: visible !important;">
                     <div class="section-header-modern">
                         <h2 class="section-title">Quick Access Tools</h2>
                         <p class="section-description">Manage inventory, schedule crews, and track equipment</p>
                     </div>
 
-                    <div class="card-grid-modern">
+                    <div class="card-grid-modern" style="display: grid !important; opacity: 1 !important; visibility: visible !important;">
                         <!-- Inventory Tool -->
                         <div class="card-modern" data-tool="inventory">
                             <div class="card-icon-modern">🌱</div>
@@ -337,8 +357,11 @@
                     </div>
                 </div>
             </div>
+        </main>
+    </div>
+    <!-- END of hidden dashboardView section -->
 
-            <!-- Chat Interface -->
+            <!-- Chat Interface (now outside hidden dashboardView) -->
             <div id="chatInterface" class="chat-interface hidden">
                 <div class="chat-container">
                     <div id="chatHistory" class="chat-history">
@@ -427,8 +450,6 @@
                     </div>
                 </div>
             </div>
-        </main>
-    </div>
 
     <!-- Modals -->
     <div id="settingsModal" class="modal hidden">
@@ -595,21 +616,21 @@
     <div id="toastContainer" class="toast-container"></div>
 
     <!-- Scripts -->
-    <script src="js/config.js?v=20251113"></script>
-    <script src="js/utils.js?v=20251113"></script>
-    <script src="js/api.js?v=20251113"></script>
-    <script src="js/ui.js?v=20251113"></script>
+    <script src="js/config.js?v=20251125"></script>
+    <script src="js/utils.js?v=20251125"></script>
+    <script src="js/api.js?v=20251125"></script>
+    <script src="js/ui.js?v=20251125"></script>
     <!-- AI Skills -->
-    <script src="js/setupWizard.js?v=20251113"></script>
-    <script src="js/deconstructionRebuildSkill.js?v=20251113"></script>
-    <script src="js/forwardThinkerSkill.js?v=20251113"></script>
+    <script src="js/setupWizard.js?v=20251125"></script>
+    <script src="js/deconstructionRebuildSkill.js?v=20251125"></script>
+    <script src="js/forwardThinkerSkill.js?v=20251125"></script>
     <!-- Apple Overseer -->
-    <script src="js/appleOverseer.js?v=20251113"></script>
+    <script src="js/appleOverseer.js?v=20251125"></script>
     <!-- Core Components -->
-    <script src="js/chat.js?v=20251113"></script>
-    <script src="js/tools.js?v=20251113"></script>
-    <script src="js/dashboard.js?v=20251113"></script>
-    <script src="js/main.js?v=20251113"></script>
+    <script src="js/chat.js?v=20251125"></script>
+    <script src="js/tools.js?v=20251125"></script>
+    <script src="js/dashboard.js?v=20251125"></script>
+    <script src="js/main.js?v=20251125"></script>
 
     <!-- Dashboard Toggle Script -->
     <script>

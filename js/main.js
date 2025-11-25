@@ -1035,13 +1035,24 @@ Recommendations: ${report.recommendations.length}
     showLoadingScreen(show) {
         const loading = document.getElementById('loadingScreen');
         const app = document.getElementById('app');
-        
+
         if (show) {
-            loading.style.display = 'flex';
-            app.classList.add('hidden');
+            if (loading) loading.style.display = 'flex';
+            // Don't hide app - let loading screen overlay it
         } else {
-            loading.style.display = 'none';
-            app.classList.remove('hidden');
+            // Hide loading screen and ensure app is visible
+            if (loading) {
+                loading.style.opacity = '0';
+                loading.style.pointerEvents = 'none';
+                setTimeout(() => {
+                    loading.style.display = 'none';
+                }, 500);
+            }
+            if (app) {
+                app.classList.remove('hidden');
+                app.style.opacity = '1';
+            }
+            console.log('✅ Loading screen hidden, app visible');
         }
     }
 

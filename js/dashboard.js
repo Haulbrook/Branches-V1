@@ -593,6 +593,8 @@ class ChartHelper {
             return segment;
         });
     }
+}
+
 // Initialize toast manager globally
 window.toastManager = new ToastManager();
 
