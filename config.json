@@ -59,6 +59,24 @@
       "url": "work-order-import.html",
       "color": "#009688",
       "keywords": ["work order", "import", "csv", "singleops", "jobs", "clients", "schedule"]
+    },
+    "logistics": {
+      "_comment": "Logistics Map - Job location mapping from imported work orders",
+      "name": "Logistics Map",
+      "description": "View job locations on map, navigate to sites, track all work orders geographically",
+      "icon": "🗺️",
+      "url": "logistics-map.html",
+      "color": "#3F51B5",
+      "keywords": ["map", "logistics", "location", "navigate", "address", "jobs", "directions", "gps"]
+    },
+    "progress": {
+      "_comment": "Progress Tracker - Track completion of work order line items",
+      "name": "Progress Tracker",
+      "description": "Track progress on work order line items, materials used, and crew completion status",
+      "icon": "📊",
+      "url": "progress-tracker.html",
+      "color": "#00BCD4",
+      "keywords": ["progress", "tracker", "completion", "status", "line items", "materials", "crew"]
     }
   },
   "ai": {

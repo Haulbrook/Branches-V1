@@ -1,0 +1,1018 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Progress Tracker - Deep Roots Landscape</title>
+    <!-- v1.0 - Job Progress Tracking from Work Orders -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --brand-primary: #2E7D32;
+            --brand-primary-dark: #1B5E20;
+            --brand-primary-light: #4CAF50;
+            --brand-accent: #FFA726;
+            --success: #66BB6A;
+            --warning: #FFA726;
+            --error: #EF5350;
+            --info: #42A5F5;
+            --gray-50: #FAFAFA;
+            --gray-100: #F5F5F5;
+            --gray-200: #EEEEEE;
+            --gray-300: #E0E0E0;
+            --gray-600: #757575;
+            --gray-800: #424242;
+            --gray-900: #212121;
+            --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.08);
+            --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.12);
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--gray-100);
+            min-height: 100vh;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, var(--brand-primary) 0%, var(--brand-primary-dark) 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .header h1 {
+            font-size: 1.5em;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .header-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .job-selector {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.9em;
+            font-family: inherit;
+            background: white;
+            min-width: 300px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.85em;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: inherit;
+        }
+
+        .btn-white {
+            background: white;
+            color: var(--brand-primary);
+        }
+
+        .btn-white:hover {
+            background: var(--gray-100);
+        }
+
+        /* Work Order Info Card */
+        .wo-info-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .wo-info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+        }
+
+        .wo-info-item {
+            text-align: center;
+        }
+
+        .wo-info-label {
+            font-size: 0.75em;
+            color: var(--gray-600);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+
+        .wo-info-value {
+            font-size: 1em;
+            font-weight: 600;
+            color: var(--gray-900);
+        }
+
+        .wo-info-value.highlight {
+            color: var(--brand-primary);
+            font-size: 1.2em;
+        }
+
+        /* Progress Overview */
+        .progress-overview {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .progress-overview h2 {
+            font-size: 1.1em;
+            color: var(--gray-800);
+            margin-bottom: 20px;
+        }
+
+        .progress-stats {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .progress-circle-container {
+            text-align: center;
+        }
+
+        .progress-circle {
+            width: 140px;
+            height: 140px;
+            position: relative;
+        }
+
+        .progress-circle svg {
+            transform: rotate(-90deg);
+        }
+
+        .progress-circle .bg {
+            fill: none;
+            stroke: var(--gray-200);
+            stroke-width: 10;
+        }
+
+        .progress-circle .progress {
+            fill: none;
+            stroke: var(--brand-primary);
+            stroke-width: 10;
+            stroke-linecap: round;
+            stroke-dasharray: 283;
+            stroke-dashoffset: 283;
+            transition: stroke-dashoffset 0.5s ease;
+        }
+
+        .progress-percentage {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 2em;
+            font-weight: 700;
+            color: var(--brand-primary);
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 15px 25px;
+            background: var(--gray-50);
+            border-radius: 8px;
+        }
+
+        .stat-number {
+            font-size: 2em;
+            font-weight: 700;
+        }
+
+        .stat-number.text-success { color: var(--success); }
+        .stat-number.text-warning { color: var(--warning); }
+        .stat-number.text-muted { color: var(--gray-600); }
+
+        .stat-label {
+            font-size: 0.8em;
+            color: var(--gray-600);
+            margin-top: 4px;
+        }
+
+        /* Line Items Matrix */
+        .matrix-section {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .matrix-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .matrix-header h2 {
+            font-size: 1.1em;
+            color: var(--gray-800);
+        }
+
+        .matrix-filters {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .filter-select {
+            padding: 8px 12px;
+            border: 1px solid var(--gray-300);
+            border-radius: 6px;
+            font-size: 0.85em;
+            font-family: inherit;
+        }
+
+        /* Table */
+        .matrix-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9em;
+        }
+
+        .matrix-table th {
+            background: var(--gray-100);
+            padding: 12px 10px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.8em;
+            color: var(--gray-600);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 2px solid var(--gray-200);
+        }
+
+        .matrix-table td {
+            padding: 12px 10px;
+            border-bottom: 1px solid var(--gray-200);
+            vertical-align: middle;
+        }
+
+        .matrix-table tr:hover {
+            background: var(--gray-50);
+        }
+
+        .matrix-table tr.status-completed {
+            background: rgba(102, 187, 106, 0.1);
+        }
+
+        .matrix-table tr.status-in-progress {
+            background: rgba(255, 167, 38, 0.1);
+        }
+
+        /* Item Description */
+        .item-description {
+            font-weight: 500;
+            color: var(--gray-900);
+        }
+
+        .item-details {
+            font-size: 0.85em;
+            color: var(--gray-600);
+            margin-top: 4px;
+        }
+
+        /* Progress Bar */
+        .progress-bar-container {
+            width: 100%;
+            height: 24px;
+            background: var(--gray-200);
+            border-radius: 12px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            border-radius: 12px;
+            transition: width 0.3s ease;
+            background: var(--brand-primary);
+        }
+
+        .progress-bar-fill.low { background: var(--error); }
+        .progress-bar-fill.medium { background: var(--warning); }
+        .progress-bar-fill.high { background: var(--success); }
+
+        .progress-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 0.75em;
+            font-weight: 600;
+            color: var(--gray-800);
+        }
+
+        /* Status Badge */
+        .status-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.75em;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-badge.not-started {
+            background: var(--gray-200);
+            color: var(--gray-600);
+        }
+
+        .status-badge.in-progress {
+            background: rgba(255, 167, 38, 0.2);
+            color: #E65100;
+        }
+
+        .status-badge.completed {
+            background: rgba(102, 187, 106, 0.2);
+            color: #2E7D32;
+        }
+
+        /* Action Buttons */
+        .action-btns {
+            display: flex;
+            gap: 5px;
+        }
+
+        .btn-sm {
+            padding: 6px 10px;
+            border: none;
+            border-radius: 4px;
+            font-size: 0.75em;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-update {
+            background: var(--brand-primary);
+            color: white;
+        }
+
+        .btn-update:hover {
+            background: var(--brand-primary-dark);
+        }
+
+        /* Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.visible {
+            display: flex;
+        }
+
+        .modal {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            max-width: 450px;
+            width: 90%;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .modal h3 {
+            font-size: 1.1em;
+            margin-bottom: 20px;
+            color: var(--gray-900);
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.85em;
+            color: var(--gray-600);
+            margin-bottom: 5px;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--gray-300);
+            border-radius: 6px;
+            font-size: 0.9em;
+            font-family: inherit;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--brand-primary);
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .modal-actions .btn {
+            flex: 1;
+        }
+
+        .btn-primary {
+            background: var(--brand-primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--brand-primary-dark);
+        }
+
+        .btn-secondary {
+            background: var(--gray-200);
+            color: var(--gray-800);
+        }
+
+        .btn-secondary:hover {
+            background: var(--gray-300);
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--gray-600);
+        }
+
+        .empty-state-icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+        }
+
+        .empty-state-text {
+            font-size: 1.1em;
+            margin-bottom: 8px;
+        }
+
+        .empty-state-subtext {
+            font-size: 0.9em;
+            opacity: 0.7;
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 12px 20px;
+            border-radius: 8px;
+            color: white;
+            font-size: 0.9em;
+            box-shadow: var(--shadow-lg);
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s ease;
+            z-index: 2000;
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .toast.success { background: var(--success); }
+        .toast.error { background: var(--error); }
+        .toast.info { background: var(--info); }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .matrix-table {
+                font-size: 0.8em;
+            }
+
+            .wo-info-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .progress-stats {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-top">
+                <h1>📊 Progress Tracker</h1>
+                <div class="header-controls">
+                    <select id="jobSelector" class="job-selector">
+                        <option value="">Select a work order...</option>
+                    </select>
+                    <button class="btn btn-white" onclick="refreshData()">🔄 Refresh</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Work Order Info -->
+        <div class="wo-info-card" id="woInfoCard" style="display: none;">
+            <div class="wo-info-grid">
+                <div class="wo-info-item">
+                    <div class="wo-info-label">Work Order</div>
+                    <div class="wo-info-value highlight" id="woNumber">--</div>
+                </div>
+                <div class="wo-info-item">
+                    <div class="wo-info-label">Job Name</div>
+                    <div class="wo-info-value" id="jobName">--</div>
+                </div>
+                <div class="wo-info-item">
+                    <div class="wo-info-label">Client</div>
+                    <div class="wo-info-value" id="clientName">--</div>
+                </div>
+                <div class="wo-info-item">
+                    <div class="wo-info-label">Category</div>
+                    <div class="wo-info-value" id="category">--</div>
+                </div>
+                <div class="wo-info-item">
+                    <div class="wo-info-label">Sales Rep</div>
+                    <div class="wo-info-value" id="salesRep">--</div>
+                </div>
+                <div class="wo-info-item">
+                    <div class="wo-info-label">Address</div>
+                    <div class="wo-info-value" id="address" style="font-size: 0.85em;">--</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Progress Overview -->
+        <div class="progress-overview" id="progressOverview" style="display: none;">
+            <h2>Overall Progress</h2>
+            <div class="progress-stats">
+                <div class="progress-circle-container">
+                    <div class="progress-circle">
+                        <svg viewBox="0 0 100 100">
+                            <circle class="bg" cx="50" cy="50" r="45"></circle>
+                            <circle class="progress" cx="50" cy="50" r="45" id="progressRing"></circle>
+                        </svg>
+                        <span class="progress-percentage" id="overallPercentage">0%</span>
+                    </div>
+                    <div class="stat-label">Complete</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number text-success" id="itemsComplete">0</div>
+                    <div class="stat-label">Completed</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number text-warning" id="itemsInProgress">0</div>
+                    <div class="stat-label">In Progress</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number text-muted" id="itemsNotStarted">0</div>
+                    <div class="stat-label">Not Started</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="totalItems">0</div>
+                    <div class="stat-label">Total Items</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Line Items Matrix -->
+        <div class="matrix-section">
+            <div class="matrix-header">
+                <h2>Line Items Progress</h2>
+                <div class="matrix-filters">
+                    <select class="filter-select" id="statusFilter" onchange="filterItems()">
+                        <option value="all">All Status</option>
+                        <option value="not-started">Not Started</option>
+                        <option value="in-progress">In Progress</option>
+                        <option value="completed">Completed</option>
+                    </select>
+                </div>
+            </div>
+
+            <div id="matrixContainer">
+                <div class="empty-state">
+                    <div class="empty-state-icon">📋</div>
+                    <div class="empty-state-text">Select a work order to view progress</div>
+                    <div class="empty-state-subtext">Use the dropdown above to choose a job</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Update Modal -->
+    <div class="modal-overlay" id="updateModal">
+        <div class="modal">
+            <h3>Update Progress</h3>
+            <div class="form-group">
+                <label>Item</label>
+                <input type="text" id="modalItemName" readonly>
+            </div>
+            <div class="form-group">
+                <label>Quantity Completed</label>
+                <input type="number" id="modalQuantity" min="0" step="0.5">
+            </div>
+            <div class="form-group">
+                <label>Status</label>
+                <select id="modalStatus">
+                    <option value="not-started">Not Started</option>
+                    <option value="in-progress">In Progress</option>
+                    <option value="completed">Completed</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Notes (optional)</label>
+                <textarea id="modalNotes" rows="3" placeholder="Add any notes..."></textarea>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="saveProgress()">Save Progress</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        // State
+        let workOrders = [];
+        let currentWorkOrder = null;
+        let progressData = {}; // Stores progress for each work order
+        let editingItemIndex = null;
+
+        // Initialize
+        function init() {
+            loadWorkOrders();
+            loadProgressData();
+            setupEventListeners();
+
+            // Check URL for work order parameter
+            const urlParams = new URLSearchParams(window.location.search);
+            const woId = urlParams.get('wo');
+            if (woId) {
+                document.getElementById('jobSelector').value = woId;
+                selectWorkOrder(woId);
+            }
+        }
+
+        // Load work orders from localStorage
+        function loadWorkOrders() {
+            try {
+                const stored = localStorage.getItem('workOrders');
+                workOrders = stored ? JSON.parse(stored) : [];
+                populateJobSelector();
+            } catch (error) {
+                console.error('Error loading work orders:', error);
+                showToast('Error loading work orders', 'error');
+            }
+        }
+
+        // Load progress data from localStorage
+        function loadProgressData() {
+            try {
+                const stored = localStorage.getItem('progressData');
+                progressData = stored ? JSON.parse(stored) : {};
+            } catch (error) {
+                console.error('Error loading progress data:', error);
+                progressData = {};
+            }
+        }
+
+        // Save progress data
+        function saveProgressData() {
+            localStorage.setItem('progressData', JSON.stringify(progressData));
+        }
+
+        // Populate job selector dropdown
+        function populateJobSelector() {
+            const selector = document.getElementById('jobSelector');
+            selector.innerHTML = '<option value="">Select a work order...</option>' +
+                workOrders.map(wo =>
+                    `<option value="${wo.woNumber}">WO# ${wo.woNumber} - ${wo.jobName} (${wo.client})</option>`
+                ).join('');
+        }
+
+        // Select work order
+        function selectWorkOrder(woNumber) {
+            currentWorkOrder = workOrders.find(wo => wo.woNumber === woNumber);
+
+            if (!currentWorkOrder) {
+                document.getElementById('woInfoCard').style.display = 'none';
+                document.getElementById('progressOverview').style.display = 'none';
+                document.getElementById('matrixContainer').innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📋</div>
+                        <div class="empty-state-text">Select a work order to view progress</div>
+                        <div class="empty-state-subtext">Use the dropdown above to choose a job</div>
+                    </div>
+                `;
+                return;
+            }
+
+            // Initialize progress data for this work order if not exists
+            if (!progressData[woNumber]) {
+                progressData[woNumber] = {
+                    items: currentWorkOrder.lineItems.map((item, index) => ({
+                        index,
+                        quantityCompleted: 0,
+                        status: 'not-started',
+                        notes: ''
+                    }))
+                };
+                saveProgressData();
+            }
+
+            // Update URL
+            const url = new URL(window.location);
+            url.searchParams.set('wo', woNumber);
+            window.history.pushState({}, '', url);
+
+            renderWorkOrderInfo();
+            renderProgressOverview();
+            renderMatrix();
+        }
+
+        // Render work order info
+        function renderWorkOrderInfo() {
+            document.getElementById('woInfoCard').style.display = 'block';
+            document.getElementById('woNumber').textContent = `#${currentWorkOrder.woNumber}`;
+            document.getElementById('jobName').textContent = currentWorkOrder.jobName;
+            document.getElementById('clientName').textContent = currentWorkOrder.client;
+            document.getElementById('category').textContent = currentWorkOrder.category || 'General';
+            document.getElementById('salesRep').textContent = currentWorkOrder.salesRep || 'Unassigned';
+            document.getElementById('address').textContent = currentWorkOrder.address || 'No address';
+        }
+
+        // Render progress overview
+        function renderProgressOverview() {
+            document.getElementById('progressOverview').style.display = 'block';
+
+            const progress = progressData[currentWorkOrder.woNumber];
+            const items = progress.items;
+
+            const completed = items.filter(i => i.status === 'completed').length;
+            const inProgress = items.filter(i => i.status === 'in-progress').length;
+            const notStarted = items.filter(i => i.status === 'not-started').length;
+            const total = items.length;
+            const percentage = total > 0 ? Math.round((completed / total) * 100) : 0;
+
+            // Update percentage display
+            document.getElementById('overallPercentage').textContent = `${percentage}%`;
+
+            // Update progress ring
+            const progressRing = document.getElementById('progressRing');
+            const circumference = 2 * Math.PI * 45;
+            const offset = circumference - (percentage / 100) * circumference;
+            progressRing.style.strokeDasharray = circumference;
+            progressRing.style.strokeDashoffset = offset;
+
+            // Update stat numbers
+            document.getElementById('itemsComplete').textContent = completed;
+            document.getElementById('itemsInProgress').textContent = inProgress;
+            document.getElementById('itemsNotStarted').textContent = notStarted;
+            document.getElementById('totalItems').textContent = total;
+        }
+
+        // Render line items matrix
+        function renderMatrix(filter = 'all') {
+            const container = document.getElementById('matrixContainer');
+            const progress = progressData[currentWorkOrder.woNumber];
+
+            if (!currentWorkOrder.lineItems || currentWorkOrder.lineItems.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📭</div>
+                        <div class="empty-state-text">No line items found</div>
+                        <div class="empty-state-subtext">This work order has no line items to track</div>
+                    </div>
+                `;
+                return;
+            }
+
+            // Combine line items with progress data
+            const itemsWithProgress = currentWorkOrder.lineItems.map((item, index) => ({
+                ...item,
+                index,
+                progress: progress.items[index] || { quantityCompleted: 0, status: 'not-started', notes: '' }
+            }));
+
+            // Filter items
+            let filteredItems = itemsWithProgress;
+            if (filter !== 'all') {
+                filteredItems = itemsWithProgress.filter(item => item.progress.status === filter);
+            }
+
+            if (filteredItems.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">🔍</div>
+                        <div class="empty-state-text">No matching items</div>
+                        <div class="empty-state-subtext">Try a different filter</div>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = `
+                <table class="matrix-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 50px">#</th>
+                            <th>Description</th>
+                            <th style="width: 180px">Progress</th>
+                            <th style="width: 80px">Qty</th>
+                            <th style="width: 120px">Status</th>
+                            <th style="width: 80px">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${filteredItems.map(item => {
+                            const ordered = item.quantity || 1;
+                            const completed = item.progress.quantityCompleted || 0;
+                            const pct = ordered > 0 ? Math.round((completed / ordered) * 100) : 0;
+                            const pctClass = pct < 33 ? 'low' : pct < 66 ? 'medium' : 'high';
+
+                            return `
+                                <tr class="status-${item.progress.status}">
+                                    <td><strong>${item.lineNumber || item.index + 1}</strong></td>
+                                    <td>
+                                        <div class="item-description">${item.itemName}</div>
+                                        ${item.description ? `<div class="item-details">${item.description.substring(0, 100)}${item.description.length > 100 ? '...' : ''}</div>` : ''}
+                                    </td>
+                                    <td>
+                                        <div class="progress-bar-container">
+                                            <div class="progress-bar-fill ${pctClass}" style="width: ${pct}%"></div>
+                                            <span class="progress-text">${completed}/${ordered}</span>
+                                        </div>
+                                    </td>
+                                    <td>${ordered}</td>
+                                    <td>
+                                        <span class="status-badge ${item.progress.status}">${formatStatus(item.progress.status)}</span>
+                                    </td>
+                                    <td>
+                                        <div class="action-btns">
+                                            <button class="btn-sm btn-update" onclick="openUpdateModal(${item.index})">Update</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            `;
+                        }).join('')}
+                    </tbody>
+                </table>
+            `;
+        }
+
+        // Format status for display
+        function formatStatus(status) {
+            return status.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+        }
+
+        // Filter items
+        function filterItems() {
+            const filter = document.getElementById('statusFilter').value;
+            renderMatrix(filter);
+        }
+
+        // Open update modal
+        function openUpdateModal(itemIndex) {
+            editingItemIndex = itemIndex;
+            const item = currentWorkOrder.lineItems[itemIndex];
+            const progress = progressData[currentWorkOrder.woNumber].items[itemIndex];
+
+            document.getElementById('modalItemName').value = item.itemName;
+            document.getElementById('modalQuantity').value = progress.quantityCompleted || 0;
+            document.getElementById('modalQuantity').max = item.quantity || 999;
+            document.getElementById('modalStatus').value = progress.status;
+            document.getElementById('modalNotes').value = progress.notes || '';
+
+            document.getElementById('updateModal').classList.add('visible');
+        }
+
+        // Close modal
+        function closeModal() {
+            document.getElementById('updateModal').classList.remove('visible');
+            editingItemIndex = null;
+        }
+
+        // Save progress
+        function saveProgress() {
+            if (editingItemIndex === null) return;
+
+            const quantity = parseFloat(document.getElementById('modalQuantity').value) || 0;
+            const status = document.getElementById('modalStatus').value;
+            const notes = document.getElementById('modalNotes').value;
+
+            const progress = progressData[currentWorkOrder.woNumber].items[editingItemIndex];
+            progress.quantityCompleted = quantity;
+            progress.status = status;
+            progress.notes = notes;
+            progress.lastUpdated = new Date().toISOString();
+
+            saveProgressData();
+            closeModal();
+            renderProgressOverview();
+            renderMatrix(document.getElementById('statusFilter').value);
+            showToast('Progress updated!', 'success');
+        }
+
+        // Refresh data
+        function refreshData() {
+            loadWorkOrders();
+            if (currentWorkOrder) {
+                selectWorkOrder(currentWorkOrder.woNumber);
+            }
+            showToast('Data refreshed', 'info');
+        }
+
+        // Setup event listeners
+        function setupEventListeners() {
+            // Job selector
+            document.getElementById('jobSelector').addEventListener('change', (e) => {
+                selectWorkOrder(e.target.value);
+            });
+
+            // Listen for work order updates
+            window.addEventListener('storage', (e) => {
+                if (e.key === 'workOrders') {
+                    loadWorkOrders();
+                    if (currentWorkOrder) {
+                        selectWorkOrder(currentWorkOrder.woNumber);
+                    }
+                }
+            });
+
+            // Close modal on overlay click
+            document.getElementById('updateModal').addEventListener('click', (e) => {
+                if (e.target.id === 'updateModal') {
+                    closeModal();
+                }
+            });
+        }
+
+        // Toast notification
+        function showToast(message, type = 'info') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = `toast ${type} show`;
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        // Initialize on load
+        init();
+    </script>
+</body>
+</html>
