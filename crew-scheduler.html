@@ -534,23 +534,57 @@
         // Application State
         let currentDate = new Date();
         let crews = [];
+        let workOrders = []; // Stored work orders from CSV import
         let resources = {
             crewMembers: ['John Smith', 'Mike Johnson', 'Sarah Williams', 'Tom Davis', 'Chris Brown', 'Alex Martinez'],
             trucks: ['Truck #1', 'Truck #2', 'Truck #3', 'Truck #4'],
             equipment: ['Excavator', 'Bobcat', 'Trailer', 'Wood Chipper'],
-            jobs: ['Johnson Residence', 'City Park Maintenance', 'Corporate Plaza', 'Greenfield Development'],
+            jobs: [], // Will be populated from work orders
             salesmen: ['Robert Kane', 'Jennifer Lee', 'David Park']
         };
 
         let draggedElement = null;
         let draggedData = null;
 
+        // Load work orders from localStorage (imported via Work Order Import tool)
+        function loadWorkOrders() {
+            try {
+                const stored = localStorage.getItem('workOrders');
+                workOrders = stored ? JSON.parse(stored) : [];
+
+                // Convert work orders to job display names for the scheduler
+                if (workOrders.length > 0) {
+                    resources.jobs = workOrders.map(wo => `WO#${wo.woNumber} - ${wo.jobName} (${wo.client})`);
+                    // Also extract unique salesmen from work orders
+                    const woSalesmen = [...new Set(workOrders.map(wo => wo.salesRep).filter(Boolean))];
+                    if (woSalesmen.length > 0) {
+                        resources.salesmen = woSalesmen;
+                    }
+                } else {
+                    // Fallback to default jobs if no work orders imported
+                    resources.jobs = ['No work orders imported - Use Work Order Import tool'];
+                }
+            } catch (error) {
+                console.error('Error loading work orders:', error);
+                resources.jobs = ['Error loading work orders'];
+            }
+        }
+
         // Initialize
         function init() {
+            loadWorkOrders();
             loadFromLocalStorage();
             updateDateDisplay();
             renderResources();
             renderCrews();
+
+            // Listen for work order updates from the import tool
+            window.addEventListener('storage', (e) => {
+                if (e.key === 'workOrders') {
+                    loadWorkOrders();
+                    renderResources();
+                }
+            });
         }
 
         // Date Management

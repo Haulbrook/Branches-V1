@@ -50,6 +50,15 @@
       "url": "https://dailychessmap.netlify.app/",
       "color": "#673AB7",
       "keywords": ["crew", "location", "map", "chess", "tracking", "coordinates", "proximity", "nearest", "closest", "team", "position", "where", "logistics", "transportation", "procurement", "emergency", "errand", "delivery", "route", "shipping"]
+    },
+    "workorders": {
+      "_comment": "Work Order Import - Import work orders from SingleOps CSV export",
+      "name": "Work Order Import",
+      "description": "Import and manage work orders from SingleOps CSV exports",
+      "icon": "📥",
+      "url": "work-order-import.html",
+      "color": "#009688",
+      "keywords": ["work order", "import", "csv", "singleops", "jobs", "clients", "schedule"]
     }
   },
   "ai": {
