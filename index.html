@@ -3,273 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Deep Roots Landscape Operations Dashboard - Unified access to all operational tools">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; style-src-elem 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://script.google.com https://script.googleusercontent.com https://api.anthropic.com https://api.openai.com; img-src 'self' data: https:; frame-src 'self' https://script.google.com https://script.googleusercontent.com https://dailychessmap.netlify.app;">
     <title>Deep Roots Operations Dashboard</title>
-    <!-- Force light mode as default -->
-    <script>
-        if (!localStorage.getItem('theme')) {
-            localStorage.setItem('theme', 'light');
-        }
-    </script>
-    <!-- Emergency fallback: Show app after 5 seconds even if JS fails -->
-    <style>
-        @keyframes showAppFallback {
-            to {
-                display: flex !important;
-                opacity: 1 !important;
-            }
-        }
-        /* Ensure loading screen hides after timeout */
-        .loading-screen {
-            animation: hideLoading 0.5s ease 4s forwards;
-        }
-        @keyframes hideLoading {
-            to {
-                opacity: 0;
-                visibility: hidden;
-                pointer-events: none;
-            }
-        }
-    </style>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌱</text></svg>">
-    <!-- Ultra-Modern Redesign - Complete Visual Overhaul -->
-    <link rel="stylesheet" href="styles/ultra-modern-redesign.css?v=20251125">
-    <link rel="stylesheet" href="styles/main.css?v=20251125">
-    <link rel="stylesheet" href="styles/components.css?v=20251125d">
-    <!-- Supercharged Modern Design System -->
-    <link rel="stylesheet" href="styles/supercharged-modern.css?v=20251125">
-    <link rel="stylesheet" href="styles/dashboard-modern.css?v=20251125">
-    <!-- Enhanced v2.0 Professional Components -->
-    <link rel="stylesheet" href="styles/enhanced-theme.css?v=20251125">
-    <link rel="stylesheet" href="styles/enhanced-components.css?v=20251125">
-    <!-- AI Skills Styles -->
-    <link rel="stylesheet" href="styles/wizard.css?v=20251125">
-    <link rel="stylesheet" href="styles/skills.css?v=20251125">
+    
+    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="styles/modern.css">
 </head>
-<body>
+<body data-theme="light">
+    
     <!-- Loading Screen -->
     <div id="loadingScreen" class="loading-screen">
         <div class="loading-content">
-            <div class="logo-animated">🌱</div>
-            <h2>Deep Roots Operations</h2>
-            <div class="loading-dots">
-                <span></span>
-                <span></span>
-                <span></span>
-            </div>
+            <div class="loading-logo">🌱</div>
+            <div class="loading-text">Deep Roots Operations</div>
+            <div class="loading-spinner"></div>
         </div>
     </div>
 
-    <!-- Ultra-Modern Application Container -->
-    <div id="app" class="app app-container-modern" style="display: flex !important; flex-direction: column !important; opacity: 1 !important; visibility: visible !important;">
-        <!-- Animated Background Layer -->
-        <div class="app-background"></div>
-
-        <!-- Main Content Wrapper -->
-        <div class="app-content-wrapper" style="display: flex !important; flex-direction: column !important; opacity: 1 !important; visibility: visible !important;">
-
-            <!-- Modern Top Navigation -->
-            <nav class="top-nav-modern">
-                <div class="top-nav-container">
-                    <!-- Brand Logo -->
-                    <div class="brand-modern" id="brandLogo">
-                        <span class="brand-icon">🌱</span>
-                        <span>Deep Roots</span>
-                    </div>
-
-                    <!-- Search / Command Palette Trigger -->
-                    <div class="search-trigger" id="commandTrigger">
-                        <span class="search-icon">🔍</span>
-                        <span class="search-placeholder">Search or jump to...</span>
-                        <span class="search-shortcut">
-                            <span>⌘K</span>
-                        </span>
-                    </div>
-
-                    <!-- Navigation Menu -->
-                    <div class="nav-menu-modern">
-                        <div class="nav-link-modern active" data-view="dashboard">
-                            Dashboard
-                        </div>
-                        <div class="nav-link-modern" data-view="tools">
-                            Tools
-                        </div>
-                        <div class="nav-link-modern" data-view="analytics">
-                            Analytics
-                        </div>
-                    </div>
-
-                    <!-- User Profile -->
-                    <div class="user-profile-modern" id="userProfileBtn">
-                        <div class="user-avatar-modern" id="userAvatarModern">👤</div>
-                    </div>
-                </div>
-            </nav>
-
-            <!-- Hero Section -->
-            <section class="hero-section" id="heroSection" style="display: block !important; opacity: 1 !important; visibility: visible !important;">
-                <div class="hero-content">
-                    <h1 class="hero-title">Operations Dashboard</h1>
-                    <p class="hero-subtitle">Real-time insights for Deep Roots Landscape</p>
-
-                    <!-- Hero Stats -->
-                    <div class="hero-stats">
-                        <div class="hero-stat">
-                            <div class="hero-stat-value" id="heroStat1">1,234</div>
-                            <div class="hero-stat-label">Total Inventory</div>
-                        </div>
-                        <div class="hero-stat">
-                            <div class="hero-stat-value" id="heroStat2">23</div>
-                            <div class="hero-stat-label">Active Projects</div>
-                        </div>
-                        <div class="hero-stat">
-                            <div class="hero-stat-value" id="heroStat3">12</div>
-                            <div class="hero-stat-label">Crew Members</div>
-                        </div>
-                        <div class="hero-stat">
-                            <div class="hero-stat-value" id="heroStat4">98%</div>
-                            <div class="hero-stat-label">Efficiency</div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Main Content Area -->
-            <main class="main-content-modern" style="display: block !important; opacity: 1 !important; visibility: visible !important;">
-                <!-- Tools Section -->
-                <section id="toolsSection" style="display: block !important; opacity: 1 !important; visibility: visible !important;">
-                    <div class="section-header-modern">
-                        <h2 class="section-title">Quick Access Tools</h2>
-                        <p class="section-description">Manage inventory, schedule crews, and track equipment</p>
-                    </div>
-
-                    <div class="card-grid-modern" style="display: grid !important; opacity: 1 !important; visibility: visible !important;">
-                        <!-- Inventory Tool -->
-                        <div class="card-modern" data-tool="inventory">
-                            <div class="card-icon-modern">🌱</div>
-                            <h3 class="card-title-modern">Inventory Management</h3>
-                            <p class="card-description-modern">
-                                Search, track, and manage your plant inventory with real-time updates and alerts.
-                            </p>
-                            <div class="card-action">
-                                <span>Open Tool</span>
-                                <span>→</span>
-                            </div>
-                        </div>
-
-                        <!-- Grading Tool -->
-                        <div class="card-modern" data-tool="grading">
-                            <div class="card-icon-modern">⭐</div>
-                            <h3 class="card-title-modern">Quality Assessment</h3>
-                            <p class="card-description-modern">
-                                Grade plants, assess quality, and make informed repair vs. replace decisions.
-                            </p>
-                            <div class="card-action">
-                                <span>Open Tool</span>
-                                <span>→</span>
-                            </div>
-                        </div>
-
-                        <!-- Scheduler Tool -->
-                        <div class="card-modern" data-tool="scheduler">
-                            <div class="card-icon-modern">📅</div>
-                            <h3 class="card-title-modern">Crew Scheduler</h3>
-                            <p class="card-description-modern">
-                                Schedule crews, manage tasks, and optimize daily operations efficiently.
-                            </p>
-                            <div class="card-action">
-                                <span>Open Tool</span>
-                                <span>→</span>
-                            </div>
-                        </div>
-
-                        <!-- Tool Checkout -->
-                        <div class="card-modern" data-tool="tools">
-                            <div class="card-icon-modern">🔧</div>
-                            <h3 class="card-title-modern">Hand Tool Checkout</h3>
-                            <p class="card-description-modern">
-                                Track hand tool rentals, checkouts, and returns with automated logging.
-                            </p>
-                            <div class="card-action">
-                                <span>Open Tool</span>
-                                <span>→</span>
-                            </div>
-                        </div>
-
-                        <!-- Chess Map -->
-                        <div class="card-modern" data-tool="chessmap">
-                            <div class="card-icon-modern">♟️</div>
-                            <h3 class="card-title-modern">Chess Map & Logistics</h3>
-                            <p class="card-description-modern">
-                                Track fleet locations, logistics, and movement with real-time mapping.
-                            </p>
-                            <div class="card-action">
-                                <span>Open Tool</span>
-                                <span>→</span>
-                            </div>
-                        </div>
-
-                        <!-- Work Order Import -->
-                        <div class="card-modern" data-tool="workorders">
-                            <div class="card-icon-modern">📥</div>
-                            <h3 class="card-title-modern">Work Order Import</h3>
-                            <p class="card-description-modern">
-                                Import work orders from SingleOps CSV exports to populate scheduler and map.
-                            </p>
-                            <div class="card-action">
-                                <span>Open Tool</span>
-                                <span>→</span>
-                            </div>
-                        </div>
-
-                        <!-- Logistics Map -->
-                        <div class="card-modern" data-tool="logistics">
-                            <div class="card-icon-modern">🗺️</div>
-                            <h3 class="card-title-modern">Logistics Map</h3>
-                            <p class="card-description-modern">
-                                View all job locations on map, get directions, and plan routes.
-                            </p>
-                            <div class="card-action">
-                                <span>Open Tool</span>
-                                <span>→</span>
-                            </div>
-                        </div>
-
-                        <!-- Progress Tracker -->
-                        <div class="card-modern" data-tool="progress">
-                            <div class="card-icon-modern">📊</div>
-                            <h3 class="card-title-modern">Progress Tracker</h3>
-                            <p class="card-description-modern">
-                                Track work order completion, materials used, and crew progress.
-                            </p>
-                            <div class="card-action">
-                                <span>Open Tool</span>
-                                <span>→</span>
-                            </div>
-                        </div>
-
-                        <!-- AI Assistant -->
-                        <div class="card-modern" data-tool="chat">
-                            <div class="card-icon-modern">💬</div>
-                            <h3 class="card-title-modern">AI Assistant</h3>
-                            <p class="card-description-modern">
-                                Ask questions, get insights, and interact with your operations data naturally.
-                            </p>
-                            <div class="card-action">
-                                <span>Open Tool</span>
-                                <span>→</span>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- Original Dashboard View (Hidden by default in new layout) -->
-                <div id="dashboardView" class="dashboard-view" style="display: none;">
-        <!-- Sidebar -->
+    <!-- Main App Container -->
+    <div id="app" class="app-container">
+        
+        <!-- Sidebar Navigation -->
         <aside id="sidebar" class="sidebar">
             <div class="sidebar-header">
                 <div class="logo">
@@ -278,737 +37,509 @@
                 </div>
                 <button id="sidebarToggle" class="sidebar-toggle" aria-label="Toggle sidebar">
                     <span></span>
-                    <span></span>
-                    <span></span>
                 </button>
             </div>
-
+            
             <nav class="sidebar-nav">
-                <div class="nav-section">
-                    <h3>Quick Actions</h3>
-                    <button id="dashboardBtn" class="nav-item active">
-                        <span class="nav-icon">📊</span>
-                        <span class="nav-text">Dashboard</span>
-                    </button>
-                    <button id="newChatBtn" class="nav-item">
-                        <span class="nav-icon">💬</span>
-                        <span class="nav-text">New Query</span>
-                    </button>
-                </div>
-
-                <div class="nav-section">
-                    <h3>Tools</h3>
-                    <button class="nav-item tool-item" data-tool="inventory">
-                        <span class="nav-icon">🌱</span>
-                        <span class="nav-text">Inventory</span>
-                        <span class="nav-badge">Clippings</span>
-                    </button>
-                    <button class="nav-item tool-item" data-tool="grading">
-                        <span class="nav-icon">🛠️</span>
-                        <span class="nav-text">Repair vs Replace</span>
-                        <span class="nav-badge">Analysis</span>
-                    </button>
-                    <button class="nav-item tool-item" data-tool="scheduler">
-                        <span class="nav-icon">📅</span>
-                        <span class="nav-text">Scheduler</span>
-                        <span class="nav-badge">Crew</span>
-                    </button>
-                    <button class="nav-item tool-item" data-tool="tools">
-                        <span class="nav-icon">🔧</span>
-                        <span class="nav-text">Hand Tool Checkout</span>
-                        <span class="nav-badge">Rental</span>
-                    </button>
-                    <button class="nav-item tool-item" data-tool="chessmap">
-                        <span class="nav-icon">♟️</span>
-                        <span class="nav-text">Chess Map & Logistics</span>
-                        <span class="nav-badge">Tracking</span>
-                    </button>
-                    <button class="nav-item tool-item" data-tool="workorders">
-                        <span class="nav-icon">📥</span>
-                        <span class="nav-text">Work Order Import</span>
-                        <span class="nav-badge">CSV</span>
-                    </button>
-                    <button class="nav-item tool-item" data-tool="logistics">
-                        <span class="nav-icon">🗺️</span>
-                        <span class="nav-text">Logistics Map</span>
-                        <span class="nav-badge">Jobs</span>
-                    </button>
-                    <button class="nav-item tool-item" data-tool="progress">
-                        <span class="nav-icon">📊</span>
-                        <span class="nav-text">Progress Tracker</span>
-                        <span class="nav-badge">Status</span>
-                    </button>
-                </div>
-
-                <div class="nav-section">
-                    <h3>Recent</h3>
-                    <div id="recentQueries" class="recent-queries">
-                        <!-- Recent queries will be populated dynamically -->
-                    </div>
-                </div>
+                <ul class="nav-list">
+                    <li>
+                        <button id="dashboardBtn" class="nav-item active" data-view="dashboard">
+                            <span class="nav-icon">📊</span>
+                            <span class="nav-text">Dashboard</span>
+                        </button>
+                    </li>
+                    <li>
+                        <button id="newChatBtn" class="nav-item" data-view="chat">
+                            <span class="nav-icon">💬</span>
+                            <span class="nav-text">Assistant</span>
+                        </button>
+                    </li>
+                    <li>
+                        <button id="analyticsBtn" class="nav-item" data-view="analytics">
+                            <span class="nav-icon">📈</span>
+                            <span class="nav-text">Analytics</span>
+                        </button>
+                    </li>
+                </ul>
+                
+                <div class="nav-divider"></div>
+                <div class="nav-section-title">Tools</div>
+                
+                <ul class="nav-list tools-list">
+                    <li>
+                        <button class="nav-item tool-item" data-tool="inventory">
+                            <span class="nav-icon">🌱</span>
+                            <span class="nav-text">Inventory</span>
+                        </button>
+                    </li>
+                    <li>
+                        <button class="nav-item tool-item" data-tool="grading">
+                            <span class="nav-icon">⭐</span>
+                            <span class="nav-text">Grade & Sell</span>
+                        </button>
+                    </li>
+                    <li>
+                        <button class="nav-item tool-item" data-tool="scheduler">
+                            <span class="nav-icon">📅</span>
+                            <span class="nav-text">Scheduler</span>
+                        </button>
+                    </li>
+                    <li>
+                        <button class="nav-item tool-item" data-tool="tools">
+                            <span class="nav-icon">🔧</span>
+                            <span class="nav-text">Tool Checkout</span>
+                        </button>
+                    </li>
+                    <li>
+                        <button class="nav-item tool-item" data-tool="chessmap">
+                            <span class="nav-icon">🗺️</span>
+                            <span class="nav-text">Logistics Map</span>
+                        </button>
+                    </li>
+                </ul>
             </nav>
-
+            
             <div class="sidebar-footer">
-                <div class="user-info">
-                    <div class="user-avatar" id="userAvatar">👤</div>
-                    <div class="user-details">
-                        <div class="user-name" id="userName">Loading...</div>
-                        <div class="user-email" id="userEmail">...</div>
-                    </div>
-                </div>
-                <button id="settingsBtn" class="settings-btn" aria-label="Settings">⚙️</button>
+                <button id="settingsBtn" class="nav-item">
+                    <span class="nav-icon">⚙️</span>
+                    <span class="nav-text">Settings</span>
+                </button>
             </div>
         </aside>
 
-        <!-- Main Content -->
+        <!-- Main Content Area -->
         <main class="main-content">
+            
             <!-- Header -->
-            <header class="main-header">
-                <button id="mobileMenuBtn" class="mobile-menu-btn">
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                </button>
-                <div class="header-title">
-                    <h1 id="pageTitle">Operations Dashboard</h1>
-                    <p id="pageSubtitle">What can I help you with today?</p>
-                </div>
-                <div class="header-actions">
-                    <button id="toolBackBtn" class="header-btn" style="display: none;" title="Back to Dashboard">← Back</button>
-                    <button id="toolRefreshBtn" class="header-btn" style="display: none;" title="Refresh">🔄</button>
-                    <button id="toolFullscreenBtn" class="header-btn" style="display: none;" title="Fullscreen">⛶</button>
-                    <button id="overseerBtn" class="header-btn overseer-btn" aria-label="Apple Overseer Status" title="Apple Overseer">
-                        <span class="overseer-icon">🍎</span>
-                        <span class="overseer-status-badge" id="overseerStatusBadge"></span>
+            <header class="header">
+                <div class="header-left">
+                    <button id="mobileMenuBtn" class="mobile-menu-btn" aria-label="Open menu">
+                        <span></span>
+                        <span></span>
+                        <span></span>
                     </button>
-                    <button id="helpBtn" class="header-btn" aria-label="Help">❓</button>
-                    <div class="status-indicator online" id="statusIndicator"></div>
+                    <div class="header-title">
+                        <h1 id="pageTitle">Operations Dashboard</h1>
+                        <p id="pageSubtitle">Overview of inventory, fleet, and recent activity</p>
+                    </div>
+                </div>
+                
+                <div class="header-right">
+                    <!-- Tool Action Buttons (hidden by default, shown when tool is open) -->
+                    <button id="headerBackBtn" class="header-btn" style="display: none;" title="Back to Dashboard">
+                        <span>←</span>
+                    </button>
+                    <button id="headerRefreshBtn" class="header-btn" style="display: none;" title="Refresh Tool">
+                        <span>🔄</span>
+                    </button>
+                    <button id="headerFullscreenBtn" class="header-btn" style="display: none;" title="Fullscreen">
+                        <span>⛶</span>
+                    </button>
+                    
+                    <!-- Notifications -->
+                    <button id="notificationsBtn" class="header-btn notifications-btn" title="Notifications">
+                        <span>🔔</span>
+                        <span id="notificationBadge" class="notification-badge" style="display: none;">0</span>
+                    </button>
+                    
+                    <!-- User Profile -->
+                    <div class="user-profile-wrapper">
+                        <button id="userProfileBtn" class="user-profile-btn">
+                            <span id="userAvatar" class="user-avatar">👤</span>
+                            <span id="userName" class="user-name">Loading...</span>
+                            <span class="dropdown-arrow">▼</span>
+                        </button>
+                        
+                        <!-- User Dropdown Menu -->
+                        <div id="userDropdown" class="user-dropdown hidden">
+                            <div class="dropdown-header">
+                                <span id="dropdownAvatar" class="dropdown-avatar">👤</span>
+                                <div class="dropdown-user-info">
+                                    <span id="dropdownName" class="dropdown-name">Loading...</span>
+                                    <span id="dropdownEmail" class="dropdown-email">Loading...</span>
+                                </div>
+                            </div>
+                            <div class="dropdown-divider"></div>
+                            <button id="dropdownSettings" class="dropdown-item">
+                                <span>⚙️</span> Settings
+                            </button>
+                            <button id="dropdownTheme" class="dropdown-item">
+                                <span>🌙</span> Toggle Theme
+                            </button>
+                            <button id="dropdownHelp" class="dropdown-item">
+                                <span>❓</span> Help
+                            </button>
+                            <div class="dropdown-divider"></div>
+                            <button id="dropdownLogout" class="dropdown-item logout">
+                                <span>🚪</span> Sign Out
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </header>
 
-            <!-- Dashboard View (OLD - Hidden, overlaps with new modern layout) -->
-            <div id="dashboardView" class="dashboard-view mesh-background" style="display: none;">
-                <!-- Metrics Grid -->
-                <div class="metrics-grid stagger-animation" id="metricsGrid">
-                    <!-- Metric cards will be populated dynamically by dashboard.js -->
-                </div>
-
-                <!-- Recent Activity Section -->
-                <div class="recent-activity-section">
-                    <div class="section-header">
-                        <h2>Recent Activity</h2>
-                        <p>Last 5 inventory and fleet changes</p>
-                    </div>
-                    <div class="activity-list" id="activityList">
-                        <!-- Activity items will be populated dynamically -->
-                        <div class="loading-skeleton">
-                            <div class="skeleton-item"></div>
-                            <div class="skeleton-item"></div>
-                            <div class="skeleton-item"></div>
-                            <div class="skeleton-item"></div>
-                            <div class="skeleton-item"></div>
+            <!-- Dashboard View -->
+            <div id="dashboardView" class="view active">
+                
+                <!-- Hero Stats Section -->
+                <section class="hero-stats">
+                    <div class="stat-card">
+                        <div class="stat-icon inventory">🌱</div>
+                        <div class="stat-content">
+                            <span class="stat-value" id="statInventoryCount">--</span>
+                            <span class="stat-label">Plant Varieties</span>
                         </div>
                     </div>
-                </div>
-            </div>
-        </main>
-    </div>
-    <!-- END of hidden dashboardView section -->
+                    <div class="stat-card">
+                        <div class="stat-icon fleet">🚛</div>
+                        <div class="stat-content">
+                            <span class="stat-value" id="statFleetCount">--</span>
+                            <span class="stat-label">Active Vehicles</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon jobs">📋</div>
+                        <div class="stat-content">
+                            <span class="stat-value" id="statJobsCount">--</span>
+                            <span class="stat-label">Jobs This Week</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon tools">🔧</div>
+                        <div class="stat-content">
+                            <span class="stat-value" id="statToolsOut">--</span>
+                            <span class="stat-label">Tools Checked Out</span>
+                        </div>
+                    </div>
+                </section>
 
-            <!-- Chat Interface (now outside hidden dashboardView) -->
-            <div id="chatInterface" class="chat-interface hidden">
+                <!-- Quick Actions / Tool Cards -->
+                <section class="tools-section">
+                    <h2 class="section-title">Quick Access</h2>
+                    <div class="tools-grid">
+                        <button class="tool-card" data-tool="inventory">
+                            <div class="tool-card-icon">🌱</div>
+                            <div class="tool-card-content">
+                                <h3>Inventory Management</h3>
+                                <p>Search plants, manage stock levels, track equipment</p>
+                            </div>
+                            <span class="tool-card-arrow">→</span>
+                        </button>
+                        
+                        <button class="tool-card" data-tool="grading">
+                            <div class="tool-card-icon">⭐</div>
+                            <div class="tool-card-content">
+                                <h3>Grade & Sell</h3>
+                                <p>Assess plant quality and pricing decisions</p>
+                            </div>
+                            <span class="tool-card-arrow">→</span>
+                        </button>
+                        
+                        <button class="tool-card" data-tool="scheduler">
+                            <div class="tool-card-icon">📅</div>
+                            <div class="tool-card-content">
+                                <h3>Crew Scheduler</h3>
+                                <p>Manage crews, assign jobs, track schedules</p>
+                            </div>
+                            <span class="tool-card-arrow">→</span>
+                        </button>
+                        
+                        <button class="tool-card" data-tool="tools">
+                            <div class="tool-card-icon">🔧</div>
+                            <div class="tool-card-content">
+                                <h3>Tool Checkout</h3>
+                                <p>Check in/out equipment, track tool usage</p>
+                            </div>
+                            <span class="tool-card-arrow">→</span>
+                        </button>
+                        
+                        <button class="tool-card" data-tool="chessmap">
+                            <div class="tool-card-icon">🗺️</div>
+                            <div class="tool-card-content">
+                                <h3>Logistics Map</h3>
+                                <p>View job locations, route planning</p>
+                            </div>
+                            <span class="tool-card-arrow">→</span>
+                        </button>
+                        
+                        <button class="tool-card chat-card" data-tool="chat">
+                            <div class="tool-card-icon">💬</div>
+                            <div class="tool-card-content">
+                                <h3>AI Assistant</h3>
+                                <p>Ask questions, get help with any task</p>
+                            </div>
+                            <span class="tool-card-arrow">→</span>
+                        </button>
+                    </div>
+                </section>
+
+                <!-- Recent Activity -->
+                <section class="activity-section">
+                    <h2 class="section-title">Recent Activity</h2>
+                    <div id="activityList" class="activity-list">
+                        <div class="activity-loading">Loading recent activity...</div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Chat Interface View -->
+            <div id="chatInterface" class="view hidden">
                 <div class="chat-container">
-                    <div id="chatHistory" class="chat-history">
-                        <!-- Welcome Message -->
-                        <div class="message assistant-message welcome-message">
-                            <div class="message-avatar">🌱</div>
-                            <div class="message-content">
-                                <h3>Welcome to Deep Roots Operations Dashboard</h3>
-                                <p>I can help you with:</p>
-                                <div class="quick-actions">
-                                    <button class="quick-action" data-query="Check inventory for boxwood">
-                                        <span class="action-icon">🌱</span>
-                                        <span class="action-text">Check Inventory</span>
-                                    </button>
-                                    <button class="quick-action" data-query="Grade this plant for quality">
-                                        <span class="action-icon">⭐</span>
-                                        <span class="action-text">Grade Plants</span>
-                                    </button>
-                                    <button class="quick-action" data-query="Schedule crew for tomorrow">
-                                        <span class="action-icon">📅</span>
-                                        <span class="action-text">Schedule Crew</span>
-                                    </button>
-                                    <button class="quick-action" data-query="Check out hand tools">
-                                        <span class="action-icon">🔧</span>
-                                        <span class="action-text">Checkout Tools</span>
-                                    </button>
-                                </div>
+                    <div id="chatMessages" class="chat-messages">
+                        <div class="chat-welcome">
+                            <div class="welcome-icon">🌱</div>
+                            <h2>How can I help you today?</h2>
+                            <p>Ask me about inventory, scheduling, tools, or anything else.</p>
+                            
+                            <div class="quick-actions">
+                                <button class="quick-action" data-query="What's our current inventory status?">
+                                    📦 Inventory Status
+                                </button>
+                                <button class="quick-action" data-query="Show me today's schedule">
+                                    📅 Today's Schedule
+                                </button>
+                                <button class="quick-action" data-query="Which tools are checked out?">
+                                    🔧 Tools Status
+                                </button>
+                                <button class="quick-action" data-query="Help me grade a plant">
+                                    ⭐ Grade Plant
+                                </button>
                             </div>
                         </div>
                     </div>
-
-                    <!-- Input Area -->
+                    
                     <div class="chat-input-container">
                         <div class="chat-input-wrapper">
                             <textarea 
                                 id="chatInput" 
                                 class="chat-input" 
-                                placeholder="Ask about inventory, grading, scheduling, or tool checkout..."
+                                placeholder="Ask me anything..."
                                 rows="1"
                             ></textarea>
-                            <div class="input-actions">
-                                <button id="attachBtn" class="input-btn" aria-label="Attach file">📎</button>
-                                <button id="sendBtn" class="input-btn send-btn" aria-label="Send message">
-                                    <svg viewBox="0 0 24 24" width="20" height="20">
-                                        <path fill="currentColor" d="M2,21L23,12L2,3V10L17,12L2,14V21Z"/>
-                                    </svg>
-                                </button>
+                            <button id="chatSendBtn" class="chat-send-btn" title="Send message">
+                                <span>➤</span>
+                            </button>
+                        </div>
+                        <div class="chat-input-hint">
+                            Press <kbd>Enter</kbd> to send, <kbd>Shift+Enter</kbd> for new line
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Analytics View -->
+            <div id="analyticsView" class="view hidden">
+                <div class="analytics-container">
+                    <div class="analytics-header">
+                        <h2>Analytics Dashboard</h2>
+                        <p>Performance metrics and insights</p>
+                    </div>
+                    
+                    <div class="analytics-grid">
+                        <div class="analytics-card">
+                            <h3>Inventory Trends</h3>
+                            <div id="inventoryChart" class="chart-placeholder">
+                                <span>📊</span>
+                                <p>Chart data loading...</p>
                             </div>
                         </div>
-                        <div class="input-footer">
-                            <span class="input-hint">Press Enter to send, Shift+Enter for new line</span>
-                            <div class="typing-indicator hidden" id="typingIndicator">
-                                <span>Assistant is thinking</span>
-                                <div class="typing-dots">
-                                    <span></span>
-                                    <span></span>
-                                    <span></span>
-                                </div>
+                        
+                        <div class="analytics-card">
+                            <h3>Job Completion Rate</h3>
+                            <div id="jobsChart" class="chart-placeholder">
+                                <span>📈</span>
+                                <p>Chart data loading...</p>
+                            </div>
+                        </div>
+                        
+                        <div class="analytics-card">
+                            <h3>Tool Utilization</h3>
+                            <div id="toolsChart" class="chart-placeholder">
+                                <span>🔧</span>
+                                <p>Chart data loading...</p>
+                            </div>
+                        </div>
+                        
+                        <div class="analytics-card">
+                            <h3>Crew Performance</h3>
+                            <div id="crewChart" class="chart-placeholder">
+                                <span>👥</span>
+                                <p>Chart data loading...</p>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Tool Iframe Container -->
-            <div id="toolContainer" class="tool-container hidden">
+            <!-- Tool Container (for iframe embeds) -->
+            <div id="toolContainer" class="view hidden">
                 <div class="tool-header">
                     <div class="tool-info">
-                        <span class="tool-icon" id="toolIcon">🌱</span>
+                        <span id="toolIcon" class="tool-icon">🔧</span>
                         <div class="tool-details">
                             <h2 id="toolTitle">Tool Name</h2>
                             <p id="toolDescription">Tool description</p>
                         </div>
                     </div>
                     <div class="tool-actions">
-                        <button id="toolBackBtn" class="tool-btn">← Back to Dashboard</button>
-                        <button id="toolRefreshBtn" class="tool-btn">🔄 Refresh</button>
-                        <button id="toolFullscreenBtn" class="tool-btn">⛶ Fullscreen</button>
+                        <button id="toolBackBtn" class="tool-action-btn" title="Back to Dashboard">
+                            ← Back
+                        </button>
+                        <button id="toolRefreshBtn" class="tool-action-btn" title="Refresh">
+                            🔄 Refresh
+                        </button>
+                        <button id="toolFullscreenBtn" class="tool-action-btn" title="Fullscreen">
+                            ⛶ Fullscreen
+                        </button>
                     </div>
                 </div>
-                <div class="tool-iframe-container">
-                    <iframe id="toolIframe" src="" frameborder="0"></iframe>
+                <div class="tool-content">
                     <div class="tool-loading">
                         <div class="loading-spinner"></div>
                         <p>Loading tool...</p>
                     </div>
+                    <iframe id="toolIframe" class="tool-iframe" src="about:blank"></iframe>
                 </div>
             </div>
 
-    <!-- Modals -->
+        </main>
+    </div>
+
+    <!-- Notifications Panel -->
+    <div id="notificationsPanel" class="notifications-panel hidden">
+        <div class="panel-header">
+            <h3>Notifications</h3>
+            <button id="closeNotifications" class="panel-close">×</button>
+        </div>
+        <div id="notificationsList" class="notifications-list">
+            <div class="notification-empty">No new notifications</div>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
     <div id="settingsModal" class="modal hidden">
+        <div class="modal-overlay"></div>
         <div class="modal-content">
             <div class="modal-header">
                 <h2>Settings</h2>
-                <button class="modal-close" aria-label="Close">×</button>
+                <button id="closeSettingsModal" class="modal-close">×</button>
             </div>
             <div class="modal-body">
-                <div class="setting-group">
-                    <h3>Tool Configuration</h3>
-                    <div class="setting-item">
-                        <label for="inventoryUrl">Inventory Tool URL:</label>
-                        <input type="url" id="inventoryUrl" placeholder="https://script.google.com/...">
-                    </div>
-                    <div class="setting-item">
-                        <label for="gradingUrl">Grading Tool URL:</label>
-                        <input type="url" id="gradingUrl" placeholder="https://script.google.com/...">
-                    </div>
-                    <div class="setting-item">
-                        <label for="schedulerUrl">Scheduler Tool URL:</label>
-                        <input type="url" id="schedulerUrl" placeholder="https://script.google.com/...">
-                    </div>
-                    <div class="setting-item">
-                        <label for="toolsUrl">Tools Checkout URL:</label>
-                        <input type="url" id="toolsUrl" placeholder="https://script.google.com/...">
-                    </div>
-                    <div class="setting-item">
-                        <label for="chessmapUrl">DRL Chess Map URL:</label>
-                        <input type="url" id="chessmapUrl" placeholder="https://dailychessmap.netlify.app/">
-                    </div>
-                </div>
-                <div class="setting-group">
+                <div class="settings-section">
                     <h3>Appearance</h3>
                     <div class="setting-item">
-                        <label for="darkMode">Dark Mode:</label>
-                        <input type="checkbox" id="darkMode">
+                        <label for="darkMode">Dark Mode</label>
+                        <input type="checkbox" id="darkMode" class="toggle-switch">
                     </div>
                 </div>
-                <div class="setting-group">
+                
+                <div class="settings-section">
                     <h3>AI Configuration</h3>
                     <div class="setting-item">
-                        <label for="claudeApiKey">🟠 Claude API Key (Recommended):</label>
-                        <input type="password" id="claudeApiKey" placeholder="sk-ant-...">
-                        <p style="font-size: 12px; color: var(--text-secondary, #666); margin-top: 5px;">
-                            Enable intelligent AI chat with Claude. Get your key at <a href="https://console.anthropic.com/settings/keys" target="_blank">console.anthropic.com/settings/keys</a>
-                        </p>
+                        <label for="claudeApiKey">Claude API Key</label>
+                        <div class="password-input-wrapper">
+                            <input type="password" id="claudeApiKey" class="setting-input" placeholder="sk-ant-...">
+                            <button type="button" class="toggle-password" data-target="claudeApiKey">👁️</button>
+                        </div>
                     </div>
                     <div class="setting-item">
-                        <label for="openaiApiKey">🤖 OpenAI API Key (Alternative):</label>
-                        <input type="password" id="openaiApiKey" placeholder="sk-...">
-                        <p style="font-size: 12px; color: var(--text-secondary, #666); margin-top: 5px;">
-                            Alternative AI provider. Get your key at <a href="https://platform.openai.com/api-keys" target="_blank">platform.openai.com/api-keys</a>
-                        </p>
+                        <label for="openaiApiKey">OpenAI API Key (optional)</label>
+                        <div class="password-input-wrapper">
+                            <input type="password" id="openaiApiKey" class="setting-input" placeholder="sk-...">
+                            <button type="button" class="toggle-password" data-target="openaiApiKey">👁️</button>
+                        </div>
                     </div>
                 </div>
-                <div class="setting-group">
-                    <h3>AI Skills Configuration</h3>
+                
+                <div class="settings-section">
+                    <h3>AI Skills</h3>
                     <div class="setting-item">
-                        <label>Setup Wizard:</label>
-                        <button class="btn btn-secondary" id="runSetupWizard" style="width: auto; margin-top: 5px;">
-                            🧙‍♂️ Run Setup Wizard
-                        </button>
-                        <p style="font-size: 12px; color: var(--text-secondary, #666); margin-top: 5px;">
-                            Configure external connections, AI skills, and API integrations
-                        </p>
+                        <label for="enableAppleOverseer">Apple Overseer (Quality Control)</label>
+                        <input type="checkbox" id="enableAppleOverseer" class="toggle-switch" checked>
                     </div>
                     <div class="setting-item">
-                        <label for="enableAppleOverseer">🍎 Enable Apple Overseer:</label>
-                        <input type="checkbox" id="enableAppleOverseer" checked>
-                        <p style="font-size: 12px; color: var(--text-secondary, #666); margin-top: 5px;">
-                            Oversees operations, coordinates tools, and provides quality control
-                        </p>
+                        <label for="enableDeconstructionSkill">Complex Query Analysis</label>
+                        <input type="checkbox" id="enableDeconstructionSkill" class="toggle-switch" checked>
                     </div>
                     <div class="setting-item">
-                        <label for="enableDeconstructionSkill">Enable Complex Query Analysis:</label>
-                        <input type="checkbox" id="enableDeconstructionSkill">
+                        <label for="enableForwardThinkerSkill">Predictive Suggestions</label>
+                        <input type="checkbox" id="enableForwardThinkerSkill" class="toggle-switch" checked>
+                    </div>
+                </div>
+                
+                <div class="settings-section">
+                    <h3>Tool URLs</h3>
+                    <div class="setting-item">
+                        <label for="inventoryUrl">Inventory Management URL</label>
+                        <input type="url" id="inventoryUrl" class="setting-input" placeholder="https://script.google.com/...">
                     </div>
                     <div class="setting-item">
-                        <label for="enableForwardThinkerSkill">Enable Predictive Suggestions:</label>
-                        <input type="checkbox" id="enableForwardThinkerSkill">
+                        <label for="gradingUrl">Grade & Sell URL</label>
+                        <input type="url" id="gradingUrl" class="setting-input" placeholder="https://script.google.com/...">
                     </div>
+                    <div class="setting-item">
+                        <label for="schedulerUrl">Scheduler URL</label>
+                        <input type="url" id="schedulerUrl" class="setting-input" placeholder="https://script.google.com/...">
+                    </div>
+                    <div class="setting-item">
+                        <label for="toolsUrl">Tool Checkout URL</label>
+                        <input type="url" id="toolsUrl" class="setting-input" placeholder="https://script.google.com/...">
+                    </div>
+                    <div class="setting-item">
+                        <label for="chessmapUrl">Logistics Map URL</label>
+                        <input type="url" id="chessmapUrl" class="setting-input" placeholder="https://script.google.com/...">
+                    </div>
+                </div>
+                
+                <div class="settings-section">
+                    <h3>Advanced</h3>
+                    <button id="runSetupWizard" class="btn btn-secondary">
+                        🧙‍♂️ Run Setup Wizard
+                    </button>
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-secondary" id="cancelSettings">Cancel</button>
-                <button class="btn btn-primary" id="saveSettings">Save Settings</button>
+                <button id="cancelSettings" class="btn btn-secondary">Cancel</button>
+                <button id="saveSettings" class="btn btn-primary">Save Settings</button>
             </div>
         </div>
     </div>
 
-    <!-- Apple Overseer Panel -->
-    <div id="overseerPanel" class="overseer-panel hidden">
-        <div class="overseer-panel-header">
-            <div class="overseer-panel-title">
-                <span class="overseer-icon">🍎</span>
-                <h3>Apple Overseer</h3>
-                <span class="overseer-health-badge" id="overseerHealthBadge">Healthy</span>
+    <!-- Help Modal -->
+    <div id="helpModal" class="modal hidden">
+        <div class="modal-overlay"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Help & Keyboard Shortcuts</h2>
+                <button id="closeHelpModal" class="modal-close">×</button>
             </div>
-            <button class="overseer-panel-close" id="overseerPanelClose" aria-label="Close">×</button>
-        </div>
-
-        <div class="overseer-panel-body">
-            <!-- Status Summary -->
-            <div class="overseer-section">
-                <h4>System Status</h4>
-                <div class="overseer-stats">
-                    <div class="overseer-stat">
-                        <span class="stat-label">Active Operations</span>
-                        <span class="stat-value" id="overseerActiveOps">0</span>
-                    </div>
-                    <div class="overseer-stat">
-                        <span class="stat-label">Active Tools</span>
-                        <span class="stat-value" id="overseerActiveTools">0</span>
-                    </div>
-                    <div class="overseer-stat">
-                        <span class="stat-label">Success Rate</span>
-                        <span class="stat-value" id="overseerSuccessRate">100%</span>
-                    </div>
+            <div class="modal-body">
+                <div class="help-section">
+                    <h3>Keyboard Shortcuts</h3>
+                    <ul class="shortcuts-list">
+                        <li><kbd>Ctrl</kbd> + <kbd>/</kbd> — Focus chat input</li>
+                        <li><kbd>Ctrl</kbd> + <kbd>K</kbd> — Command palette</li>
+                        <li><kbd>Escape</kbd> — Close modals / Go back</li>
+                        <li><kbd>1</kbd>-<kbd>5</kbd> — Quick switch tools (when not in chat)</li>
+                    </ul>
+                </div>
+                <div class="help-section">
+                    <h3>Getting Started</h3>
+                    <p>Configure your tool URLs in Settings to connect to your Google Apps Script tools.</p>
                 </div>
             </div>
-
-            <!-- Active Operations -->
-            <div class="overseer-section">
-                <h4>Active Operations</h4>
-                <div class="overseer-operations-list" id="overseerOperationsList">
-                    <p class="overseer-empty">No active operations</p>
-                </div>
-            </div>
-
-            <!-- Alerts -->
-            <div class="overseer-section" id="overseerAlertsSection">
-                <h4>Alerts</h4>
-                <div class="overseer-alerts-list" id="overseerAlertsList">
-                    <p class="overseer-empty">No alerts</p>
-                </div>
-            </div>
-
-            <!-- Recommendations -->
-            <div class="overseer-section" id="overseerRecommendationsSection">
-                <h4>Recommendations</h4>
-                <div class="overseer-recommendations-list" id="overseerRecommendationsList">
-                    <p class="overseer-empty">No recommendations</p>
-                </div>
-            </div>
-
-            <!-- Recent History -->
-            <div class="overseer-section">
-                <h4>Recent Operations</h4>
-                <div class="overseer-history-list" id="overseerHistoryList">
-                    <p class="overseer-empty">No recent operations</p>
-                </div>
-            </div>
-        </div>
-
-        <div class="overseer-panel-footer">
-            <button class="btn btn-secondary" id="overseerRefreshBtn">🔄 Refresh</button>
-            <button class="btn btn-secondary" id="overseerReportBtn">📊 Generate Report</button>
-            <button class="btn btn-secondary" id="overseerClearHistoryBtn">🗑️ Clear History</button>
         </div>
     </div>
 
-    <!-- Toast Notification Container -->
+    <!-- Toast Container -->
     <div id="toastContainer" class="toast-container"></div>
 
     <!-- Scripts -->
-    <script src="js/config.js?v=20251125"></script>
-    <script src="js/utils.js?v=20251125"></script>
-    <script src="js/api.js?v=20251125"></script>
-    <script src="js/ui.js?v=20251125"></script>
-    <!-- AI Skills -->
-    <script src="js/setupWizard.js?v=20251125"></script>
-    <script src="js/deconstructionRebuildSkill.js?v=20251125"></script>
-    <script src="js/forwardThinkerSkill.js?v=20251125"></script>
-    <!-- Apple Overseer -->
-    <script src="js/appleOverseer.js?v=20251125"></script>
-    <!-- Core Components -->
-    <script src="js/chat.js?v=20251125"></script>
-    <script src="js/tools.js?v=20251125"></script>
-    <script src="js/dashboard.js?v=20251125"></script>
-    <script src="js/main.js?v=20251125"></script>
-
-    <!-- Dashboard Toggle Script -->
-    <script>
-        // Initialize dashboard when DOM is ready
-        document.addEventListener('DOMContentLoaded', () => {
-            const dashboardBtn = document.getElementById('dashboardBtn');
-            const newChatBtn = document.getElementById('newChatBtn');
-            const dashboardMetrics = document.getElementById('dashboardMetrics');
-            const chatInterface = document.getElementById('chatInterface');
-            const pageTitle = document.getElementById('pageTitle');
-            const pageSubtitle = document.getElementById('pageSubtitle');
-
-            if (dashboardBtn && dashboardMetrics) {
-                // Initialize dashboard manager
-                if (window.DashboardManager) {
-                    window.dashboardManager = new DashboardManager();
-                    window.dashboardManager.init().catch(err => {
-                        console.error('Dashboard initialization error:', err);
-                    });
-                }
-
-                // Toggle to dashboard view
-                dashboardBtn.addEventListener('click', () => {
-                    dashboardMetrics.style.display = 'block';
-                    chatInterface.style.display = 'none';
-                    dashboardBtn.classList.add('active');
-                    newChatBtn.classList.remove('active');
-                    pageTitle.textContent = 'Dashboard Overview';
-                    pageSubtitle.textContent = 'Real-time metrics and analytics';
-
-                    // Refresh metrics
-                    if (window.dashboardManager) {
-                        window.dashboardManager.loadMetrics();
-                    }
-                });
-
-                // Toggle to chat view
-                newChatBtn.addEventListener('click', () => {
-                    dashboardMetrics.style.display = 'none';
-                    chatInterface.style.display = 'flex';
-                    dashboardBtn.classList.remove('active');
-                    newChatBtn.classList.add('active');
-                    pageTitle.textContent = 'Operations Dashboard';
-                    pageSubtitle.textContent = 'What can I help you with today?';
-                });
-            }
-
-            // Initialize toast manager globally
-            if (window.ToastManager) {
-                window.toastManager = new ToastManager();
-            }
-        });
-    </script>
-
-            </main>
-        </div>
-    </div>
-
-    <!-- Command Palette -->
-    <div class="command-palette" id="commandPalette">
-        <div class="command-container">
-            <div class="command-input-wrapper">
-                <span style="font-size: 1.25rem;">🔍</span>
-                <input
-                    type="text"
-                    class="command-input"
-                    id="commandInput"
-                    placeholder="Search tools, navigate, or run commands..."
-                    autocomplete="off"
-                />
-            </div>
-            <div class="command-results" id="commandResults">
-                <div class="command-item" data-action="inventory">
-                    <div class="command-item-icon">🌱</div>
-                    <div class="command-item-content">
-                        <div class="command-item-title">Inventory Management</div>
-                        <div class="command-item-description">Search and manage plant inventory</div>
-                    </div>
-                </div>
-                <div class="command-item" data-action="grading">
-                    <div class="command-item-icon">⭐</div>
-                    <div class="command-item-content">
-                        <div class="command-item-title">Quality Assessment</div>
-                        <div class="command-item-description">Grade plants and assess quality</div>
-                    </div>
-                </div>
-                <div class="command-item" data-action="scheduler">
-                    <div class="command-item-icon">📅</div>
-                    <div class="command-item-content">
-                        <div class="command-item-title">Crew Scheduler</div>
-                        <div class="command-item-description">Schedule crews and manage tasks</div>
-                    </div>
-                </div>
-                <div class="command-item" data-action="tools">
-                    <div class="command-item-icon">🔧</div>
-                    <div class="command-item-content">
-                        <div class="command-item-title">Hand Tool Checkout</div>
-                        <div class="command-item-description">Track tool rentals and checkouts</div>
-                    </div>
-                </div>
-                <div class="command-item" data-action="chessmap">
-                    <div class="command-item-icon">♟️</div>
-                    <div class="command-item-content">
-                        <div class="command-item-title">Chess Map</div>
-                        <div class="command-item-description">Track fleet and logistics</div>
-                    </div>
-                </div>
-                <div class="command-item" data-action="workorders">
-                    <div class="command-item-icon">📥</div>
-                    <div class="command-item-content">
-                        <div class="command-item-title">Work Order Import</div>
-                        <div class="command-item-description">Import jobs from SingleOps CSV</div>
-                    </div>
-                </div>
-                <div class="command-item" data-action="logistics">
-                    <div class="command-item-icon">🗺️</div>
-                    <div class="command-item-content">
-                        <div class="command-item-title">Logistics Map</div>
-                        <div class="command-item-description">View job locations and navigate</div>
-                    </div>
-                </div>
-                <div class="command-item" data-action="progress">
-                    <div class="command-item-icon">📊</div>
-                    <div class="command-item-content">
-                        <div class="command-item-title">Progress Tracker</div>
-                        <div class="command-item-description">Track work order completion status</div>
-                    </div>
-                </div>
-                <div class="command-item" data-action="chat">
-                    <div class="command-item-icon">💬</div>
-                    <div class="command-item-content">
-                        <div class="command-item-title">AI Assistant</div>
-                        <div class="command-item-description">Chat with AI for insights</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Floating Action Button -->
-    <div class="fab-container">
-        <button class="fab" id="fabButton" aria-label="New Action">
-            ✨
-        </button>
-    </div>
-
-    <!-- Bottom Quick Access Bar -->
-    <div class="bottom-bar" id="bottomBar">
-        <div class="bottom-bar-item active" data-action="dashboard" title="Dashboard">
-            📊
-        </div>
-        <div class="bottom-bar-item" data-action="tools" title="Tools">
-            🛠️
-        </div>
-        <div class="bottom-bar-item" data-action="search" title="Search">
-            🔍
-        </div>
-        <div class="bottom-bar-item" data-action="notifications" title="Notifications">
-            🔔
-        </div>
-        <div class="bottom-bar-item" data-action="profile" title="Profile">
-            👤
-        </div>
-    </div>
-
-    <!-- Service Worker Registration -->
-    <!-- Only register service worker for static hosting (not in iframes or Google Apps Script) -->
-    <script>
-        if ('serviceWorker' in navigator && window.self === window.top) {
-            // Only register if we're the top-level window (not in an iframe)
-            navigator.serviceWorker.register('sw.js')
-                .then(reg => console.log('Service Worker registered:', reg))
-                .catch(err => console.log('Service Worker registration failed:', err));
-        }
-    </script>
-
-    <!-- Ultra-Modern UI Interactions Script -->
-    <script>
-        // Wait for app to be ready
-        function initModernUI() {
-            // Command Palette
-            const commandPalette = document.getElementById('commandPalette');
-            const commandTrigger = document.getElementById('commandTrigger');
-            const commandInput = document.getElementById('commandInput');
-
-            // Open command palette
-            function openCommandPalette() {
-                commandPalette.classList.add('active');
-                setTimeout(() => commandInput.focus(), 100);
-            }
-
-            // Close command palette
-            function closeCommandPalette() {
-                commandPalette.classList.remove('active');
-                commandInput.value = '';
-            }
-
-            // Command trigger click
-            commandTrigger?.addEventListener('click', openCommandPalette);
-
-            // Keyboard shortcut (Cmd/Ctrl + K)
-            document.addEventListener('keydown', (e) => {
-                if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
-                    e.preventDefault();
-                    openCommandPalette();
-                }
-                if (e.key === 'Escape' && commandPalette.classList.contains('active')) {
-                    closeCommandPalette();
-                }
-            });
-
-            // Close on backdrop click
-            commandPalette?.addEventListener('click', (e) => {
-                if (e.target === commandPalette) {
-                    closeCommandPalette();
-                }
-            });
-
-            // Command item clicks
-            document.querySelectorAll('.command-item').forEach(item => {
-                item.addEventListener('click', () => {
-                    const action = item.dataset.action;
-                    console.log('Command action:', action);
-                    closeCommandPalette();
-
-                    // Use the app's openTool method
-                    if (window.app && action === 'chat') {
-                        // Open chat interface
-                        const newChatBtn = document.getElementById('newChatBtn');
-                        if (newChatBtn) newChatBtn.click();
-                    } else if (window.app && window.app.openTool) {
-                        window.app.openTool(action);
-                    } else {
-                        console.error('App not ready or openTool method not available');
-                    }
-                });
-            });
-
-            // Tool card clicks - now handled by main.js
-            // (Removed duplicate listeners - main.js handles .card-modern elements)
-
-            // FAB button
-            const fabButton = document.getElementById('fabButton');
-            fabButton?.addEventListener('click', () => {
-                openCommandPalette();
-            });
-
-            // Bottom bar navigation
-            document.querySelectorAll('.bottom-bar-item').forEach(item => {
-                item.addEventListener('click', function() {
-                    document.querySelectorAll('.bottom-bar-item').forEach(i => i.classList.remove('active'));
-                    this.classList.add('active');
-
-                    const action = this.dataset.action;
-                    console.log('Bottom bar action:', action);
-
-                    if (action === 'search') {
-                        openCommandPalette();
-                    } else if (action === 'dashboard') {
-                        // Hide all views
-                        document.getElementById('toolContainer')?.classList.add('hidden');
-                        document.getElementById('chatInterface')?.classList.add('hidden');
-
-                        // Show hero and tools section
-                        const heroSection = document.getElementById('heroSection');
-                        const toolsSection = document.getElementById('toolsSection');
-                        if (heroSection) heroSection.style.display = 'block';
-                        if (toolsSection) toolsSection.style.display = 'block';
-
-                        // Hide tool header buttons
-                        document.getElementById('toolBackBtn').style.display = 'none';
-                        document.getElementById('toolRefreshBtn').style.display = 'none';
-                        document.getElementById('toolFullscreenBtn').style.display = 'none';
-                    } else if (action === 'tools') {
-                        // Scroll to tools section
-                        document.getElementById('toolsSection')?.scrollIntoView({ behavior: 'smooth' });
-                    } else if (action === 'profile') {
-                        // Open settings
-                        const settingsBtn = document.getElementById('settingsBtn');
-                        if (settingsBtn) settingsBtn.click();
-                    }
-                });
-            });
-
-            // Navigation menu
-            document.querySelectorAll('.nav-link-modern').forEach(link => {
-                link.addEventListener('click', function() {
-                    document.querySelectorAll('.nav-link-modern').forEach(l => l.classList.remove('active'));
-                    this.classList.add('active');
-
-                    const view = this.dataset.view;
-                    console.log('Nav to:', view);
-
-                    if (view === 'dashboard') {
-                        // Show dashboard
-                        document.getElementById('toolContainer')?.classList.add('hidden');
-                        document.getElementById('chatInterface')?.classList.add('hidden');
-                        document.getElementById('heroSection').style.display = 'block';
-                        document.getElementById('toolsSection').style.display = 'block';
-                    } else if (view === 'tools') {
-                        // Scroll to tools
-                        document.getElementById('toolsSection')?.scrollIntoView({ behavior: 'smooth' });
-                    }
-                });
-            });
-
-            console.log('✅ Modern UI initialized');
-        }
-
-        // Initialize after a short delay to ensure app is ready
-        setTimeout(initModernUI, 500);
-
-        // Hide loading screen
-        setTimeout(() => {
-            const loadingScreen = document.getElementById('loadingScreen');
-            const app = document.getElementById('app');
-            if (loadingScreen && app) {
-                loadingScreen.style.opacity = '0';
-                setTimeout(() => {
-                    loadingScreen.style.display = 'none';
-                    app.classList.remove('hidden');
-                }, 300);
-            }
-        }, 1000);
-    </script>
+    <script src="js/api.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/chat.js"></script>
+    <script src="js/tools.js"></script>
+    <script src="js/dashboard.js"></script>
+    <script src="js/app.js"></script>
 </body>
 </html>
