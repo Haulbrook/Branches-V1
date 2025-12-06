@@ -14,41 +14,42 @@ class DashboardApp {
     }
 
     async init() {
-        console.log('🚀 Initializing Dashboard App...');
+        debugLog('🚀 Initializing Dashboard App...');
         try {
             this.showLoadingScreen(true);
 
-            console.log('📋 Loading configuration...');
+            debugLog('📋 Loading configuration...');
             await this.loadConfiguration();
-            console.log('✅ Configuration loaded');
+            debugLog('✅ Configuration loaded');
 
-            console.log('👤 Initializing user...');
+            debugLog('👤 Initializing user...');
             await this.initializeUser();
-            console.log('✅ User initialized');
+            debugLog('✅ User initialized');
 
-            console.log('🔧 Setting up event listeners...');
+            debugLog('🔧 Setting up event listeners...');
             this.setupEventListeners();
-            console.log('✅ Event listeners set up');
+            debugLog('✅ Event listeners set up');
 
-            console.log('📊 Loading hero stats...');
+            debugLog('📊 Loading hero stats...');
             this.loadHeroStats();
-            console.log('✅ Hero stats loaded');
+            debugLog('✅ Hero stats loaded');
 
-            console.log('📝 Loading recent activity...');
+            debugLog('📝 Loading recent activity...');
             this.loadRecentActivity();
-            console.log('✅ Recent activity loaded');
+            debugLog('✅ Recent activity loaded');
 
             setTimeout(() => {
-                console.log('🎉 Hiding loading screen and showing dashboard...');
+                debugLog('🎉 Hiding loading screen and showing dashboard...');
                 this.showLoadingScreen(false);
                 this.isInitialized = true;
                 this.showDashboardView();
-                console.log('✅ Dashboard App initialized successfully');
+                debugLog('✅ Dashboard App initialized successfully');
                 this.showToast('Welcome to Deep Roots Dashboard!', 'success');
             }, 1000);
 
         } catch (error) {
             console.error('❌ Failed to initialize:', error);
+            debugLog('❌ ERROR in init: ' + error.message);
             // Always hide loading screen even on error
             this.showLoadingScreen(false);
             this.handleInitializationError(error);
@@ -534,19 +535,31 @@ class DashboardApp {
     }
 }
 
+// Debug logging helper
+function debugLog(message) {
+    console.log(message);
+    const debugEl = document.getElementById('debugLog');
+    if (debugEl) {
+        const time = new Date().toLocaleTimeString();
+        debugEl.innerHTML += `<div style="margin:0.25rem 0;color:#fff;">[${time}] ${message}</div>`;
+        debugEl.scrollTop = debugEl.scrollHeight;
+    }
+}
+
 // Debug logging
-console.log('📝 app.js loaded');
+debugLog('📝 app.js loaded');
 
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('📝 DOMContentLoaded fired');
+    debugLog('📝 DOMContentLoaded fired');
     try {
         const theme = localStorage.getItem('theme');
         if (theme) document.body.dataset.theme = theme;
-        console.log('📝 Creating DashboardApp...');
+        debugLog('📝 Creating DashboardApp...');
         window.app = new DashboardApp();
-        console.log('📝 DashboardApp created successfully');
+        debugLog('📝 DashboardApp created successfully');
     } catch (error) {
         console.error('❌ Failed to create DashboardApp:', error);
+        debugLog('❌ ERROR: ' + error.message);
         // Show error on screen
         const loading = document.getElementById('loadingScreen');
         if (loading) {
@@ -555,7 +568,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div style="font-size:3rem;margin-bottom:1rem;">❌</div>
                     <h2>Initialization Failed</h2>
                     <p style="margin:1rem 0;">${error.message}</p>
-                    <pre style="background:rgba(0,0,0,0.3);padding:1rem;border-radius:8px;text-align:left;max-width:600px;margin:1rem auto;overflow:auto;">${error.stack}</pre>
+                    <pre style="background:rgba(0,0,0,0.3);padding:1rem;border-radius:8px;text-align:left;max-width:600px;margin:1rem auto;overflow:auto;font-size:0.75rem;">${error.stack}</pre>
                     <button onclick="location.reload()" style="padding:0.75rem 1.5rem;background:white;color:#059669;border:none;border-radius:8px;cursor:pointer;font-size:1rem;margin-top:1rem;">Reload Page</button>
                 </div>
             `;
