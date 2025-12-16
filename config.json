@@ -1,52 +1,38 @@
 {
-    "app": {
-        "name": "Deep Roots Operations Dashboard",
-        "version": "2.0.0",
-        "description": "Unified operations dashboard for Deep Roots Landscape"
+  "app": {
+    "name": "Deep Roots Operations Dashboard",
+    "version": "2.1.0"
+  },
+  "services": {
+    "inventory": {
+      "name": "Inventory Management",
+      "icon": "🌱",
+      "url": "",
+      "description": "Search plants, manage stock levels, track equipment"
     },
-    "services": {
-        "inventory": {
-            "name": "Inventory Management",
-            "icon": "🌱",
-            "url": "",
-            "description": "Search plants, manage stock levels, track equipment",
-            "color": "#059669"
-        },
-        "grading": {
-            "name": "Grade & Sell",
-            "icon": "⭐",
-            "url": "",
-            "description": "Plant quality assessment and pricing decisions",
-            "color": "#f59e0b"
-        },
-        "scheduler": {
-            "name": "Crew Scheduler",
-            "icon": "📅",
-            "url": "",
-            "description": "Manage crews, assign jobs, track schedules",
-            "color": "#3b82f6"
-        },
-        "tools": {
-            "name": "Tool Checkout",
-            "icon": "🔧",
-            "url": "",
-            "description": "Check in/out equipment, track tool usage",
-            "color": "#8b5cf6"
-        },
-        "chessmap": {
-            "name": "Logistics Map",
-            "icon": "🗺️",
-            "url": "",
-            "description": "View job locations and route planning",
-            "color": "#ec4899"
-        }
+    "grading": {
+      "name": "Grade & Sell",
+      "icon": "⭐",
+      "url": "",
+      "description": "Assess plant quality and pricing decisions"
     },
-    "ai": {
-        "enabled": true,
-        "fallbackMessage": "I can help you with inventory, grading, scheduling, or tool checkout. What would you like to do?",
-        "model": "claude-3-sonnet-20240229"
+    "scheduler": {
+      "name": "Crew Scheduler",
+      "icon": "📅",
+      "url": "",
+      "description": "Manage crews, assign jobs, track schedules"
     },
-    "enableAppleOverseer": true,
-    "enableDeconstructionSkill": true,
-    "enableForwardThinkerSkill": true
+    "tools": {
+      "name": "Tool Checkout",
+      "icon": "🔧",
+      "url": "",
+      "description": "Check in/out equipment, track tool usage"
+    },
+    "chessmap": {
+      "name": "Logistics Map",
+      "icon": "🗺️",
+      "url": "",
+      "description": "View job locations, route planning"
+    }
+  }
 }
