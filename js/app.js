@@ -587,23 +587,159 @@
         generateResponse(text) {
             const lower = text.toLowerCase();
             
-            if (lower.includes('inventory') || lower.includes('plant')) {
-                return "📦 To check inventory, open the Inventory Management tool from the dashboard. You currently have 247 plant varieties in stock.";
-            }
-            if (lower.includes('schedule') || lower.includes('crew') || lower.includes('today')) {
-                return "📅 You have 23 jobs scheduled this week. Open the Crew Scheduler to view assignments and manage schedules.";
-            }
-            if (lower.includes('tool') || lower.includes('checkout') || lower.includes('equipment')) {
-                return "🔧 Currently 14 tools are checked out. Use the Tool Checkout system to see who has what equipment.";
-            }
-            if (lower.includes('grade') || lower.includes('sell') || lower.includes('quality')) {
-                return "⭐ Open Grade & Sell to assess plant quality and set pricing. 12 plants were graded yesterday.";
-            }
-            if (lower.includes('help') || lower.includes('what can you')) {
-                return "🌱 I can help you with:\n• Inventory status and plant information\n• Crew scheduling and job assignments\n• Tool checkout tracking\n• Plant grading and pricing\n\nJust ask about any of these topics!";
+            // ============================================
+            // STEP 1: Detect intent type
+            // ============================================
+            const isHowToQuestion = /^(how|what|which|when|where|why|can i|should i|do i|best way|tips|advice)/i.test(text.trim());
+            const isStatusQuestion = /(status|checked out|how many|count|current|today's|this week)/i.test(lower);
+            const isSystemNavigation = /(open|go to|show me|take me|launch|start)/i.test(lower);
+            
+            // ============================================
+            // STEP 2: Landscaping Knowledge Base
+            // ============================================
+            const landscapingKnowledge = {
+                // Sod & Turf
+                sod: {
+                    keywords: ['sod', 'turf', 'lawn', 'grass'],
+                    tools: "For laying sod, you'll need:\n• Sod cutter or flat shovel (for removing old grass)\n• Rototiller (for soil prep)\n• Landscape rake (for leveling)\n• Lawn roller (for pressing sod)\n• Sharp knife or sod knife (for cutting/fitting)\n• Wheelbarrow (for moving sod)\n• Sprinkler or hose (for watering immediately after)",
+                    tips: "💡 Tips: Lay sod within 24 hours of delivery. Stagger seams like brickwork. Water immediately and keep moist for 2 weeks."
+                },
+                // Mulching
+                mulch: {
+                    keywords: ['mulch', 'mulching'],
+                    tools: "For mulching, you'll need:\n• Wheelbarrow or garden cart\n• Pitchfork or mulch fork\n• Hard rake (for spreading)\n• Landscape edger (for clean edges)\n• Gloves\n• Measuring tape (2-4\" depth typical)",
+                    tips: "💡 Tips: Keep mulch 2-3\" away from tree trunks. Apply 2-4\" depth. Refresh annually."
+                },
+                // Planting
+                planting: {
+                    keywords: ['plant', 'planting', 'transplant', 'install'],
+                    tools: "For planting, you'll need:\n• Shovel or spade\n• Post hole digger (for deep holes)\n• Hand trowel (for small plants)\n• Garden fork (for loosening soil)\n• Pruning shears (for root prep)\n• Hose with adjustable nozzle\n• Wheelbarrow\n• Compost/amendments",
+                    tips: "💡 Tips: Dig hole 2x wider than root ball. Plant at same depth as container. Water thoroughly after planting."
+                },
+                // Irrigation
+                irrigation: {
+                    keywords: ['irrigation', 'sprinkler', 'drip', 'watering system'],
+                    tools: "For irrigation installation:\n• Trencher or trenching shovel\n• PVC pipe cutter\n• PVC primer and cement\n• Teflon tape\n• Wire strippers (for valve wiring)\n• Multimeter (for testing)\n• Pipe fittings and heads\n• Backflow preventer",
+                    tips: "💡 Tips: Check local codes for backflow requirements. Test coverage before burying lines."
+                },
+                // Hardscape
+                hardscape: {
+                    keywords: ['paver', 'patio', 'walkway', 'retaining wall', 'hardscape', 'stone', 'brick'],
+                    tools: "For hardscaping:\n• Plate compactor (for base)\n• Rubber mallet\n• String line and stakes\n• 4ft level\n• Hand tamper\n• Masonry saw or wet saw\n• Paver sand and base material\n• Polymeric sand (for joints)\n• Safety glasses and gloves",
+                    tips: "💡 Tips: Compact base in 2\" lifts. Slope away from structures (1/4\" per foot). Use edge restraints."
+                },
+                // Tree work
+                tree: {
+                    keywords: ['tree', 'pruning', 'trimming', 'removal'],
+                    tools: "For tree work:\n• Hand pruners (up to 3/4\")\n• Loppers (3/4\" to 2\")\n• Pruning saw (larger branches)\n• Pole pruner (high branches)\n• Chainsaw (large limbs/removal)\n• Safety harness and helmet\n• Wood chipper (for debris)",
+                    tips: "💡 Tips: Never remove more than 25% of canopy. Cut outside branch collar. Avoid topping trees."
+                },
+                // Grading & Drainage
+                grading: {
+                    keywords: ['grade', 'grading', 'drainage', 'slope', 'erosion', 'french drain'],
+                    tools: "For grading and drainage:\n• Skid steer or mini excavator\n• Laser level or transit\n• Grade stakes and string\n• Landscape rake\n• Plate compactor\n• Drain pipe and fittings\n• Gravel and filter fabric",
+                    tips: "💡 Tips: Grade away from structures at 2% minimum. French drains need 1% slope to outlet."
+                },
+                // Edging
+                edging: {
+                    keywords: ['edge', 'edging', 'border', 'bed edge'],
+                    tools: "For edging:\n• Manual edger or power edger\n• Half-moon edger (for beds)\n• String trimmer (maintenance)\n• Flat shovel\n• Rubber mallet (for plastic edging)\n• Stakes (for edging material)",
+                    tips: "💡 Tips: Edge beds at 45° angle. Keep 3-4\" depth. Re-cut edges 2-3 times per season."
+                },
+                // Leaf/debris cleanup
+                cleanup: {
+                    keywords: ['leaf', 'leaves', 'cleanup', 'clean up', 'debris', 'fall'],
+                    tools: "For cleanup:\n• Backpack blower\n• Leaf rake or spring rake\n• Tarp (for hauling)\n• Lawn vacuum or bagger\n• Trailer or truck\n• Gutter scoop (for gutters)",
+                    tips: "💡 Tips: Blow toward trailer. Mulch leaves into lawn when light. Clean gutters after leaf drop."
+                },
+                // Fertilizing
+                fertilize: {
+                    keywords: ['fertiliz', 'feed', 'nutrient', 'lime', 'soil test'],
+                    tools: "For fertilizing:\n• Broadcast spreader (large areas)\n• Drop spreader (precise application)\n• Handheld spreader (small areas)\n• Sprayer (liquid fertilizer)\n• Soil test kit\n• Calibration cups",
+                    tips: "💡 Tips: Always calibrate spreaders. Water in after application. Follow soil test recommendations."
+                },
+                // Seeding
+                seed: {
+                    keywords: ['seed', 'seeding', 'overseed', 'reseed'],
+                    tools: "For seeding:\n• Dethatcher or power rake\n• Core aerator\n• Broadcast spreader\n• Lawn roller (light)\n• Starter fertilizer\n• Straw or seed blanket\n• Sprinkler system",
+                    tips: "💡 Tips: Best in fall (cool-season) or late spring (warm-season). Keep consistently moist until established."
+                }
+            };
+            
+            // ============================================
+            // STEP 3: Check for landscaping knowledge match
+            // ============================================
+            for (const [topic, data] of Object.entries(landscapingKnowledge)) {
+                if (data.keywords.some(kw => lower.includes(kw))) {
+                    // If it's a how-to question about this topic
+                    if (isHowToQuestion || lower.includes('tool') || lower.includes('need') || lower.includes('use')) {
+                        return `🛠️ **${topic.charAt(0).toUpperCase() + topic.slice(1)} Tools & Equipment**\n\n${data.tools}\n\n${data.tips}`;
+                    }
+                }
             }
             
-            return "🌱 I can help with inventory, scheduling, tools, and grading. For smarter AI responses, configure your Claude API key in Settings.";
+            // ============================================
+            // STEP 4: System/Dashboard queries (status checks)
+            // ============================================
+            
+            // Inventory STATUS (not general plant questions)
+            if ((isStatusQuestion || isSystemNavigation) && (lower.includes('inventory') || lower.includes('stock'))) {
+                return "📦 **Inventory Status**\nYou currently have 247 plant varieties in stock.\n\n→ Open the Inventory Management tool to search plants, check quantities, and manage stock levels.";
+            }
+            
+            // Schedule STATUS
+            if ((isStatusQuestion || isSystemNavigation) && (lower.includes('schedule') || lower.includes('crew') || lower.includes('job'))) {
+                return "📅 **Schedule Status**\nYou have 23 jobs scheduled this week.\n\n→ Open the Crew Scheduler to view assignments, manage crews, and track job progress.";
+            }
+            
+            // Tool checkout STATUS (not "what tools do I need")
+            if (isStatusQuestion && (lower.includes('checked out') || lower.includes('checkout'))) {
+                return "🔧 **Tool Checkout Status**\nCurrently 14 tools are checked out.\n\n→ Open Tool Checkout to see who has what equipment and manage check-ins/outs.";
+            }
+            
+            // Equipment tracking
+            if (isSystemNavigation && lower.includes('equipment')) {
+                return "🔧 **Equipment Tracking**\n→ Open Tool Checkout to track equipment, manage check-ins/outs, and see tool availability.";
+            }
+            
+            // Grading STATUS
+            if ((isStatusQuestion || isSystemNavigation) && (lower.includes('grade') || lower.includes('grading') || lower.includes('quality'))) {
+                return "⭐ **Grading Status**\n12 plants were graded yesterday.\n\n→ Open Grade & Sell to assess plant quality, set pricing, and manage inventory grades.";
+            }
+            
+            // ============================================
+            // STEP 5: General help
+            // ============================================
+            if (lower.includes('help') || lower.includes('what can you')) {
+                return `🌱 **I can help with two types of questions:**
+
+**Landscaping Knowledge:**
+• "What tools do I need to lay sod?"
+• "How do I install pavers?"
+• "Best way to prep soil for planting?"
+• "Tips for mulching around trees?"
+
+**Dashboard & Operations:**
+• "What's our inventory status?"
+• "Show me today's schedule"
+• "Which tools are checked out?"
+• "Open the crew scheduler"
+
+Just ask naturally and I'll do my best to help!`;
+            }
+            
+            // ============================================
+            // STEP 6: Fallback with helpful suggestion
+            // ============================================
+            return `🌱 I can help with landscaping questions (tools, techniques, best practices) or dashboard operations (inventory, scheduling, tool checkout).
+
+**Try asking:**
+• "What tools do I need for [task]?"
+• "How do I [landscaping task]?"
+• "What's our inventory status?"
+• "Show today's schedule"
+
+For more advanced AI responses, configure your Claude API key in Settings.`;
         }
 
         addChatMessage(text, role) {
