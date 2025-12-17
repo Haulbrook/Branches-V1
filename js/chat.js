@@ -1,60 +1,118 @@
 /**
- * Chat Manager - Handles chat interface and AI interactions
+ * Deep Roots Dashboard - Secure Chat API
+ * Netlify Function that proxies requests to Claude API
+ * 
+ * Environment Variables Required:
+ *   CLAUDE_API_KEY - Your Anthropic API key (sk-ant-...)
  */
-class ChatManager {
-    constructor() {
-        this.messages = [];
-        this.isProcessing = false;
-        this.skills = {};
+
+exports.handler = async (event, context) => {
+    // CORS headers
+    const headers = {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Headers': 'Content-Type',
+        'Access-Control-Allow-Methods': 'POST, OPTIONS',
+        'Content-Type': 'application/json'
+    };
+
+    // Handle preflight
+    if (event.httpMethod === 'OPTIONS') {
+        return { statusCode: 204, headers, body: '' };
     }
 
-    init() {
-        this.setupInputListeners();
-        console.log('✅ Chat Manager initialized');
-    }
-
-    setupInputListeners() {
-        // Input listeners are handled by app.js
-    }
-
-    initializeSkills(config) {
-        this.skills = {
-            deconstruction: config?.enableDeconstructionSkill !== false,
-            forwardThinker: config?.enableForwardThinkerSkill !== false,
-            overseer: config?.enableAppleOverseer !== false
+    // Only allow POST
+    if (event.httpMethod !== 'POST') {
+        return {
+            statusCode: 405,
+            headers,
+            body: JSON.stringify({ error: 'Method not allowed' })
         };
     }
 
-    async sendMessage(text) {
-        if (!text || this.isProcessing) return;
-
-        this.isProcessing = true;
-
-        // Add user message
-        this.messages.push({ role: 'user', content: text });
-        this.addMessageToUI(text, 'user');
-
-        try {
-            // Try to call Claude API
-            const apiKey = localStorage.getItem('claudeApiKey');
-            
-            if (apiKey) {
-                const response = await this.callClaudeAPI(text, apiKey);
-                this.addMessageToUI(response, 'assistant');
-            } else {
-                // Fallback response
-                const fallback = this.getFallbackResponse(text);
-                this.addMessageToUI(fallback, 'assistant');
-            }
-        } catch (error) {
-            console.error('Chat error:', error);
-            this.addMessageToUI('Sorry, I encountered an error. Please check your API key in Settings.', 'assistant');
-        }
-
-        this.isProcessing = false;
+    // Get API key from environment
+    const apiKey = process.env.CLAUDE_API_KEY;
+    
+    if (!apiKey) {
+        console.error('CLAUDE_API_KEY environment variable not set');
+        return {
+            statusCode: 500,
+            headers,
+            body: JSON.stringify({ 
+                error: 'Server configuration error',
+                message: 'API key not configured. Contact administrator.'
+            })
+        };
     }
 
-    async callClaudeAPI(text, apiKey) {
+    // Parse request body
+    let body;
+    try {
+        body = JSON.parse(event.body);
+    } catch (e) {
+        return {
+            statusCode: 400,
+            headers,
+            body: JSON.stringify({ error: 'Invalid JSON body' })
+        };
+    }
+
+    const { message, conversationHistory = [] } = body;
+
+    if (!message || typeof message !== 'string') {
+        return {
+            statusCode: 400,
+            headers,
+            body: JSON.stringify({ error: 'Message is required' })
+        };
+    }
+
+    // Rate limiting check (basic - enhance for production)
+    // You could add IP-based rate limiting here with a KV store
+
+    // System prompt for Deep Roots assistant
+    const systemPrompt = `You are the AI assistant for Deep Roots Landscape, a professional landscaping and construction company based in Georgia. You help employees and managers with:
+
+## Landscaping Knowledge & Best Practices
+
+You have deep expertise in:
+- **Sod & Turf**: Installation, soil prep, watering schedules, varieties (Bermuda, Zoysia, Fescue)
+- **Mulching**: Types (hardwood, pine, rubber), depth requirements, bed preparation
+- **Planting**: Trees, shrubs, perennials, annuals - proper techniques, spacing, timing
+- **Irrigation**: System design, installation, troubleshooting, winterization
+- **Hardscaping**: Pavers, retaining walls, patios, drainage solutions, base preparation
+- **Tree Care**: Pruning techniques, removal safety, disease identification
+- **Grading & Drainage**: French drains, swales, erosion control, slope calculations
+- **Lawn Care**: Fertilization schedules, aeration, overseeding, weed control
+- **Equipment**: Proper tool selection, maintenance, safety procedures
+
+## Operations Dashboard Context
+
+The user has access to these integrated tools:
+- **Inventory Management**: Plant stock, materials, supplies tracking
+- **Crew Scheduler**: Job assignments, crew management, daily schedules  
+- **Tool Checkout**: Equipment tracking, maintenance logs, accountability
+- **Grade & Sell**: Plant quality assessment, pricing, customer quotes
+- **Logistics Map**: Job locations, route optimization, service areas
+
+## Response Guidelines
+
+1. Be practical and specific - give actionable advice
+2. Include safety considerations when relevant
+3. Mention tool/equipment requirements for tasks
+4. Reference Georgia climate and conditions when applicable
+5. Keep responses concise but thorough
+6. Use formatting (bold, lists) for clarity
+7. If asked about dashboard operations, guide them to the appropriate tool
+
+You represent Deep Roots professionally. Be helpful, knowledgeable, and efficient.`;
+
+    // Build messages array
+    const messages = [
+        ...conversationHistory.slice(-10), // Keep last 10 messages for context
+        { role: 'user', content: message }
+    ];
+
+    try {
         const response = await fetch('https://api.anthropic.com/v1/messages', {
             method: 'POST',
             headers: {
@@ -63,55 +121,86 @@ class ChatManager {
                 'anthropic-version': '2023-06-01'
             },
             body: JSON.stringify({
-                model: 'claude-3-sonnet-20240229',
-                max_tokens: 1024,
-                system: 'You are a helpful assistant for Deep Roots Landscape operations. Help with inventory, scheduling, tool checkout, and plant grading questions.',
-                messages: [{ role: 'user', content: text }]
+                model: 'claude-sonnet-4-20250514',
+                max_tokens: 1500,
+                system: systemPrompt,
+                messages: messages
             })
         });
 
         if (!response.ok) {
-            throw new Error(`API error: ${response.status}`);
+            const errorData = await response.json().catch(() => ({}));
+            console.error('Claude API error:', response.status, errorData);
+            
+            // Return appropriate error without exposing internal details
+            if (response.status === 401) {
+                return {
+                    statusCode: 500,
+                    headers,
+                    body: JSON.stringify({ 
+                        error: 'Authentication error',
+                        message: 'Server API configuration issue. Contact administrator.'
+                    })
+                };
+            }
+            
+            if (response.status === 429) {
+                return {
+                    statusCode: 429,
+                    headers,
+                    body: JSON.stringify({ 
+                        error: 'Rate limited',
+                        message: 'Too many requests. Please wait a moment and try again.'
+                    })
+                };
+            }
+
+            if (response.status === 529) {
+                return {
+                    statusCode: 503,
+                    headers,
+                    body: JSON.stringify({ 
+                        error: 'Service overloaded',
+                        message: 'AI service is temporarily busy. Please try again shortly.'
+                    })
+                };
+            }
+
+            return {
+                statusCode: 500,
+                headers,
+                body: JSON.stringify({ 
+                    error: 'API error',
+                    message: 'Failed to get response. Please try again.'
+                })
+            };
         }
 
         const data = await response.json();
-        return data.content[0]?.text || 'No response received.';
+        const assistantMessage = data.content?.[0]?.text || 'Sorry, I could not generate a response.';
+
+        return {
+            statusCode: 200,
+            headers,
+            body: JSON.stringify({
+                success: true,
+                message: assistantMessage,
+                usage: {
+                    input_tokens: data.usage?.input_tokens,
+                    output_tokens: data.usage?.output_tokens
+                }
+            })
+        };
+
+    } catch (error) {
+        console.error('Function error:', error);
+        return {
+            statusCode: 500,
+            headers,
+            body: JSON.stringify({ 
+                error: 'Server error',
+                message: 'An unexpected error occurred. Please try again.'
+            })
+        };
     }
-
-    getFallbackResponse(text) {
-        const lower = text.toLowerCase();
-        
-        if (lower.includes('inventory') || lower.includes('plant')) {
-            return "I can help with inventory questions! Open the Inventory tool to search plants, check stock levels, or manage equipment. Would you like me to open it for you?";
-        }
-        
-        if (lower.includes('schedule') || lower.includes('crew')) {
-            return "For scheduling questions, use the Crew Scheduler tool. You can assign crews to jobs, view today's schedule, and manage task assignments.";
-        }
-        
-        if (lower.includes('tool') || lower.includes('checkout')) {
-            return "The Tool Checkout system tracks equipment rentals. You can check tools in/out, see what's currently out, and track usage history.";
-        }
-        
-        if (lower.includes('grade') || lower.includes('sell') || lower.includes('price')) {
-            return "Use the Grade & Sell tool to assess plant quality and determine pricing. It helps with making sell/hold decisions based on plant condition.";
-        }
-
-        return "I'm here to help with Deep Roots operations! You can ask me about:\n\n🌱 Inventory & plant stock\n📅 Crew scheduling\n🔧 Tool checkout\n⭐ Plant grading\n\nOr configure your Claude API key in Settings for smarter responses.";
-    }
-
-    addMessageToUI(text, role) {
-        if (window.app?.addChatMessage) {
-            window.app.addChatMessage(text, role);
-        }
-    }
-
-    addMessage(text, role) {
-        this.addMessageToUI(text, role);
-    }
-}
-
-// Export
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = ChatManager;
-}
+};
