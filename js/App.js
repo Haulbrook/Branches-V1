@@ -1,9 +1,10 @@
 /**
  * Deep Roots Dashboard - Consolidated Application
- * Version: 2.1.0 (Bulletproof)
+ * Version: 2.2.0 (Production Secure)
  * 
  * This single file contains all dashboard functionality.
  * No external JS dependencies required.
+ * API keys are stored server-side in Netlify environment variables.
  */
 
 (function() {
@@ -24,6 +25,59 @@
         }[type] || 'ℹ️';
         console.log(`${prefix} [Dashboard] ${message}`);
     }
+
+    // ============================================
+    // INJECT ADDITIONAL CSS
+    // ============================================
+    const additionalCSS = `
+        .chat-message.typing .typing-dots {
+            display: inline-flex;
+            gap: 4px;
+        }
+        .chat-message.typing .typing-dots span {
+            animation: typingBounce 1.4s infinite ease-in-out both;
+            font-size: 24px;
+            line-height: 1;
+        }
+        .chat-message.typing .typing-dots span:nth-child(1) { animation-delay: -0.32s; }
+        .chat-message.typing .typing-dots span:nth-child(2) { animation-delay: -0.16s; }
+        .chat-message.typing .typing-dots span:nth-child(3) { animation-delay: 0s; }
+        @keyframes typingBounce {
+            0%, 80%, 100% { transform: translateY(0); opacity: 0.4; }
+            40% { transform: translateY(-6px); opacity: 1; }
+        }
+        .message-content {
+            white-space: pre-wrap;
+            line-height: 1.6;
+        }
+        .message-content strong, .message-content b {
+            font-weight: 600;
+        }
+        .message-content em, .message-content i {
+            font-style: italic;
+        }
+        .message-content code {
+            background: rgba(0,0,0,0.08);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 0.9em;
+        }
+        .message-content ul {
+            margin: 8px 0;
+            padding-left: 20px;
+        }
+        .message-content li {
+            margin: 4px 0;
+        }
+        [data-theme="dark"] .message-content code {
+            background: rgba(255,255,255,0.1);
+        }
+    `;
+    
+    const styleSheet = document.createElement('style');
+    styleSheet.textContent = additionalCSS;
+    document.head.appendChild(styleSheet);
 
     // ============================================
     // DASHBOARD APP CLASS
@@ -567,7 +621,7 @@
         // ============================================
         // CHAT FUNCTIONALITY
         // ============================================
-        sendChatMessage() {
+        async sendChatMessage() {
             const input = document.getElementById('chatInput');
             const message = input?.value?.trim();
             
@@ -577,11 +631,102 @@
             input.value = '';
             input.style.height = 'auto';
             
-            // Simulate response (replace with actual API call)
-            setTimeout(() => {
-                const response = this.generateResponse(message);
-                this.addChatMessage(response, 'assistant');
-            }, 500);
+            // Add to conversation history
+            if (!this.conversationHistory) {
+                this.conversationHistory = [];
+            }
+            this.conversationHistory.push({ role: 'user', content: message });
+            
+            // Call secure backend API
+            await this.callChatAPI(message);
+        }
+
+        async callChatAPI(message) {
+            // Show typing indicator
+            const typingId = this.showTypingIndicator();
+            
+            try {
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        message: message,
+                        conversationHistory: this.conversationHistory?.slice(-10) || []
+                    })
+                });
+
+                this.removeTypingIndicator(typingId);
+
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({}));
+                    console.error('Chat API error:', response.status, errorData);
+                    
+                    if (response.status === 429) {
+                        this.addChatMessage('⏳ Too many requests. Please wait a moment and try again.', 'assistant');
+                    } else if (response.status === 503) {
+                        this.addChatMessage('🔄 AI service is temporarily busy. Please try again in a few seconds.', 'assistant');
+                    } else {
+                        // Fall back to local response on server errors
+                        const fallback = this.generateResponse(message);
+                        this.addChatMessage(fallback, 'assistant');
+                    }
+                    return;
+                }
+
+                const data = await response.json();
+                
+                if (data.success && data.message) {
+                    this.addChatMessage(data.message, 'assistant');
+                    
+                    // Add to conversation history
+                    this.conversationHistory.push({ role: 'assistant', content: data.message });
+                    
+                    // Keep history manageable
+                    if (this.conversationHistory.length > 20) {
+                        this.conversationHistory = this.conversationHistory.slice(-20);
+                    }
+                } else {
+                    const fallback = this.generateResponse(message);
+                    this.addChatMessage(fallback, 'assistant');
+                }
+
+            } catch (error) {
+                console.error('Chat API call failed:', error);
+                this.removeTypingIndicator(typingId);
+                
+                // Fall back to local response on network errors
+                const fallback = this.generateResponse(message);
+                this.addChatMessage(fallback + '\n\n_(Offline mode - connection error)_', 'assistant');
+            }
+        }
+
+        showTypingIndicator() {
+            const container = document.getElementById('chatMessages');
+            if (!container) return null;
+            
+            const id = 'typing-' + Date.now();
+            const div = document.createElement('div');
+            div.id = id;
+            div.className = 'chat-message assistant typing';
+            div.innerHTML = `
+                <div class="message-avatar">🌱</div>
+                <div class="message-content">
+                    <span class="typing-dots">
+                        <span>.</span><span>.</span><span>.</span>
+                    </span>
+                </div>
+            `;
+            container.appendChild(div);
+            container.scrollTop = container.scrollHeight;
+            return id;
+        }
+
+        removeTypingIndicator(id) {
+            if (id) {
+                document.getElementById(id)?.remove();
+            }
         }
 
         generateResponse(text) {
@@ -737,9 +882,7 @@ Just ask naturally and I'll do my best to help!`;
 • "What tools do I need for [task]?"
 • "How do I [landscaping task]?"
 • "What's our inventory status?"
-• "Show today's schedule"
-
-For more advanced AI responses, configure your Claude API key in Settings.`;
+• "Show today's schedule"`;
         }
 
         addChatMessage(text, role) {
@@ -752,13 +895,49 @@ For more advanced AI responses, configure your Claude API key in Settings.`;
             
             const messageDiv = document.createElement('div');
             messageDiv.className = `chat-message ${role}`;
+            
+            // Format the message with basic markdown support
+            const formattedText = this.formatMessage(text);
+            
             messageDiv.innerHTML = `
                 <div class="message-avatar">${role === 'user' ? '👤' : '🌱'}</div>
-                <div class="message-content">${this.escapeHtml(text).replace(/\n/g, '<br>')}</div>
+                <div class="message-content">${formattedText}</div>
             `;
             
             container.appendChild(messageDiv);
             container.scrollTop = container.scrollHeight;
+        }
+
+        formatMessage(text) {
+            // First escape HTML to prevent XSS
+            let formatted = this.escapeHtml(text);
+            
+            // Then apply markdown-like formatting
+            // Bold: **text** or __text__
+            formatted = formatted.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+            formatted = formatted.replace(/__(.+?)__/g, '<strong>$1</strong>');
+            
+            // Italic: *text* or _text_
+            formatted = formatted.replace(/\*([^*]+)\*/g, '<em>$1</em>');
+            formatted = formatted.replace(/_([^_]+)_/g, '<em>$1</em>');
+            
+            // Code: `text`
+            formatted = formatted.replace(/`([^`]+)`/g, '<code>$1</code>');
+            
+            // Bullet points: • or - at start of line
+            formatted = formatted.replace(/^[•\-]\s+(.+)$/gm, '<li>$1</li>');
+            
+            // Wrap consecutive <li> in <ul>
+            formatted = formatted.replace(/(<li>.*<\/li>\n?)+/g, '<ul>$&</ul>');
+            
+            // Line breaks
+            formatted = formatted.replace(/\n/g, '<br>');
+            
+            // Clean up extra <br> inside lists
+            formatted = formatted.replace(/<\/li><br>/g, '</li>');
+            formatted = formatted.replace(/<ul><br>/g, '<ul>');
+            
+            return formatted;
         }
 
         escapeHtml(text) {
@@ -782,9 +961,7 @@ For more advanced AI responses, configure your Claude API key in Settings.`;
                 'gradingUrl': services.grading?.url || '',
                 'schedulerUrl': services.scheduler?.url || '',
                 'toolsUrl': services.tools?.url || '',
-                'chessmapUrl': services.chessmap?.url || '',
-                'claudeApiKey': localStorage.getItem('claudeApiKey') || '',
-                'openaiApiKey': localStorage.getItem('openaiApiKey') || ''
+                'chessmapUrl': services.chessmap?.url || ''
             };
             
             Object.entries(fields).forEach(([id, value]) => {
@@ -816,12 +993,6 @@ For more advanced AI responses, configure your Claude API key in Settings.`;
                     localStorage.setItem(`${key}Url`, services[key].url);
                 }
             });
-            
-            // Save API keys
-            const claudeKey = getValue('claudeApiKey').trim();
-            const openaiKey = getValue('openaiApiKey').trim();
-            if (claudeKey) localStorage.setItem('claudeApiKey', claudeKey);
-            if (openaiKey) localStorage.setItem('openaiApiKey', openaiKey);
             
             // Apply theme
             document.body.dataset.theme = darkMode ? 'dark' : 'light';
