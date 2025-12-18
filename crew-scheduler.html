@@ -724,13 +724,24 @@
                 const isUsed = usedItems.includes(item);
                 const usedClass = isUsed ? 'used' : '';
                 const multiUseClass = multiUse ? 'multi-use' : '';
+
+                // Extract WO number for progress widget (if job card)
+                let progressHtml = '';
+                if (cardClass === 'job' && item.startsWith('WO#')) {
+                    const woMatch = item.match(/WO#(\d+)/);
+                    if (woMatch && typeof ProgressWidget !== 'undefined') {
+                        progressHtml = ProgressWidget.render(woMatch[1], 'compact');
+                    }
+                }
+
                 return `<div class="card ${cardClass} ${usedClass} ${multiUseClass}"
                              draggable="${!isUsed || multiUse}"
                              data-item="${item}"
                              data-type="${cardClass}"
                              ondragstart="handleDragStart(event)"
                              ondragend="handleDragEnd(event)">
-                    ${item}
+                    <div class="card-content">${item}</div>
+                    ${progressHtml}
                 </div>`;
             }).join('');
         }
@@ -829,7 +840,16 @@
                          ondragleave="handleDragLeave(event)"
                          ondrop="handleDrop(event)">
                         <div class="crew-cards">
-                            ${crew.jobs.map(j => `
+                            ${crew.jobs.map(j => {
+                                // Extract WO number for progress widget
+                                let progressHtml = '';
+                                if (j.startsWith('WO#')) {
+                                    const woMatch = j.match(/WO#(\d+)/);
+                                    if (woMatch && typeof ProgressWidget !== 'undefined') {
+                                        progressHtml = ProgressWidget.render(woMatch[1], 'compact');
+                                    }
+                                }
+                                return `
                                 <div class="card job"
                                      draggable="true"
                                      data-item="${j}"
@@ -837,9 +857,10 @@
                                      data-crew-id="${crew.id}"
                                      ondragstart="handleDragStart(event)"
                                      ondragend="handleDragEnd(event)">
-                                    ${j}
+                                    <div class="card-content">${j}</div>
+                                    ${progressHtml}
                                 </div>
-                            `).join('')}
+                            `}).join('')}
                         </div>
                     </div>
 
@@ -981,5 +1002,8 @@
         // Initialize app
         init();
     </script>
+
+    <!-- Progress Widget -->
+    <script src="js/progressWidget.js"></script>
 </body>
 </html>
