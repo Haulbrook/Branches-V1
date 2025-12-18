@@ -961,7 +961,8 @@ Just ask naturally and I'll do my best to help!`;
                 'gradingUrl': services.grading?.url || '',
                 'schedulerUrl': services.scheduler?.url || '',
                 'toolsUrl': services.tools?.url || '',
-                'chessmapUrl': services.chessmap?.url || ''
+                'chessmapUrl': services.chessmap?.url || '',
+                'workOrderSyncUrl': localStorage.getItem('workOrderSyncUrl') || ''
             };
             
             Object.entries(fields).forEach(([id, value]) => {
@@ -974,7 +975,7 @@ Just ask naturally and I'll do my best to help!`;
 
         saveSettings() {
             const getValue = (id) => document.getElementById(id)?.value || '';
-            
+
             const services = {
                 inventory: { ...this.config.services?.inventory, url: getValue('inventoryUrl') },
                 grading: { ...this.config.services?.grading, url: getValue('gradingUrl') },
@@ -982,12 +983,20 @@ Just ask naturally and I'll do my best to help!`;
                 tools: { ...this.config.services?.tools, url: getValue('toolsUrl') },
                 chessmap: { ...this.config.services?.chessmap, url: getValue('chessmapUrl') }
             };
-            
+
             const darkMode = document.getElementById('darkMode')?.checked || false;
-            
+            const workOrderSyncUrl = getValue('workOrderSyncUrl');
+
             // Save to localStorage
-            localStorage.setItem('dashboardSettings', JSON.stringify({ services, darkMode }));
-            
+            localStorage.setItem('dashboardSettings', JSON.stringify({ services, darkMode, workOrderSyncUrl }));
+
+            // Save Work Order Sync URL separately for the sync module to find
+            if (workOrderSyncUrl) {
+                localStorage.setItem('workOrderSyncUrl', workOrderSyncUrl);
+            } else {
+                localStorage.removeItem('workOrderSyncUrl');
+            }
+
             Object.keys(services).forEach(key => {
                 if (services[key].url) {
                     localStorage.setItem(`${key}Url`, services[key].url);

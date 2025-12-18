@@ -591,10 +591,72 @@
     <!-- Toast Notification -->
     <div class="toast" id="toast"></div>
 
+    <!-- Sync Status Bar -->
+    <div class="sync-status-bar" id="syncStatusBar">
+        <span class="sync-status-indicator" id="syncIndicator"></span>
+        <span class="sync-status-text" id="syncStatusText">Local only</span>
+        <button class="sync-btn" id="syncBtn" onclick="manualSync()" title="Sync with Google Sheets">
+            <span class="sync-icon">↻</span>
+        </button>
+    </div>
+
+    <style>
+        .sync-status-bar {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background: white;
+            padding: 10px 16px;
+            border-radius: 8px;
+            box-shadow: var(--shadow-lg);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.85em;
+            z-index: 999;
+        }
+        .sync-status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--gray-400);
+        }
+        .sync-status-indicator.connected { background: var(--success); }
+        .sync-status-indicator.syncing { background: var(--warning); animation: pulse 1s infinite; }
+        .sync-status-indicator.error { background: var(--error); }
+        .sync-status-indicator.offline { background: var(--gray-400); }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        .sync-btn {
+            background: var(--brand-primary);
+            color: white;
+            border: none;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        .sync-btn:hover { background: var(--brand-primary-dark); transform: scale(1.1); }
+        .sync-btn.syncing .sync-icon { animation: spin 1s linear infinite; }
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        .sync-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    </style>
+
+    <script src="js/workOrderSync.js"></script>
     <script>
         // State
         let parsedWorkOrders = [];
         let storedWorkOrders = [];
+        let workOrderSync = null;
 
         // CSV Column Mapping (based on SingleOps export)
         const COLUMNS = {
@@ -613,10 +675,91 @@
         };
 
         // Initialize
-        function init() {
+        async function init() {
+            // Initialize sync module
+            workOrderSync = new WorkOrderSync();
+            await workOrderSync.init();
+
+            // Update sync status UI
+            updateSyncStatus();
+
+            // Listen for sync events
+            workOrderSync.on('workOrdersUpdated', (workOrders) => {
+                storedWorkOrders = workOrders;
+                renderStoredJobs();
+            });
+
+            workOrderSync.on('syncComplete', () => {
+                updateSyncStatus();
+                showToast('Synced with cloud', 'success');
+            });
+
             loadStoredWorkOrders();
             setupFileUpload();
             renderStoredJobs();
+        }
+
+        // Update sync status indicator
+        function updateSyncStatus() {
+            const indicator = document.getElementById('syncIndicator');
+            const statusText = document.getElementById('syncStatusText');
+
+            if (workOrderSync && workOrderSync.useGoogleSheets) {
+                const lastSync = workOrderSync.getLastSync();
+                indicator.className = 'sync-status-indicator connected';
+                statusText.textContent = lastSync
+                    ? `Synced ${formatTimeAgo(lastSync)}`
+                    : 'Connected to cloud';
+            } else {
+                indicator.className = 'sync-status-indicator offline';
+                statusText.textContent = 'Local only';
+            }
+        }
+
+        // Format time ago
+        function formatTimeAgo(isoString) {
+            const date = new Date(isoString);
+            const now = new Date();
+            const diffMs = now - date;
+            const diffMins = Math.floor(diffMs / 60000);
+
+            if (diffMins < 1) return 'just now';
+            if (diffMins < 60) return `${diffMins}m ago`;
+            const diffHours = Math.floor(diffMins / 60);
+            if (diffHours < 24) return `${diffHours}h ago`;
+            return date.toLocaleDateString();
+        }
+
+        // Manual sync button
+        async function manualSync() {
+            if (!workOrderSync || !workOrderSync.useGoogleSheets) {
+                showToast('Configure Google Sheets URL in settings first', 'warning');
+                return;
+            }
+
+            const btn = document.getElementById('syncBtn');
+            const indicator = document.getElementById('syncIndicator');
+            const statusText = document.getElementById('syncStatusText');
+
+            btn.classList.add('syncing');
+            btn.disabled = true;
+            indicator.className = 'sync-status-indicator syncing';
+            statusText.textContent = 'Syncing...';
+
+            try {
+                await workOrderSync.syncFromCloud();
+                loadStoredWorkOrders();
+                renderStoredJobs();
+                updateSyncStatus();
+                showToast('Sync complete!', 'success');
+            } catch (error) {
+                indicator.className = 'sync-status-indicator error';
+                statusText.textContent = 'Sync failed';
+                showToast('Sync failed: ' + error.message, 'error');
+            } finally {
+                btn.classList.remove('syncing');
+                btn.disabled = false;
+            }
         }
 
         // File Upload Setup
@@ -834,36 +977,43 @@
             }
         }
 
-        // Save work orders to localStorage
-        function saveWorkOrders() {
+        // Save work orders to localStorage and cloud
+        async function saveWorkOrders() {
             if (parsedWorkOrders.length === 0) {
                 showToast('No work orders to save', 'error');
                 return;
             }
 
-            // Merge with existing, updating duplicates
-            const existingMap = new Map(storedWorkOrders.map(wo => [wo.woNumber, wo]));
+            // Show saving state
+            const indicator = document.getElementById('syncIndicator');
+            const statusText = document.getElementById('syncStatusText');
+            indicator.className = 'sync-status-indicator syncing';
+            statusText.textContent = 'Saving...';
 
-            parsedWorkOrders.forEach(wo => {
-                existingMap.set(wo.woNumber, wo);
-            });
+            try {
+                // Use sync module to save (handles both local and cloud)
+                await workOrderSync.saveWorkOrders(parsedWorkOrders);
 
-            storedWorkOrders = Array.from(existingMap.values())
-                .sort((a, b) => parseInt(a.woNumber) - parseInt(b.woNumber));
+                // Update local state
+                storedWorkOrders = workOrderSync.getLocalWorkOrders();
 
-            // Save to localStorage
-            localStorage.setItem('workOrders', JSON.stringify(storedWorkOrders));
+                // Dispatch event for other tools to listen to
+                window.dispatchEvent(new CustomEvent('workOrdersUpdated', {
+                    detail: { workOrders: storedWorkOrders }
+                }));
 
-            // Dispatch event for other tools to listen to
-            window.dispatchEvent(new CustomEvent('workOrdersUpdated', {
-                detail: { workOrders: storedWorkOrders }
-            }));
+                showToast(`Saved ${parsedWorkOrders.length} work orders`, 'success');
 
-            showToast(`Saved ${parsedWorkOrders.length} work orders`, 'success');
-
-            // Clear preview and refresh stored display
-            clearPreview();
-            renderStoredJobs();
+                // Clear preview and refresh stored display
+                clearPreview();
+                renderStoredJobs();
+                updateSyncStatus();
+            } catch (error) {
+                console.error('Save error:', error);
+                showToast('Error saving work orders: ' + error.message, 'error');
+                indicator.className = 'sync-status-indicator error';
+                statusText.textContent = 'Save failed';
+            }
         }
 
         // Load stored work orders
@@ -930,17 +1080,26 @@
         }
 
         // Clear all stored jobs
-        function clearAllStoredJobs() {
-            if (confirm('Are you sure you want to delete all stored work orders? This cannot be undone.')) {
-                storedWorkOrders = [];
-                localStorage.removeItem('workOrders');
-                renderStoredJobs();
-                showToast('All work orders cleared', 'success');
+        async function clearAllStoredJobs() {
+            const cloudWarning = workOrderSync && workOrderSync.useGoogleSheets
+                ? '\n\nThis will also delete from Google Sheets!'
+                : '';
 
-                // Dispatch event
-                window.dispatchEvent(new CustomEvent('workOrdersUpdated', {
-                    detail: { workOrders: [] }
-                }));
+            if (confirm('Are you sure you want to delete all stored work orders? This cannot be undone.' + cloudWarning)) {
+                try {
+                    await workOrderSync.clearAll();
+                    storedWorkOrders = [];
+                    renderStoredJobs();
+                    showToast('All work orders cleared', 'success');
+                    updateSyncStatus();
+
+                    // Dispatch event
+                    window.dispatchEvent(new CustomEvent('workOrdersUpdated', {
+                        detail: { workOrders: [] }
+                    }));
+                } catch (error) {
+                    showToast('Error clearing work orders: ' + error.message, 'error');
+                }
             }
         }
 

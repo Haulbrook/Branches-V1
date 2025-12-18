@@ -530,11 +530,13 @@
         </div>
     </div>
 
+    <script src="js/workOrderSync.js"></script>
     <script>
         // Application State
         let currentDate = new Date();
         let crews = [];
         let workOrders = []; // Stored work orders from CSV import
+        let workOrderSync = null;
         let resources = {
             crewMembers: ['John Smith', 'Mike Johnson', 'Sarah Williams', 'Tom Davis', 'Chris Brown', 'Alex Martinez'],
             trucks: ['Truck #1', 'Truck #2', 'Truck #3', 'Truck #4'],
@@ -546,11 +548,16 @@
         let draggedElement = null;
         let draggedData = null;
 
-        // Load work orders from localStorage (imported via Work Order Import tool)
-        function loadWorkOrders() {
+        // Load work orders using sync module
+        async function loadWorkOrders() {
             try {
-                const stored = localStorage.getItem('workOrders');
-                workOrders = stored ? JSON.parse(stored) : [];
+                // Use sync module if available
+                if (workOrderSync) {
+                    workOrders = await workOrderSync.getWorkOrders();
+                } else {
+                    const stored = localStorage.getItem('workOrders');
+                    workOrders = stored ? JSON.parse(stored) : [];
+                }
 
                 // Convert work orders to job display names for the scheduler
                 if (workOrders.length > 0) {
@@ -571,17 +578,27 @@
         }
 
         // Initialize
-        function init() {
-            loadWorkOrders();
+        async function init() {
+            // Initialize sync module
+            workOrderSync = new WorkOrderSync();
+            await workOrderSync.init();
+
+            // Listen for sync events
+            workOrderSync.on('workOrdersUpdated', async () => {
+                await loadWorkOrders();
+                renderResources();
+            });
+
+            await loadWorkOrders();
             loadFromLocalStorage();
             updateDateDisplay();
             renderResources();
             renderCrews();
 
             // Listen for work order updates from the import tool
-            window.addEventListener('storage', (e) => {
+            window.addEventListener('storage', async (e) => {
                 if (e.key === 'workOrders') {
-                    loadWorkOrders();
+                    await loadWorkOrders();
                     renderResources();
                 }
             });

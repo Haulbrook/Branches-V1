@@ -687,16 +687,38 @@
 
     <div class="toast" id="toast"></div>
 
+    <script src="js/workOrderSync.js"></script>
     <script>
         // State
         let workOrders = [];
         let currentWorkOrder = null;
         let progressData = {}; // Stores progress for each work order
         let editingItemIndex = null;
+        let workOrderSync = null;
 
         // Initialize
-        function init() {
-            loadWorkOrders();
+        async function init() {
+            // Initialize sync module
+            workOrderSync = new WorkOrderSync();
+            await workOrderSync.init();
+
+            // Listen for sync events
+            workOrderSync.on('workOrdersUpdated', async () => {
+                await loadWorkOrders();
+                if (currentWorkOrder) {
+                    selectWorkOrder(currentWorkOrder.woNumber);
+                }
+            });
+
+            workOrderSync.on('progressUpdated', (data) => {
+                if (currentWorkOrder && data.woNumber === currentWorkOrder.woNumber) {
+                    loadProgressData();
+                    renderProgressOverview();
+                    renderMatrix(document.getElementById('statusFilter').value);
+                }
+            });
+
+            await loadWorkOrders();
             loadProgressData();
             setupEventListeners();
 
@@ -709,11 +731,15 @@
             }
         }
 
-        // Load work orders from localStorage
-        function loadWorkOrders() {
+        // Load work orders using sync module
+        async function loadWorkOrders() {
             try {
-                const stored = localStorage.getItem('workOrders');
-                workOrders = stored ? JSON.parse(stored) : [];
+                if (workOrderSync) {
+                    workOrders = await workOrderSync.getWorkOrders();
+                } else {
+                    const stored = localStorage.getItem('workOrders');
+                    workOrders = stored ? JSON.parse(stored) : [];
+                }
                 populateJobSelector();
             } catch (error) {
                 console.error('Error loading work orders:', error);
@@ -721,20 +747,35 @@
             }
         }
 
-        // Load progress data from localStorage
+        // Load progress data from localStorage (and sync module)
         function loadProgressData() {
             try {
-                const stored = localStorage.getItem('progressData');
-                progressData = stored ? JSON.parse(stored) : {};
+                if (workOrderSync) {
+                    progressData = workOrderSync.getLocalProgress();
+                } else {
+                    const stored = localStorage.getItem('progressData');
+                    progressData = stored ? JSON.parse(stored) : {};
+                }
             } catch (error) {
                 console.error('Error loading progress data:', error);
                 progressData = {};
             }
         }
 
-        // Save progress data
-        function saveProgressData() {
+        // Save progress data (to both local and cloud)
+        async function saveProgressData() {
+            // Save locally first for immediate response
             localStorage.setItem('progressData', JSON.stringify(progressData));
+
+            // If we have a current work order, sync its progress to cloud
+            if (workOrderSync && currentWorkOrder) {
+                try {
+                    await workOrderSync.updateProgress(currentWorkOrder.woNumber, progressData[currentWorkOrder.woNumber]);
+                } catch (error) {
+                    console.error('Error syncing progress to cloud:', error);
+                    // Don't show error to user - local save succeeded
+                }
+            }
         }
 
         // Populate job selector dropdown
@@ -949,7 +990,7 @@
         }
 
         // Save progress
-        function saveProgress() {
+        async function saveProgress() {
             if (editingItemIndex === null) return;
 
             const quantity = parseFloat(document.getElementById('modalQuantity').value) || 0;
@@ -962,7 +1003,7 @@
             progress.notes = notes;
             progress.lastUpdated = new Date().toISOString();
 
-            saveProgressData();
+            await saveProgressData();
             closeModal();
             renderProgressOverview();
             renderMatrix(document.getElementById('statusFilter').value);
@@ -970,8 +1011,13 @@
         }
 
         // Refresh data
-        function refreshData() {
-            loadWorkOrders();
+        async function refreshData() {
+            if (workOrderSync && workOrderSync.useGoogleSheets) {
+                showToast('Syncing with cloud...', 'info');
+                await workOrderSync.syncFromCloud();
+            }
+            await loadWorkOrders();
+            loadProgressData();
             if (currentWorkOrder) {
                 selectWorkOrder(currentWorkOrder.woNumber);
             }

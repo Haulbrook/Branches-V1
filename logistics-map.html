@@ -525,10 +525,12 @@
 
     <!-- Leaflet JS -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="js/workOrderSync.js"></script>
 
     <script>
         // State
         let workOrders = [];
+        let workOrderSync = null;
         let map = null;
         let markers = [];
         let selectedJob = null;
@@ -540,9 +542,18 @@
         const DEFAULT_ZOOM = 10;
 
         // Initialize
-        function init() {
+        async function init() {
+            // Initialize sync module
+            workOrderSync = new WorkOrderSync();
+            await workOrderSync.init();
+
+            // Listen for sync events
+            workOrderSync.on('workOrdersUpdated', async () => {
+                await loadWorkOrders();
+            });
+
             initMap();
-            loadWorkOrders();
+            await loadWorkOrders();
             setupEventListeners();
         }
 
@@ -573,11 +584,16 @@
             showToast(satelliteView ? 'Satellite view' : 'Street view', 'info');
         }
 
-        // Load work orders from localStorage
-        function loadWorkOrders() {
+        // Load work orders using sync module
+        async function loadWorkOrders() {
             try {
-                const stored = localStorage.getItem('workOrders');
-                workOrders = stored ? JSON.parse(stored) : [];
+                // Use sync module if available
+                if (workOrderSync) {
+                    workOrders = await workOrderSync.getWorkOrders();
+                } else {
+                    const stored = localStorage.getItem('workOrders');
+                    workOrders = stored ? JSON.parse(stored) : [];
+                }
 
                 updateStats();
                 renderJobList();
@@ -801,8 +817,12 @@
         }
 
         // Refresh data
-        function refreshData() {
-            loadWorkOrders();
+        async function refreshData() {
+            if (workOrderSync && workOrderSync.useGoogleSheets) {
+                showToast('Syncing with cloud...', 'info');
+                await workOrderSync.syncFromCloud();
+            }
+            await loadWorkOrders();
             showToast('Data refreshed', 'success');
         }
 
