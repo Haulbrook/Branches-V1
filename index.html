@@ -477,6 +477,30 @@
                 </div>
                 
                 <div class="settings-section">
+                    <h3>Work Order Sync</h3>
+                    <p class="setting-hint" style="font-size: 0.85rem; color: #666; margin-bottom: 1rem;">
+                        Sync work orders with Google Sheets for backup and reporting.
+                    </p>
+                    <div class="setting-item">
+                        <label for="enableWorkOrderSync">Enable Work Order Sync</label>
+                        <input type="checkbox" id="enableWorkOrderSync" class="toggle-switch">
+                    </div>
+                    <div class="setting-item" id="syncSheetUrlContainer" style="display: none;">
+                        <label for="workOrderSyncSheetUrl">Google Sheet URL</label>
+                        <input type="url" id="workOrderSyncSheetUrl" class="setting-input" placeholder="https://docs.google.com/spreadsheets/d/...">
+                    </div>
+                    <div class="setting-item" id="syncIntervalContainer" style="display: none;">
+                        <label for="syncInterval">Sync Interval</label>
+                        <select id="syncInterval" class="setting-input" style="width: 100%;">
+                            <option value="manual">Manual Only</option>
+                            <option value="15">Every 15 minutes</option>
+                            <option value="30">Every 30 minutes</option>
+                            <option value="60">Every hour</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="settings-section">
                     <h3>Advanced</h3>
                     <button id="runSetupWizard" class="btn btn-secondary">
                         🧙‍♂️ Run Setup Wizard
