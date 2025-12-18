@@ -244,6 +244,24 @@
             background: linear-gradient(to right, #FBE9E7 0%, white 10%);
         }
 
+        /* Job card with progress widget */
+        .card.job {
+            padding: 10px 16px;
+        }
+
+        .job-card-content {
+            margin-bottom: 6px;
+        }
+
+        .job-progress-widget {
+            margin-top: 4px;
+        }
+
+        .job-progress-widget .progress-widget-compact {
+            margin-top: 6px;
+            font-size: 0.85em;
+        }
+
         .card.used {
             opacity: 0.5;
             cursor: not-allowed;
@@ -531,12 +549,14 @@
     </div>
 
     <script src="js/workOrderSync.js"></script>
+    <script src="js/progressWidget.js"></script>
     <script>
         // Application State
         let currentDate = new Date();
         let crews = [];
         let workOrders = []; // Stored work orders from CSV import
         let workOrderSync = null;
+        let progressWidget = null;
         let resources = {
             crewMembers: ['John Smith', 'Mike Johnson', 'Sarah Williams', 'Tom Davis', 'Chris Brown', 'Alex Martinez'],
             trucks: ['Truck #1', 'Truck #2', 'Truck #3', 'Truck #4'],
@@ -583,9 +603,14 @@
             workOrderSync = new WorkOrderSync();
             await workOrderSync.init();
 
+            // Initialize progress widget
+            progressWidget = new ProgressWidget(workOrderSync);
+            ProgressWidget.injectStyles();
+
             // Listen for sync events
             workOrderSync.on('workOrdersUpdated', async () => {
                 await loadWorkOrders();
+                progressWidget.clearCache();
                 renderResources();
             });
 
@@ -737,6 +762,36 @@
 
         function renderResourceCategory(containerId, items, cardClass, multiUse, usedItems) {
             const container = document.getElementById(containerId);
+
+            // Special handling for job cards - include progress widget
+            if (cardClass === 'job') {
+                container.innerHTML = items.map(item => {
+                    const isUsed = usedItems.includes(item);
+                    const usedClass = isUsed ? 'used' : '';
+                    const multiUseClass = multiUse ? 'multi-use' : '';
+
+                    // Extract WO number from job string (format: "WO#91108 - Job Name (Client)")
+                    const woMatch = item.match(/WO#(\d+)/);
+                    const woNumber = woMatch ? woMatch[1] : null;
+
+                    return `<div class="card ${cardClass} ${usedClass} ${multiUseClass}"
+                                 draggable="${!isUsed || multiUse}"
+                                 data-item="${item}"
+                                 data-type="${cardClass}"
+                                 data-wo="${woNumber || ''}"
+                                 ondragstart="handleDragStart(event)"
+                                 ondragend="handleDragEnd(event)">
+                        <div class="job-card-content">${item}</div>
+                        ${woNumber ? `<div class="job-progress-widget" id="pw-${woNumber}"></div>` : ''}
+                    </div>`;
+                }).join('');
+
+                // Render progress widgets for each job
+                renderJobProgressWidgets();
+                return;
+            }
+
+            // Standard rendering for other resource types
             container.innerHTML = items.map(item => {
                 const isUsed = usedItems.includes(item);
                 const usedClass = isUsed ? 'used' : '';
@@ -750,6 +805,25 @@
                     ${item}
                 </div>`;
             }).join('');
+        }
+
+        // Render progress widgets for all job cards
+        async function renderJobProgressWidgets() {
+            if (!progressWidget) return;
+
+            const jobCards = document.querySelectorAll('.card.job[data-wo]');
+            for (const card of jobCards) {
+                const woNumber = card.dataset.wo;
+                if (!woNumber) continue;
+
+                const container = card.querySelector('.job-progress-widget');
+                if (container) {
+                    container.innerHTML = await progressWidget.render(woNumber, {
+                        compact: true,
+                        clickable: true
+                    });
+                }
+            }
         }
 
         // Crew Rendering

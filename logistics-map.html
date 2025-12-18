@@ -336,6 +336,14 @@
             gap: 10px;
         }
 
+        .info-panel-progress {
+            margin: 12px 0;
+        }
+
+        .info-panel-progress .progress-widget {
+            background: #f0f7f0;
+        }
+
         .btn {
             padding: 8px 16px;
             border: none;
@@ -513,9 +521,10 @@
                     <button class="info-panel-close" onclick="closeInfoPanel()">×</button>
                 </div>
                 <p id="infoPanelAddress">Address</p>
+                <div id="infoPanelProgress" class="info-panel-progress"></div>
                 <div class="info-panel-actions">
                     <button class="btn btn-primary" onclick="navigateToSelected()">🧭 Navigate</button>
-                    <button class="btn btn-secondary" onclick="openProgressTracker()">📊 Progress</button>
+                    <button class="btn btn-secondary" onclick="openProgressTracker()">📊 Details</button>
                 </div>
             </div>
         </div>
@@ -526,11 +535,13 @@
     <!-- Leaflet JS -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="js/workOrderSync.js"></script>
+    <script src="js/progressWidget.js"></script>
 
     <script>
         // State
         let workOrders = [];
         let workOrderSync = null;
+        let progressWidget = null;
         let map = null;
         let markers = [];
         let selectedJob = null;
@@ -547,8 +558,13 @@
             workOrderSync = new WorkOrderSync();
             await workOrderSync.init();
 
+            // Initialize progress widget
+            progressWidget = new ProgressWidget(workOrderSync);
+            ProgressWidget.injectStyles();
+
             // Listen for sync events
             workOrderSync.on('workOrdersUpdated', async () => {
+                progressWidget.clearCache();
                 await loadWorkOrders();
             });
 
@@ -764,7 +780,7 @@
         }
 
         // Select a job
-        function selectJob(woNumber) {
+        async function selectJob(woNumber) {
             selectedJob = workOrders.find(wo => wo.woNumber === woNumber);
 
             // Update sidebar
@@ -783,6 +799,16 @@
             if (selectedJob) {
                 document.getElementById('infoPanelTitle').textContent = `WO# ${selectedJob.woNumber} - ${selectedJob.jobName}`;
                 document.getElementById('infoPanelAddress').textContent = selectedJob.address || 'No address';
+
+                // Render progress widget
+                const progressContainer = document.getElementById('infoPanelProgress');
+                if (progressWidget && progressContainer) {
+                    progressContainer.innerHTML = await progressWidget.render(selectedJob.woNumber, {
+                        showHours: true,
+                        clickable: true
+                    });
+                }
+
                 document.getElementById('infoPanel').classList.add('visible');
             }
         }
