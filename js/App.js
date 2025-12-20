@@ -951,11 +951,11 @@ Just ask naturally and I'll do my best to help!`;
         // ============================================
         showSettingsModal() {
             const services = this.config.services || {};
-            
+
             // Populate current values
             const darkModeEl = document.getElementById('darkMode');
             if (darkModeEl) darkModeEl.checked = document.body.dataset.theme === 'dark';
-            
+
             const fields = {
                 'inventoryUrl': services.inventory?.url || '',
                 'gradingUrl': services.grading?.url || '',
@@ -963,18 +963,42 @@ Just ask naturally and I'll do my best to help!`;
                 'toolsUrl': services.tools?.url || '',
                 'chessmapUrl': services.chessmap?.url || ''
             };
-            
+
             Object.entries(fields).forEach(([id, value]) => {
                 const el = document.getElementById(id);
                 if (el) el.value = value;
             });
-            
+
+            // Work Order Sync settings
+            const syncSettings = JSON.parse(localStorage.getItem('workOrderSyncSettings') || '{}');
+            const enableSyncEl = document.getElementById('enableWorkOrderSync');
+            const sheetUrlEl = document.getElementById('workOrderSyncSheetUrl');
+            const syncIntervalEl = document.getElementById('syncInterval');
+            const syncSheetUrlContainer = document.getElementById('syncSheetUrlContainer');
+            const syncIntervalContainer = document.getElementById('syncIntervalContainer');
+
+            if (enableSyncEl) {
+                enableSyncEl.checked = syncSettings.enabled || false;
+                // Show/hide additional fields based on toggle state
+                if (syncSheetUrlContainer) syncSheetUrlContainer.style.display = syncSettings.enabled ? 'flex' : 'none';
+                if (syncIntervalContainer) syncIntervalContainer.style.display = syncSettings.enabled ? 'flex' : 'none';
+
+                // Add listener for toggle changes
+                enableSyncEl.onchange = () => {
+                    const showFields = enableSyncEl.checked;
+                    if (syncSheetUrlContainer) syncSheetUrlContainer.style.display = showFields ? 'flex' : 'none';
+                    if (syncIntervalContainer) syncIntervalContainer.style.display = showFields ? 'flex' : 'none';
+                };
+            }
+            if (sheetUrlEl) sheetUrlEl.value = syncSettings.sheetUrl || '';
+            if (syncIntervalEl) syncIntervalEl.value = syncSettings.interval || 'manual';
+
             this.showModal('settingsModal');
         }
 
         saveSettings() {
             const getValue = (id) => document.getElementById(id)?.value || '';
-            
+
             const services = {
                 inventory: { ...this.config.services?.inventory, url: getValue('inventoryUrl') },
                 grading: { ...this.config.services?.grading, url: getValue('gradingUrl') },
@@ -982,25 +1006,41 @@ Just ask naturally and I'll do my best to help!`;
                 tools: { ...this.config.services?.tools, url: getValue('toolsUrl') },
                 chessmap: { ...this.config.services?.chessmap, url: getValue('chessmapUrl') }
             };
-            
+
             const darkMode = document.getElementById('darkMode')?.checked || false;
-            
+
             // Save to localStorage
             localStorage.setItem('dashboardSettings', JSON.stringify({ services, darkMode }));
-            
+
             Object.keys(services).forEach(key => {
                 if (services[key].url) {
                     localStorage.setItem(`${key}Url`, services[key].url);
                 }
             });
-            
+
+            // Save Work Order Sync settings
+            const workOrderSyncSettings = {
+                enabled: document.getElementById('enableWorkOrderSync')?.checked || false,
+                sheetUrl: getValue('workOrderSyncSheetUrl'),
+                interval: getValue('syncInterval') || 'manual'
+            };
+            localStorage.setItem('workOrderSyncSettings', JSON.stringify(workOrderSyncSettings));
+
+            // Dispatch event for sync settings change
+            if (workOrderSyncSettings.enabled) {
+                window.dispatchEvent(new CustomEvent('workOrderSyncSettingsChanged', {
+                    detail: workOrderSyncSettings
+                }));
+                log('Work Order Sync enabled: ' + workOrderSyncSettings.interval);
+            }
+
             // Apply theme
             document.body.dataset.theme = darkMode ? 'dark' : 'light';
             localStorage.setItem('theme', darkMode ? 'dark' : 'light');
-            
+
             // Update config
             this.config.services = services;
-            
+
             this.hideModal('settingsModal');
             this.showToast('Settings saved successfully!', 'success');
         }
