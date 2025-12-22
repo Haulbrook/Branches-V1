@@ -75,6 +75,42 @@
             opacity: 0.9;
         }
 
+        .sync-status {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.75em;
+            padding: 4px 10px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 12px;
+            margin-top: 8px;
+        }
+
+        .sync-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #66BB6A;
+        }
+
+        .sync-status.syncing .sync-indicator {
+            background: #FFA726;
+            animation: pulse 1s infinite;
+        }
+
+        .sync-status.offline .sync-indicator {
+            background: #9E9E9E;
+        }
+
+        .sync-status.error .sync-indicator {
+            background: #EF5350;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
         /* Main Content */
         .content {
             padding: 30px;
@@ -525,6 +561,10 @@
         <div class="header">
             <h1>📥 Work Order Import</h1>
             <p>Import work orders from SingleOps CSV export</p>
+            <div id="syncStatus" class="sync-status" style="display: none;">
+                <span class="sync-indicator"></span>
+                <span class="sync-text">Synced</span>
+            </div>
         </div>
 
         <div class="content">
@@ -591,6 +631,9 @@
     <!-- Toast Notification -->
     <div class="toast" id="toast"></div>
 
+    <!-- Sync Module -->
+    <script src="js/workOrderSync.js"></script>
+
     <script>
         // State
         let parsedWorkOrders = [];
@@ -617,6 +660,57 @@
             loadStoredWorkOrders();
             setupFileUpload();
             renderStoredJobs();
+            initSyncStatus();
+        }
+
+        // Initialize sync status display
+        function initSyncStatus() {
+            if (typeof WorkOrderSync === 'undefined') return;
+
+            updateSyncStatus();
+
+            // Listen for sync events
+            WorkOrderSync.on('syncStart', () => {
+                const el = document.getElementById('syncStatus');
+                el.className = 'sync-status syncing';
+                el.querySelector('.sync-text').textContent = 'Syncing...';
+            });
+
+            WorkOrderSync.on('syncComplete', (data) => {
+                updateSyncStatus();
+            });
+
+            WorkOrderSync.on('syncError', (data) => {
+                const el = document.getElementById('syncStatus');
+                el.className = 'sync-status error';
+                el.querySelector('.sync-text').textContent = 'Sync error';
+            });
+        }
+
+        // Update sync status display
+        function updateSyncStatus() {
+            const el = document.getElementById('syncStatus');
+            if (!el || typeof WorkOrderSync === 'undefined') return;
+
+            const status = WorkOrderSync.getStatus();
+
+            if (!status.enabled) {
+                el.style.display = 'none';
+                return;
+            }
+
+            el.style.display = 'flex';
+
+            if (!status.online) {
+                el.className = 'sync-status offline';
+                el.querySelector('.sync-text').textContent = 'Offline';
+            } else if (status.syncInProgress) {
+                el.className = 'sync-status syncing';
+                el.querySelector('.sync-text').textContent = 'Syncing...';
+            } else {
+                el.className = 'sync-status';
+                el.querySelector('.sync-text').textContent = WorkOrderSync.formatLastSync();
+            }
         }
 
         // File Upload Setup
@@ -834,8 +928,8 @@
             }
         }
 
-        // Save work orders to localStorage
-        function saveWorkOrders() {
+        // Save work orders to localStorage and sync to cloud
+        async function saveWorkOrders() {
             if (parsedWorkOrders.length === 0) {
                 showToast('No work orders to save', 'error');
                 return;
@@ -860,6 +954,21 @@
             }));
 
             showToast(`Saved ${parsedWorkOrders.length} work orders`, 'success');
+
+            // Cloud sync (if enabled)
+            if (typeof WorkOrderSync !== 'undefined' && WorkOrderSync.config.enabled) {
+                try {
+                    const syncResult = await WorkOrderSync.pushWorkOrders(storedWorkOrders);
+                    if (syncResult.success) {
+                        showToast('Synced to cloud', 'success');
+                        updateSyncStatus();
+                    } else if (syncResult.reason === 'offline') {
+                        showToast('Saved locally (offline)', 'info');
+                    }
+                } catch (error) {
+                    console.error('Sync error:', error);
+                }
+            }
 
             // Clear preview and refresh stored display
             clearPreview();

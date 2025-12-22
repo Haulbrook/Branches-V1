@@ -527,6 +527,9 @@
     <!-- Leaflet JS -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
+    <!-- Sync Module -->
+    <script src="js/workOrderSync.js"></script>
+
     <script>
         // State
         let workOrders = [];
@@ -826,6 +829,15 @@
                 if (e.key === 'workOrders') {
                     loadWorkOrders();
                 }
+            });
+
+            // Listen for sync updates
+            window.addEventListener('workOrderSync:workOrdersUpdated', (e) => {
+                loadWorkOrders();
+            });
+
+            window.addEventListener('workOrdersUpdated', (e) => {
+                loadWorkOrders();
             });
         }
 

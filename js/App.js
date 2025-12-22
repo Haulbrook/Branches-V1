@@ -977,21 +977,29 @@ Just ask naturally and I'll do my best to help!`;
             const syncSheetUrlContainer = document.getElementById('syncSheetUrlContainer');
             const syncIntervalContainer = document.getElementById('syncIntervalContainer');
 
+            const syncActionsContainer = document.getElementById('syncActionsContainer');
+
             if (enableSyncEl) {
                 enableSyncEl.checked = syncSettings.enabled || false;
                 // Show/hide additional fields based on toggle state
-                if (syncSheetUrlContainer) syncSheetUrlContainer.style.display = syncSettings.enabled ? 'flex' : 'none';
-                if (syncIntervalContainer) syncIntervalContainer.style.display = syncSettings.enabled ? 'flex' : 'none';
+                const showFields = syncSettings.enabled;
+                if (syncSheetUrlContainer) syncSheetUrlContainer.style.display = showFields ? 'flex' : 'none';
+                if (syncIntervalContainer) syncIntervalContainer.style.display = showFields ? 'flex' : 'none';
+                if (syncActionsContainer) syncActionsContainer.style.display = showFields ? 'flex' : 'none';
 
                 // Add listener for toggle changes
                 enableSyncEl.onchange = () => {
                     const showFields = enableSyncEl.checked;
                     if (syncSheetUrlContainer) syncSheetUrlContainer.style.display = showFields ? 'flex' : 'none';
                     if (syncIntervalContainer) syncIntervalContainer.style.display = showFields ? 'flex' : 'none';
+                    if (syncActionsContainer) syncActionsContainer.style.display = showFields ? 'flex' : 'none';
                 };
             }
             if (sheetUrlEl) sheetUrlEl.value = syncSettings.sheetUrl || '';
             if (syncIntervalEl) syncIntervalEl.value = syncSettings.interval || 'manual';
+
+            // Update sync status display
+            this.updateSyncStatusDisplay();
 
             this.showModal('settingsModal');
         }
@@ -1050,6 +1058,99 @@ Just ask naturally and I'll do my best to help!`;
             document.body.dataset.theme = newTheme;
             localStorage.setItem('theme', newTheme);
             this.showToast(`${newTheme === 'dark' ? '🌙 Dark' : '☀️ Light'} mode enabled`, 'success');
+        }
+
+        // ============================================
+        // WORK ORDER SYNC
+        // ============================================
+        updateSyncStatusDisplay() {
+            const statusEl = document.getElementById('syncStatusText');
+            if (!statusEl || typeof WorkOrderSync === 'undefined') return;
+
+            const status = WorkOrderSync.getStatus();
+            if (status.enabled && status.lastSync) {
+                statusEl.textContent = `Last sync: ${WorkOrderSync.formatLastSync()}`;
+                statusEl.style.color = '#2E7D32';
+            } else if (status.enabled) {
+                statusEl.textContent = 'Not synced yet';
+                statusEl.style.color = '#666';
+            } else {
+                statusEl.textContent = 'Disabled';
+                statusEl.style.color = '#999';
+            }
+        }
+
+        async manualSync() {
+            if (typeof WorkOrderSync === 'undefined') {
+                this.showToast('Sync module not loaded', 'error');
+                return;
+            }
+
+            const statusEl = document.getElementById('syncStatusText');
+            const btn = document.getElementById('manualSyncBtn');
+
+            if (statusEl) statusEl.textContent = 'Syncing...';
+            if (btn) btn.disabled = true;
+
+            try {
+                const result = await WorkOrderSync.sync();
+                if (result.success) {
+                    this.showToast('Sync completed successfully', 'success');
+                    this.updateSyncStatusDisplay();
+                } else if (result.reason === 'not_configured') {
+                    this.showToast('Sync not configured - add Sheet URL', 'error');
+                } else if (result.reason === 'offline') {
+                    this.showToast('Cannot sync - offline', 'error');
+                } else {
+                    this.showToast('Sync failed: ' + (result.error || 'Unknown error'), 'error');
+                }
+            } catch (error) {
+                console.error('Sync error:', error);
+                this.showToast('Sync error: ' + error.message, 'error');
+            } finally {
+                if (btn) btn.disabled = false;
+                this.updateSyncStatusDisplay();
+            }
+        }
+
+        async testSyncConnection() {
+            if (typeof WorkOrderSync === 'undefined') {
+                this.showToast('Sync module not loaded', 'error');
+                return;
+            }
+
+            // Get URL from the form field (might not be saved yet)
+            const urlEl = document.getElementById('workOrderSyncSheetUrl');
+            const url = urlEl?.value;
+
+            if (!url) {
+                this.showToast('Enter a Google Sheet Web App URL first', 'error');
+                return;
+            }
+
+            const btn = document.getElementById('testConnectionBtn');
+            if (btn) btn.disabled = true;
+
+            try {
+                // Temporarily set the URL for testing
+                const originalUrl = WorkOrderSync.config.sheetUrl;
+                WorkOrderSync.config.sheetUrl = url;
+
+                const connected = await WorkOrderSync.testConnection();
+
+                WorkOrderSync.config.sheetUrl = originalUrl;
+
+                if (connected) {
+                    this.showToast('Connection successful!', 'success');
+                } else {
+                    this.showToast('Connection failed - check URL', 'error');
+                }
+            } catch (error) {
+                console.error('Connection test error:', error);
+                this.showToast('Connection error: ' + error.message, 'error');
+            } finally {
+                if (btn) btn.disabled = false;
+            }
         }
 
         // ============================================
