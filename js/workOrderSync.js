@@ -12,12 +12,15 @@
 const WorkOrderSync = {
     // Configuration
     config: {
-        enabled: false,
-        sheetUrl: '',
-        interval: 'manual', // manual, 15, 30, 60 (minutes)
+        enabled: true,
+        sheetUrl: 'https://script.google.com/macros/s/AKfycbz_8YjbZhRMN-Indd_Hxf4ZbVSLu_SUvj2Qi1u4DZj0f-NH5VRZqnA2CT9QJ0lZp5qKUg/exec',
+        interval: '60', // manual, 15, 30, 60 (minutes)
         lastSync: null,
         syncInProgress: false
     },
+
+    // Default URL (used if no settings saved)
+    DEFAULT_SHEET_URL: 'https://script.google.com/macros/s/AKfycbz_8YjbZhRMN-Indd_Hxf4ZbVSLu_SUvj2Qi1u4DZj0f-NH5VRZqnA2CT9QJ0lZp5qKUg/exec',
 
     // Sync timer
     syncTimer: null,
@@ -43,9 +46,15 @@ const WorkOrderSync = {
             const stored = localStorage.getItem('workOrderSyncSettings');
             if (stored) {
                 const settings = JSON.parse(stored);
-                this.config.enabled = settings.enabled || false;
-                this.config.sheetUrl = settings.sheetUrl || '';
-                this.config.interval = settings.interval || 'manual';
+                this.config.enabled = settings.enabled !== undefined ? settings.enabled : true;
+                this.config.sheetUrl = settings.sheetUrl || this.DEFAULT_SHEET_URL;
+                this.config.interval = settings.interval || '60';
+            } else {
+                // No settings saved - use defaults and save them
+                this.config.enabled = true;
+                this.config.sheetUrl = this.DEFAULT_SHEET_URL;
+                this.config.interval = '60';
+                this.saveSettings();
             }
 
             const lastSync = localStorage.getItem('workOrderSyncLastSync');
