@@ -687,6 +687,9 @@
 
     <div class="toast" id="toast"></div>
 
+    <!-- Sync Module -->
+    <script src="js/workOrderSync.js"></script>
+
     <script>
         // State
         let workOrders = [];
@@ -732,9 +735,27 @@
             }
         }
 
-        // Save progress data
-        function saveProgressData() {
+        // Save progress data (to localStorage and sync to cloud)
+        async function saveProgressData() {
             localStorage.setItem('progressData', JSON.stringify(progressData));
+
+            // Sync to cloud if enabled
+            if (typeof WorkOrderSync !== 'undefined' && WorkOrderSync.config.enabled && currentWorkOrder) {
+                try {
+                    const woNumber = currentWorkOrder.woNumber;
+                    const progress = progressData[woNumber];
+                    if (progress) {
+                        await WorkOrderSync.syncProgress(woNumber, progress);
+                    }
+                } catch (error) {
+                    console.error('Progress sync error:', error);
+                }
+            }
+
+            // Dispatch event for other tools
+            window.dispatchEvent(new CustomEvent('progressUpdated', {
+                detail: { woNumber: currentWorkOrder?.woNumber, progressData }
+            }));
         }
 
         // Populate job selector dropdown
@@ -992,6 +1013,29 @@
                     if (currentWorkOrder) {
                         selectWorkOrder(currentWorkOrder.woNumber);
                     }
+                }
+            });
+
+            // Listen for sync updates
+            window.addEventListener('workOrderSync:workOrdersUpdated', (e) => {
+                loadWorkOrders();
+                if (currentWorkOrder) {
+                    selectWorkOrder(currentWorkOrder.woNumber);
+                }
+            });
+
+            window.addEventListener('workOrdersUpdated', (e) => {
+                loadWorkOrders();
+                if (currentWorkOrder) {
+                    selectWorkOrder(currentWorkOrder.woNumber);
+                }
+            });
+
+            window.addEventListener('workOrderSync:progressUpdated', (e) => {
+                loadProgressData();
+                if (currentWorkOrder) {
+                    renderMatrix();
+                    renderProgressOverview();
                 }
             });
 

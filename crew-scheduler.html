@@ -530,6 +530,9 @@
         </div>
     </div>
 
+    <!-- Sync Module -->
+    <script src="js/workOrderSync.js"></script>
+
     <script>
         // Application State
         let currentDate = new Date();
@@ -584,6 +587,17 @@
                     loadWorkOrders();
                     renderResources();
                 }
+            });
+
+            // Listen for sync updates
+            window.addEventListener('workOrderSync:workOrdersUpdated', (e) => {
+                loadWorkOrders();
+                renderResources();
+            });
+
+            window.addEventListener('workOrdersUpdated', (e) => {
+                loadWorkOrders();
+                renderResources();
             });
         }
 
