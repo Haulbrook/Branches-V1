@@ -1,8 +1,9 @@
 {
   "app": {
     "name": "Deep Roots Operations Dashboard",
-    "version": "2.1.0"
+    "version": "2.2.0"
   },
+  "apiUrl": "https://script.google.com/macros/s/AKfycbxWHqo7-YySZyMKrGTQMcnhhEtg4s_p57o5XhP-9tmxU8aSEBDvQ1CKq1l52I1Te6MneQ/exec",
   "services": {
     "inventory": {
       "name": "Inventory Management",

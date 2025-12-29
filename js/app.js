@@ -230,15 +230,53 @@
         // ============================================
         // DASHBOARD DATA
         // ============================================
-        loadHeroStats() {
-            // Hardcoded stats for now - replace with API call later
-            const stats = {
-                statInventoryCount: 247,
-                statFleetCount: 8,
-                statJobsCount: 23,
-                statToolsOut: 14
+        async loadHeroStats() {
+            // Get API URL from config or use default
+            const apiUrl = this.config?.apiUrl || localStorage.getItem('apiUrl') || 'https://script.google.com/macros/s/AKfycbxWHqo7-YySZyMKrGTQMcnhhEtg4s_p57o5XhP-9tmxU8aSEBDvQ1CKq1l52I1Te6MneQ/exec';
+
+            // Default stats (used as fallback)
+            let stats = {
+                statInventoryCount: '...',
+                statFleetCount: '...',
+                statJobsCount: '...',
+                statToolsOut: this.getToolsCheckedOutCount()
             };
-            
+
+            // Set initial values (loading state)
+            Object.entries(stats).forEach(([id, value]) => {
+                const el = document.getElementById(id);
+                if (el) el.textContent = value;
+            });
+
+            // Fetch live data from API
+            if (apiUrl) {
+                try {
+                    const response = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'text/plain' },
+                        body: JSON.stringify({ action: 'getDashboardStats' }),
+                        redirect: 'follow'
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        if (data.success && data.stats) {
+                            const apiStats = data.stats;
+                            stats.statInventoryCount = apiStats.inventoryCount || 0;
+                            stats.statFleetCount = apiStats.fleetCount || 0;
+                            stats.statJobsCount = apiStats.jobsCount || 0;
+                            log('Live stats loaded from API', 'success');
+                        }
+                    }
+                } catch (error) {
+                    log(`Error fetching live stats: ${error.message}`, 'warning');
+                }
+            }
+
+            // Tools checked out from localStorage (hand-tool-checkout)
+            stats.statToolsOut = this.getToolsCheckedOutCount();
+
+            // Update DOM with final values
             Object.entries(stats).forEach(([id, value]) => {
                 const el = document.getElementById(id);
                 if (el) {
@@ -248,6 +286,29 @@
                     log(`Stat element #${id} not found!`, 'error');
                 }
             });
+        }
+
+        /**
+         * Count tools checked out from hand-tool-checkout localStorage
+         * Key format: handtools_YYYY-MM-DD
+         */
+        getToolsCheckedOutCount() {
+            try {
+                const today = new Date().toISOString().split('T')[0];
+                const storageKey = `handtools_${today}`;
+                const stored = localStorage.getItem(storageKey);
+
+                if (stored) {
+                    const data = JSON.parse(stored);
+                    const tools = data.tools || [];
+                    // Count tools where crewId is set (checked out)
+                    return tools.filter(t => t.crewId && t.crewId !== 'OUT_OF_SERVICE').length;
+                }
+                return 0;
+            } catch (error) {
+                log('Error counting checked out tools: ' + error.message, 'warning');
+                return 0;
+            }
         }
 
         loadRecentActivity() {
@@ -956,6 +1017,10 @@ Just ask naturally and I'll do my best to help!`;
             const darkModeEl = document.getElementById('darkMode');
             if (darkModeEl) darkModeEl.checked = document.body.dataset.theme === 'dark';
 
+            // API URL for backend
+            const apiUrlEl = document.getElementById('apiUrl');
+            if (apiUrlEl) apiUrlEl.value = this.config.apiUrl || localStorage.getItem('apiUrl') || '';
+
             const fields = {
                 'inventoryUrl': services.inventory?.url || '',
                 'gradingUrl': services.grading?.url || '',
@@ -1008,9 +1073,14 @@ Just ask naturally and I'll do my best to help!`;
             };
 
             const darkMode = document.getElementById('darkMode')?.checked || false;
+            const apiUrl = getValue('apiUrl');
+
+            // Save API URL to localStorage
+            localStorage.setItem('apiUrl', apiUrl);
+            this.config.apiUrl = apiUrl;
 
             // Save to localStorage
-            localStorage.setItem('dashboardSettings', JSON.stringify({ services, darkMode }));
+            localStorage.setItem('dashboardSettings', JSON.stringify({ services, darkMode, apiUrl }));
 
             Object.keys(services).forEach(key => {
                 if (services[key].url) {
