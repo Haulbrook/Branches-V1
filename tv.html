@@ -6,7 +6,7 @@
     <title>Deep Roots - Shop TV Dashboard</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -15,20 +15,39 @@
         }
 
         :root {
-            --brand-primary: #2E7D32;
-            --brand-dark: #1B5E20;
-            --brand-light: #4CAF50;
-            --accent: #FFA726;
-            --success: #66BB6A;
-            --warning: #FFA726;
-            --error: #EF5350;
-            --info: #42A5F5;
-            --bg-dark: #1a1a2e;
-            --bg-card: #16213e;
-            --bg-card-hover: #1f3460;
-            --text-primary: #ffffff;
-            --text-secondary: #a0a0b0;
-            --border-color: #2a2a4a;
+            /* Brand Colors */
+            --brand-primary: #22c55e;
+            --brand-dark: #166534;
+            --brand-light: #4ade80;
+            --brand-glow: rgba(34, 197, 94, 0.4);
+
+            /* Status Colors */
+            --status-active: #4ade80;
+            --status-in-use: #fbbf24;
+            --status-inactive: #6b7280;
+            --status-error: #f87171;
+            --status-info: #60a5fa;
+
+            /* Background - Darker Theme */
+            --bg-dark: #0d1117;
+            --bg-card: #161b22;
+            --bg-card-elevated: #1c2128;
+            --bg-card-hover: #21262d;
+
+            /* Text */
+            --text-primary: #f0f6fc;
+            --text-secondary: #8b949e;
+            --text-muted: #6e7681;
+
+            /* Borders */
+            --border-color: #30363d;
+            --border-subtle: #21262d;
+
+            /* Shadows */
+            --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+            --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
+            --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.5);
+            --shadow-glow: 0 0 20px var(--brand-glow);
         }
 
         body {
@@ -36,142 +55,200 @@
             background: var(--bg-dark);
             color: var(--text-primary);
             min-height: 100vh;
-            overflow-y: auto;
+            overflow-x: hidden;
         }
 
+        /* ============================================
+           DASHBOARD GRID LAYOUT
+           ============================================ */
         .dashboard {
             display: grid;
-            grid-template-columns: 1fr 2fr;
-            grid-template-rows: auto auto auto;
-            gap: 15px;
-            padding: 15px;
+            grid-template-columns: minmax(280px, 1fr) 3fr;
+            grid-template-rows: auto 1fr auto;
+            gap: 20px;
+            padding: 20px;
             min-height: 100vh;
+            max-height: 100vh;
         }
 
-        /* Header */
+        /* ============================================
+           HEADER
+           ============================================ */
         .header {
             grid-column: 1 / -1;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background: linear-gradient(135deg, var(--brand-primary), var(--brand-dark));
-            padding: 15px 30px;
-            border-radius: 15px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            background: linear-gradient(135deg, var(--brand-dark) 0%, #0f4c2a 100%);
+            padding: 16px 32px;
+            border-radius: 16px;
+            box-shadow: var(--shadow-lg), var(--shadow-glow);
+            border: 1px solid rgba(34, 197, 94, 0.2);
         }
 
         .header-left {
             display: flex;
             align-items: center;
-            gap: 15px;
+            gap: 16px;
         }
 
         .logo {
-            font-size: 2.5rem;
+            font-size: 3rem;
+            filter: drop-shadow(0 0 10px rgba(34, 197, 94, 0.5));
         }
 
         .header-title h1 {
-            font-size: 1.8rem;
-            font-weight: 700;
+            font-size: 1.75rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
         }
 
         .header-title p {
-            font-size: 0.95rem;
+            font-size: 0.9rem;
+            opacity: 0.85;
+            font-weight: 500;
+        }
+
+        .header-center {
+            text-align: center;
+        }
+
+        .time-display .time {
+            font-size: 3.5rem;
+            font-weight: 900;
+            letter-spacing: -0.02em;
+            text-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+            line-height: 1;
+        }
+
+        .time-display .date {
+            font-size: 1rem;
             opacity: 0.9;
+            font-weight: 500;
+            margin-top: 4px;
         }
 
         .header-right {
             display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 8px;
+        }
+
+        .connection-status {
+            display: flex;
             align-items: center;
-            gap: 30px;
+            gap: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
         }
 
-        .time-display {
-            text-align: right;
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--status-active);
+            box-shadow: 0 0 10px var(--status-active);
+            animation: pulse-dot 2s ease-in-out infinite;
         }
 
-        .time-display .time {
-            font-size: 2rem;
-            font-weight: 700;
+        .status-dot.offline {
+            background: var(--status-error);
+            box-shadow: 0 0 10px var(--status-error);
+            animation: none;
         }
 
-        .time-display .date {
-            font-size: 0.95rem;
-            opacity: 0.9;
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(1.2); }
         }
 
         .last-updated {
-            font-size: 0.85rem;
-            opacity: 0.7;
-            background: rgba(255,255,255,0.1);
-            padding: 8px 15px;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            background: rgba(0, 0, 0, 0.3);
+            padding: 6px 12px;
             border-radius: 20px;
         }
 
-        /* Cards */
+        /* ============================================
+           CARDS BASE STYLE
+           ============================================ */
         .card {
             background: var(--bg-card);
-            border-radius: 15px;
+            border-radius: 16px;
             padding: 20px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-            overflow: hidden;
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--border-color);
             display: flex;
             flex-direction: column;
+            overflow: hidden;
+            transition: box-shadow 0.3s ease;
         }
 
         .card-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 15px;
-            padding-bottom: 10px;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
             border-bottom: 2px solid var(--border-color);
         }
 
         .card-title {
-            font-size: 1.2rem;
-            font-weight: 600;
+            font-size: 1.1rem;
+            font-weight: 700;
             display: flex;
             align-items: center;
             gap: 10px;
+            color: var(--text-primary);
+        }
+
+        .card-title-icon {
+            font-size: 1.3rem;
         }
 
         .card-badge {
-            background: var(--brand-primary);
-            padding: 4px 12px;
+            background: linear-gradient(135deg, var(--brand-primary), var(--brand-dark));
+            padding: 6px 14px;
             border-radius: 20px;
-            font-size: 0.85rem;
-            font-weight: 600;
+            font-size: 0.8rem;
+            font-weight: 700;
+            box-shadow: var(--shadow-sm);
         }
 
         .card-content {
             flex: 1;
-            overflow: hidden;
+            overflow-y: auto;
+            overflow-x: hidden;
         }
 
-        /* Vehicles Section */
+        /* ============================================
+           FLEET STATUS (Left Column)
+           ============================================ */
         .vehicles-card {
             grid-row: 2;
             grid-column: 1;
         }
 
         .vehicle-list {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            display: flex;
+            flex-direction: column;
             gap: 8px;
         }
 
         .fleet-section-title {
-            grid-column: 1 / -1;
             font-size: 0.7rem;
-            color: var(--accent);
+            color: var(--brand-light);
             font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 1px;
-            margin: 8px 0 4px 0;
-            padding: 4px 8px;
-            background: rgba(255,167,38,0.1);
-            border-radius: 5px;
+            letter-spacing: 1.5px;
+            margin: 12px 0 8px 0;
+            padding: 6px 10px;
+            background: rgba(34, 197, 94, 0.1);
+            border-radius: 6px;
+            border-left: 3px solid var(--brand-primary);
         }
 
         .fleet-section-title:first-child {
@@ -179,14 +256,14 @@
         }
 
         .vehicle-item {
-            background: var(--bg-card-hover);
-            padding: 8px 10px;
+            background: var(--bg-card-elevated);
+            padding: 10px 12px;
             border-radius: 10px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border: 1px solid var(--border-color);
-            font-size: 0.75rem;
+            border: 1px solid var(--border-subtle);
+            transition: all 0.3s ease;
         }
 
         .vehicle-item.inactive {
@@ -194,37 +271,35 @@
         }
 
         .vehicle-item.in-use {
-            border-color: var(--accent);
-            background: rgba(255, 167, 38, 0.1);
+            border-color: var(--status-in-use);
+            background: rgba(251, 191, 36, 0.1);
+            box-shadow: 0 0 15px rgba(251, 191, 36, 0.2);
+            animation: pulse-border 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse-border {
+            0%, 100% { box-shadow: 0 0 15px rgba(251, 191, 36, 0.2); }
+            50% { box-shadow: 0 0 25px rgba(251, 191, 36, 0.4); }
         }
 
         .vehicle-info {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
             overflow: hidden;
         }
 
         .vehicle-icon {
-            font-size: 1rem;
+            font-size: 1.2rem;
             flex-shrink: 0;
         }
 
         .vehicle-details h4 {
-            font-size: 0.75rem;
+            font-size: 0.85rem;
             font-weight: 600;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            max-width: 120px;
-        }
-
-        .vehicle-details p {
-            display: none;
-        }
-
-        .vehicle-location {
-            display: none;
         }
 
         .vehicle-status {
@@ -233,34 +308,35 @@
 
         .status-badge {
             display: inline-block;
-            padding: 2px 6px;
-            border-radius: 10px;
-            font-size: 0.6rem;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.65rem;
             font-weight: 700;
             text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .status-badge.active {
-            background: rgba(102, 187, 106, 0.3);
-            color: var(--success);
+            background: rgba(74, 222, 128, 0.2);
+            color: var(--status-active);
+            border: 1px solid rgba(74, 222, 128, 0.3);
         }
 
         .status-badge.in-use {
-            background: rgba(255, 167, 38, 0.3);
-            color: var(--accent);
+            background: rgba(251, 191, 36, 0.2);
+            color: var(--status-in-use);
+            border: 1px solid rgba(251, 191, 36, 0.3);
         }
 
         .status-badge.inactive {
-            background: rgba(160, 160, 176, 0.2);
-            color: var(--text-secondary);
+            background: rgba(107, 114, 128, 0.2);
+            color: var(--status-inactive);
+            border: 1px solid rgba(107, 114, 128, 0.3);
         }
 
-        .status-badge.maintenance {
-            background: rgba(239, 83, 80, 0.3);
-            color: var(--error);
-        }
-
-        /* Jobs Section */
+        /* ============================================
+           ACTIVE JOBS (Main Column)
+           ============================================ */
         .jobs-card {
             grid-row: 2;
             grid-column: 2;
@@ -268,60 +344,142 @@
 
         .job-list {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 10px;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 16px;
+            max-height: calc(100vh - 320px);
+            overflow-y: auto;
         }
 
         .job-item {
-            background: var(--bg-card-hover);
-            padding: 10px 12px;
+            background: var(--bg-card-elevated);
+            padding: 16px;
             border-radius: 12px;
-            border: 1px solid var(--border-color);
+            border: 1px solid var(--border-subtle);
             border-left: 4px solid var(--brand-primary);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .job-item:hover {
+            background: var(--bg-card-hover);
+            box-shadow: var(--shadow-md);
+        }
+
+        .job-item.urgent {
+            border-left-color: var(--status-error);
+        }
+
+        .job-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
         }
 
         .job-wo {
+            font-size: 0.75rem;
+            color: var(--brand-light);
+            font-weight: 800;
+            letter-spacing: 0.5px;
+        }
+
+        .job-crew {
             font-size: 0.7rem;
-            color: var(--accent);
-            font-weight: 700;
-            margin-bottom: 4px;
+            color: var(--text-secondary);
+            background: var(--bg-card);
+            padding: 3px 8px;
+            border-radius: 10px;
         }
 
         .job-name {
-            font-size: 0.85rem;
-            font-weight: 600;
+            font-size: 1.1rem;
+            font-weight: 700;
             color: var(--text-primary);
-            margin-bottom: 6px;
-            white-space: nowrap;
+            line-height: 1.3;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
             overflow: hidden;
-            text-overflow: ellipsis;
         }
 
-        .job-address {
-            font-size: 0.7rem;
+        .job-details {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .job-detail {
+            font-size: 0.8rem;
             color: var(--text-secondary);
-            margin-bottom: 4px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
 
-        .job-poc {
-            font-size: 0.7rem;
-            color: var(--text-secondary);
-            margin-bottom: 4px;
+        .job-detail-icon {
+            font-size: 0.9rem;
+            width: 18px;
+            text-align: center;
         }
 
-        .job-notes-line {
-            font-size: 0.7rem;
-            color: var(--accent);
+        .job-notes {
+            font-size: 0.75rem;
+            color: var(--status-in-use);
             font-style: italic;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+            padding-top: 4px;
+            border-top: 1px solid var(--border-subtle);
         }
 
-        /* Weather Widget */
+        /* Progress Bar */
+        .job-progress {
+            margin-top: auto;
+            padding-top: 8px;
+        }
+
+        .progress-bar-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .progress-bar {
+            flex: 1;
+            height: 8px;
+            background: var(--bg-dark);
+            border-radius: 4px;
+            overflow: hidden;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.3);
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--brand-dark), var(--brand-primary));
+            border-radius: 4px;
+            transition: width 0.5s ease;
+            box-shadow: 0 0 8px var(--brand-glow);
+        }
+
+        .progress-label {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--brand-light);
+            min-width: 36px;
+            text-align: right;
+        }
+
+        .progress-na {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            font-style: italic;
+        }
+
+        /* ============================================
+           WEATHER (Bottom Full Width)
+           ============================================ */
         .weather-card {
             grid-row: 3;
             grid-column: 1 / -1;
@@ -329,59 +487,70 @@
 
         .weather-content {
             display: flex;
-            gap: 30px;
+            gap: 24px;
             align-items: center;
-            justify-content: center;
         }
 
         .weather-current {
             text-align: center;
-            padding: 15px 25px;
-            background: rgba(255,255,255,0.05);
-            border-radius: 15px;
-            min-width: 120px;
-        }
-
-        .weather-temp {
-            font-size: 3rem;
-            font-weight: 700;
-        }
-
-        .weather-desc {
-            font-size: 0.95rem;
-            color: var(--text-secondary);
-            margin-top: 5px;
+            padding: 16px 24px;
+            background: linear-gradient(135deg, var(--bg-card-elevated), var(--bg-card));
+            border-radius: 12px;
+            min-width: 140px;
+            border: 1px solid var(--border-subtle);
         }
 
         .weather-icon {
             font-size: 3rem;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+        }
+
+        .weather-temp {
+            font-size: 2.5rem;
+            font-weight: 900;
+            letter-spacing: -0.02em;
+        }
+
+        .weather-desc {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-top: 4px;
+            font-weight: 500;
         }
 
         .weather-forecast {
             display: flex;
-            gap: 15px;
+            gap: 12px;
             flex: 1;
             overflow-x: auto;
+            padding: 4px 0;
         }
 
         .forecast-day {
             text-align: center;
-            padding: 15px;
-            background: rgba(255,255,255,0.05);
+            padding: 12px 16px;
+            background: var(--bg-card-elevated);
             border-radius: 10px;
-            min-width: 80px;
+            min-width: 85px;
+            border: 1px solid var(--border-subtle);
+            transition: all 0.3s ease;
+        }
+
+        .forecast-day:hover {
+            background: var(--bg-card-hover);
         }
 
         .forecast-day-name {
-            font-size: 0.85rem;
-            font-weight: 600;
-            margin-bottom: 8px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            margin-bottom: 6px;
+            color: var(--text-primary);
         }
 
         .forecast-icon {
-            font-size: 1.5rem;
-            margin-bottom: 8px;
+            font-size: 1.4rem;
+            margin-bottom: 6px;
         }
 
         .forecast-temps {
@@ -389,160 +558,344 @@
         }
 
         .forecast-high {
-            font-weight: 600;
+            font-weight: 700;
+            color: var(--text-primary);
         }
 
         .forecast-low {
             color: var(--text-secondary);
+            margin-left: 4px;
         }
 
         .forecast-rain {
-            font-size: 0.75rem;
-            color: var(--info);
-            margin-top: 5px;
+            font-size: 0.7rem;
+            color: var(--status-info);
+            margin-top: 4px;
+            font-weight: 600;
         }
 
-        .freeze-warning {
-            background: rgba(239, 83, 80, 0.2);
-            color: var(--error);
-            padding: 8px 15px;
+        /* Weather Alerts */
+        .weather-alerts {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .weather-alert {
+            padding: 10px 16px;
             border-radius: 8px;
             font-size: 0.85rem;
-            font-weight: 600;
-            margin-top: 15px;
+            font-weight: 700;
             display: flex;
             align-items: center;
             gap: 8px;
+            animation: alert-pulse 2s ease-in-out infinite;
         }
 
-        /* Salesman Widget */
-        .salesman-card {
-            /* grid-column: span 1; */
+        .weather-alert.freeze {
+            background: rgba(248, 113, 113, 0.2);
+            color: var(--status-error);
+            border: 1px solid rgba(248, 113, 113, 0.3);
         }
 
-        .salesman-list {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
+        .weather-alert.heat {
+            background: rgba(251, 191, 36, 0.2);
+            color: var(--status-in-use);
+            border: 1px solid rgba(251, 191, 36, 0.3);
         }
 
-        .salesman-item {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 12px;
-            background: var(--bg-card-hover);
-            border-radius: 10px;
+        .weather-alert.storm {
+            background: rgba(96, 165, 250, 0.2);
+            color: var(--status-info);
+            border: 1px solid rgba(96, 165, 250, 0.3);
         }
 
-        .salesman-avatar {
-            width: 45px;
-            height: 45px;
-            border-radius: 50%;
-            background: var(--brand-primary);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.2rem;
-            font-weight: 600;
+        @keyframes alert-pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
         }
 
-        .salesman-info h4 {
-            font-size: 0.95rem;
-            font-weight: 600;
-        }
-
-        .salesman-info p {
-            font-size: 0.8rem;
-            color: var(--text-secondary);
-        }
-
-        /* Scrollbar */
-        ::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: var(--border-color);
-            border-radius: 3px;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: var(--brand-primary);
-            border-radius: 3px;
-        }
-
-        /* Loading State */
+        /* ============================================
+           LOADING & EMPTY STATES
+           ============================================ */
         .loading {
             display: flex;
             align-items: center;
             justify-content: center;
             height: 100%;
             color: var(--text-secondary);
+            gap: 12px;
         }
 
         .loading-spinner {
-            width: 40px;
-            height: 40px;
+            width: 32px;
+            height: 32px;
             border: 3px solid var(--border-color);
             border-top-color: var(--brand-primary);
             border-radius: 50%;
             animation: spin 1s linear infinite;
-            margin-right: 15px;
         }
 
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
 
-        /* Empty State */
         .empty-state {
             text-align: center;
-            padding: 30px;
+            padding: 40px 20px;
             color: var(--text-secondary);
         }
 
         .empty-state-icon {
-            font-size: 2.5rem;
-            margin-bottom: 10px;
+            font-size: 3rem;
+            margin-bottom: 12px;
             opacity: 0.5;
         }
 
-        /* Responsive */
-        @media (max-width: 1400px) {
+        .empty-state p {
+            font-size: 0.9rem;
+        }
+
+        /* Offline Banner */
+        .offline-banner {
+            display: none;
+            background: linear-gradient(90deg, var(--status-error), #dc2626);
+            color: white;
+            text-align: center;
+            padding: 8px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            animation: slide-down 0.3s ease;
+        }
+
+        .offline-banner.show {
+            display: block;
+        }
+
+        @keyframes slide-down {
+            from { transform: translateY(-100%); }
+            to { transform: translateY(0); }
+        }
+
+        /* ============================================
+           SCROLLBAR
+           ============================================ */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-dark);
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--brand-dark);
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--brand-primary);
+        }
+
+        /* ============================================
+           LARGE TV OPTIMIZATION (85"+)
+           ============================================ */
+        @media (min-width: 1920px) {
             .dashboard {
-                grid-template-columns: 1fr 1fr;
+                padding: 30px;
+                gap: 24px;
             }
 
-            .vehicles-card {
-                grid-row: span 1;
+            .header {
+                padding: 20px 40px;
             }
 
-            .jobs-card {
-                grid-column: span 2;
+            .time-display .time {
+                font-size: 4.5rem;
             }
 
-            .weather-card {
-                grid-column: span 2;
+            .time-display .date {
+                font-size: 1.3rem;
+            }
+
+            .header-title h1 {
+                font-size: 2.2rem;
+            }
+
+            .logo {
+                font-size: 4rem;
+            }
+
+            .card-title {
+                font-size: 1.4rem;
+            }
+
+            .card-badge {
+                font-size: 1rem;
+                padding: 8px 18px;
+            }
+
+            .fleet-section-title {
+                font-size: 0.9rem;
+                padding: 8px 14px;
+            }
+
+            .vehicle-item {
+                padding: 14px 16px;
+            }
+
+            .vehicle-icon {
+                font-size: 1.6rem;
+            }
+
+            .vehicle-details h4 {
+                font-size: 1.1rem;
+            }
+
+            .status-badge {
+                font-size: 0.8rem;
+                padding: 6px 14px;
+            }
+
+            .job-item {
+                padding: 20px;
+            }
+
+            .job-wo {
+                font-size: 0.95rem;
+            }
+
+            .job-name {
+                font-size: 1.3rem;
+            }
+
+            .job-detail {
+                font-size: 1rem;
+            }
+
+            .job-notes {
+                font-size: 0.9rem;
+            }
+
+            .progress-label {
+                font-size: 0.95rem;
+            }
+
+            .progress-bar {
+                height: 10px;
+            }
+
+            .weather-temp {
+                font-size: 3.5rem;
+            }
+
+            .weather-icon {
+                font-size: 4rem;
+            }
+
+            .forecast-day {
+                padding: 16px 20px;
+                min-width: 100px;
+            }
+
+            .forecast-day-name {
+                font-size: 1rem;
+            }
+
+            .forecast-icon {
+                font-size: 1.8rem;
+            }
+
+            .forecast-temps {
+                font-size: 1.1rem;
+            }
+
+            .weather-alert {
+                font-size: 1.1rem;
+                padding: 14px 20px;
             }
         }
 
-        @media (max-width: 900px) {
+        /* ============================================
+           RESPONSIVE
+           ============================================ */
+        @media (max-width: 1400px) {
+            .dashboard {
+                grid-template-columns: 1fr 2fr;
+            }
+        }
+
+        @media (max-width: 1100px) {
             .dashboard {
                 grid-template-columns: 1fr;
+                grid-template-rows: auto auto auto auto;
             }
 
-            .vehicles-card,
-            .jobs-card,
+            .vehicles-card {
+                grid-column: 1;
+                grid-row: 2;
+            }
+
+            .jobs-card {
+                grid-column: 1;
+                grid-row: 3;
+            }
+
             .weather-card {
-                grid-column: span 1;
-                grid-row: span 1;
+                grid-column: 1;
+                grid-row: 4;
+            }
+
+            .vehicle-list {
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+                gap: 8px;
+            }
+
+            .fleet-section-title {
+                grid-column: 1 / -1;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                gap: 16px;
+                text-align: center;
+            }
+
+            .header-right {
+                align-items: center;
+            }
+
+            .time-display .time {
+                font-size: 2.5rem;
+            }
+
+            .weather-content {
+                flex-direction: column;
+            }
+
+            .weather-forecast {
+                width: 100%;
+                justify-content: center;
             }
         }
     </style>
 </head>
 <body>
+    <div class="offline-banner" id="offlineBanner">
+        ⚠️ CONNECTION LOST - Displaying cached data
+    </div>
+
     <div class="dashboard">
         <!-- Header -->
         <header class="header">
@@ -553,10 +906,16 @@
                     <p>Shop TV Dashboard</p>
                 </div>
             </div>
-            <div class="header-right">
+            <div class="header-center">
                 <div class="time-display">
                     <div class="time" id="currentTime">--:--</div>
                     <div class="date" id="currentDate">Loading...</div>
+                </div>
+            </div>
+            <div class="header-right">
+                <div class="connection-status">
+                    <span class="status-dot" id="connectionDot"></span>
+                    <span id="connectionText">Connected</span>
                 </div>
                 <div class="last-updated" id="lastUpdated">
                     Last updated: --
@@ -564,11 +923,12 @@
             </div>
         </header>
 
-        <!-- Vehicles Card -->
+        <!-- Fleet Status Card -->
         <div class="card vehicles-card">
             <div class="card-header">
                 <div class="card-title">
-                    <span>🚛</span> Fleet Status
+                    <span class="card-title-icon">🚛</span>
+                    Fleet Status
                 </div>
                 <div class="card-badge" id="vehicleCount">0 Vehicles</div>
             </div>
@@ -576,7 +936,7 @@
                 <div id="vehicleList" class="vehicle-list">
                     <div class="loading">
                         <div class="loading-spinner"></div>
-                        Loading vehicles...
+                        Loading fleet...
                     </div>
                 </div>
             </div>
@@ -586,7 +946,8 @@
         <div class="card jobs-card">
             <div class="card-header">
                 <div class="card-title">
-                    <span>📋</span> Active Jobs
+                    <span class="card-title-icon">📋</span>
+                    Active Jobs
                 </div>
                 <div class="card-badge" id="jobCount">0 Jobs</div>
             </div>
@@ -604,7 +965,8 @@
         <div class="card weather-card">
             <div class="card-header">
                 <div class="card-title">
-                    <span>🌤️</span> Weather - Gainesville, GA
+                    <span class="card-title-icon">🌤️</span>
+                    Weather - Gainesville, GA
                 </div>
             </div>
             <div class="card-content">
@@ -619,24 +981,32 @@
     </div>
 
     <script>
-        // Configuration
+        // ============================================
+        // CONFIGURATION
+        // ============================================
         const CONFIG = {
             API_URL: localStorage.getItem('apiUrl') || 'https://script.google.com/macros/s/AKfycbxWHqo7-YySZyMKrGTQMcnhhEtg4s_p57o5XhP-9tmxU8aSEBDvQ1CKq1l52I1Te6MneQ/exec',
             REFRESH_INTERVAL: 5 * 60 * 1000, // 5 minutes
+            WEATHER_REFRESH: 30 * 60 * 1000, // 30 minutes
+            CONNECTION_CHECK: 30 * 1000, // 30 seconds
             WEATHER_LOCATION: {
                 lat: 34.2979,
                 lon: -83.8241,
                 city: 'Gainesville',
-                state: 'GA',
-                zip: '30506'
+                state: 'GA'
             }
         };
 
-        // State
+        // ============================================
+        // STATE
+        // ============================================
         let dashboardData = null;
-        let weatherData = null;
+        let isOnline = true;
+        let lastSuccessfulFetch = null;
 
-        // Initialize
+        // ============================================
+        // INITIALIZATION
+        // ============================================
         document.addEventListener('DOMContentLoaded', () => {
             updateClock();
             setInterval(updateClock, 1000);
@@ -644,12 +1014,15 @@
             loadDashboardData();
             loadWeatherData();
 
-            // Auto-refresh
+            // Auto-refresh intervals
             setInterval(loadDashboardData, CONFIG.REFRESH_INTERVAL);
-            setInterval(loadWeatherData, 30 * 60 * 1000); // Weather every 30 min
+            setInterval(loadWeatherData, CONFIG.WEATHER_REFRESH);
+            setInterval(checkConnection, CONFIG.CONNECTION_CHECK);
         });
 
-        // Clock
+        // ============================================
+        // CLOCK
+        // ============================================
         function updateClock() {
             const now = new Date();
             document.getElementById('currentTime').textContent = now.toLocaleTimeString('en-US', {
@@ -664,7 +1037,38 @@
             });
         }
 
-        // Load Dashboard Data
+        // ============================================
+        // CONNECTION STATUS
+        // ============================================
+        function setConnectionStatus(online) {
+            isOnline = online;
+            const dot = document.getElementById('connectionDot');
+            const text = document.getElementById('connectionText');
+            const banner = document.getElementById('offlineBanner');
+
+            if (online) {
+                dot.classList.remove('offline');
+                text.textContent = 'Connected';
+                banner.classList.remove('show');
+            } else {
+                dot.classList.add('offline');
+                text.textContent = 'Offline';
+                banner.classList.add('show');
+            }
+        }
+
+        function checkConnection() {
+            if (lastSuccessfulFetch) {
+                const timeSince = Date.now() - lastSuccessfulFetch;
+                if (timeSince > CONFIG.REFRESH_INTERVAL * 2) {
+                    setConnectionStatus(false);
+                }
+            }
+        }
+
+        // ============================================
+        // LOAD DASHBOARD DATA
+        // ============================================
         async function loadDashboardData() {
             if (!CONFIG.API_URL) {
                 showNoApiWarning();
@@ -687,30 +1091,41 @@
                     renderVehicles(dashboardData.vehicles);
                     renderJobs(dashboardData.workOrders, dashboardData.progress);
                     updateLastUpdated();
+                    lastSuccessfulFetch = Date.now();
+                    setConnectionStatus(true);
                 }
             } catch (error) {
                 console.error('Error loading dashboard data:', error);
-                showError('vehicleList', 'Failed to load vehicles');
-                showError('jobList', 'Failed to load jobs');
+                setConnectionStatus(false);
+                if (!dashboardData) {
+                    showError('vehicleList', 'Failed to load fleet data');
+                    showError('jobList', 'Failed to load jobs');
+                }
             }
         }
 
-        // Render Vehicles
+        // ============================================
+        // RENDER VEHICLES
+        // ============================================
         function renderVehicles(vehicles) {
             const container = document.getElementById('vehicleList');
 
-            // Get trucks/trailers and machinery, exclude maintenance and written-off
-            const trucksAndTrailers = [...(vehicles.active || []), ...(vehicles.inactive || [])]
-                .filter(v => {
-                    const status = (v.status || '').toLowerCase();
-                    return !status.includes('maintenance') && !status.includes('written');
-                });
+            // Defensive: ensure vehicles object has required arrays
+            const safeVehicles = {
+                active: Array.isArray(vehicles?.active) ? vehicles.active : [],
+                inactive: Array.isArray(vehicles?.inactive) ? vehicles.inactive : [],
+                machinery: Array.isArray(vehicles?.machinery) ? vehicles.machinery : []
+            };
 
-            const machinery = (vehicles.machinery || [])
-                .filter(v => {
-                    const status = (v.status || '').toLowerCase();
-                    return !status.includes('maintenance') && !status.includes('written');
-                });
+            // Filter out maintenance and written-off
+            const filterVehicle = (v) => {
+                if (!v) return false;
+                const status = (v.status || '').toLowerCase();
+                return !status.includes('maintenance') && !status.includes('written');
+            };
+
+            const trucksAndTrailers = [...safeVehicles.active, ...safeVehicles.inactive].filter(filterVehicle);
+            const machinery = safeVehicles.machinery.filter(filterVehicle);
 
             const totalCount = trucksAndTrailers.length + machinery.length;
             document.getElementById('vehicleCount').textContent = `${totalCount} Vehicles`;
@@ -725,7 +1140,6 @@
                 return;
             }
 
-            // Helper to get icon based on vehicle type
             const getVehicleIcon = (name, type) => {
                 const nameLower = (name || '').toLowerCase();
                 const typeLower = (type || '').toLowerCase();
@@ -737,8 +1151,9 @@
                 return '🚛';
             };
 
-            // Helper to render vehicle item
             const renderVehicleItem = (vehicle, isActiveList) => {
+                if (!vehicle) return '';
+
                 const isInUse = vehicle.assignedJob !== null && vehicle.assignedJob !== undefined;
                 const isActive = isActiveList || (vehicle.status || '').toLowerCase() === 'active';
                 const statusClass = isInUse ? 'in-use' : (isActive ? '' : 'inactive');
@@ -747,11 +1162,13 @@
                 const icon = getVehicleIcon(vehicle.name, vehicle.type);
                 const typeLower = (vehicle.type || '').toLowerCase();
 
-                // Trucks show asset number, Trailers and Heavy Equipment show name
+                const vehicleName = vehicle.name || 'Unknown';
                 const isTruck = typeLower.includes('truck');
-                const displayName = isTruck && vehicle.assetNumber
-                    ? `#${vehicle.assetNumber}`
-                    : vehicle.name.substring(0, 18);
+                const displayName = escapeHtml(
+                    isTruck && vehicle.assetNumber
+                        ? vehicle.assetNumber
+                        : vehicleName.substring(0, 20)
+                );
 
                 return `
                     <div class="vehicle-item ${statusClass}">
@@ -770,16 +1187,14 @@
 
             let html = '';
 
-            // Trucks & Trailers section
             if (trucksAndTrailers.length > 0) {
                 html += `<div class="fleet-section-title">Trucks & Trailers</div>`;
                 html += trucksAndTrailers.map(v => {
-                    const isActive = vehicles.active?.some(a => a.name === v.name);
+                    const isActive = safeVehicles.active.some(a => a && a.name === v.name);
                     return renderVehicleItem(v, isActive);
                 }).join('');
             }
 
-            // Heavy Equipment section
             if (machinery.length > 0) {
                 html += `<div class="fleet-section-title">Heavy Equipment</div>`;
                 html += machinery.map(v => renderVehicleItem(v, false)).join('');
@@ -788,7 +1203,9 @@
             container.innerHTML = html;
         }
 
-        // Render Jobs
+        // ============================================
+        // RENDER JOBS
+        // ============================================
         function renderJobs(workOrders, progressData) {
             const container = document.getElementById('jobList');
             document.getElementById('jobCount').textContent = `${workOrders?.length || 0} Jobs`;
@@ -803,70 +1220,80 @@
                 return;
             }
 
-            container.innerHTML = workOrders.map(job => {
-                const notesText = (job.notes && job.notes.trim()) ? job.notes : 'NO NOTES';
-
-                return `
-                    <div class="job-item">
-                        <div class="job-wo">WO #${job.woNumber}</div>
-                        <div class="job-name">${job.jobDescription || job.customerName || 'Untitled Job'}</div>
-                        <div class="job-address">📍 ${job.jobAddress || 'No address'}</div>
-                        <div class="job-poc">👤 ${job.salesman || 'Unassigned'}</div>
-                        <div class="job-notes-line">📝 ${notesText}</div>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        // Render Salespeople
-        function renderSalespeople(workOrders) {
-            const container = document.getElementById('salesmanList');
-
-            // Get unique salespeople from work orders
-            const salespeople = {};
-            (workOrders || []).forEach(wo => {
-                if (wo.salesman) {
-                    if (!salespeople[wo.salesman]) {
-                        salespeople[wo.salesman] = { name: wo.salesman, jobCount: 0 };
-                    }
-                    salespeople[wo.salesman].jobCount++;
-                }
-            });
-
-            const salesList = Object.values(salespeople);
-
-            if (salesList.length === 0) {
-                container.innerHTML = `
-                    <div class="empty-state">
-                        <div class="empty-state-icon">👤</div>
-                        <p>No salespeople assigned</p>
-                    </div>
-                `;
-                return;
+            // Merge progress data if available
+            const progressMap = {};
+            if (progressData) {
+                Object.entries(progressData).forEach(([woNum, data]) => {
+                    progressMap[woNum] = data.progress || data;
+                });
             }
 
-            container.innerHTML = salesList.map(person => {
-                const initials = person.name.split(' ').map(n => n[0]).join('').toUpperCase();
+            container.innerHTML = workOrders.map(job => {
+                if (!job) return '';
+
+                // Escape all user-provided data
+                const woNumber = escapeHtml(job.woNumber || 'N/A');
+                const jobName = escapeHtml(job.jobDescription || job.customerName || 'Untitled Job');
+                const jobAddress = escapeHtml(job.jobAddress || 'No address');
+                const salesman = escapeHtml(job.salesman || 'Unassigned');
+                const crew = job.crew ? escapeHtml(job.crew) : null;
+                const notesText = escapeHtml((job.notes && job.notes.trim()) ? job.notes : 'NO NOTES');
+
+                // Get progress - check job object first, then progressMap, then sanitize
+                let rawProgress = job.progress;
+                if (rawProgress === undefined && progressMap[job.woNumber]) {
+                    rawProgress = progressMap[job.woNumber];
+                }
+                const progress = sanitizeProgress(rawProgress);
+                const hasProgress = progress !== null;
+
+                // Determine if urgent (could be based on a priority field)
+                const isUrgent = job.priority === 'urgent' || job.isUrgent;
+
                 return `
-                    <div class="salesman-item">
-                        <div class="salesman-avatar">${initials}</div>
-                        <div class="salesman-info">
-                            <h4>${person.name}</h4>
-                            <p>${person.jobCount} active job${person.jobCount !== 1 ? 's' : ''}</p>
+                    <div class="job-item ${isUrgent ? 'urgent' : ''}">
+                        <div class="job-header">
+                            <div class="job-wo">WO #${woNumber}</div>
+                            ${crew ? `<div class="job-crew">${crew}</div>` : ''}
+                        </div>
+                        <div class="job-name">${jobName}</div>
+                        <div class="job-details">
+                            <div class="job-detail">
+                                <span class="job-detail-icon">📍</span>
+                                <span>${jobAddress}</span>
+                            </div>
+                            <div class="job-detail">
+                                <span class="job-detail-icon">👤</span>
+                                <span>${salesman}</span>
+                            </div>
+                        </div>
+                        <div class="job-notes">📝 ${notesText}</div>
+                        <div class="job-progress">
+                            ${hasProgress ? `
+                                <div class="progress-bar-container">
+                                    <div class="progress-bar">
+                                        <div class="progress-bar-fill" style="width: ${progress}%"></div>
+                                    </div>
+                                    <span class="progress-label">${progress}%</span>
+                                </div>
+                            ` : `
+                                <div class="progress-na">Progress data not available</div>
+                            `}
                         </div>
                     </div>
                 `;
             }).join('');
         }
 
-        // Load Weather Data
+        // ============================================
+        // LOAD WEATHER DATA
+        // ============================================
         async function loadWeatherData() {
             const container = document.getElementById('weatherContent');
 
             try {
-                // Using Open-Meteo API (free, no API key required)
                 const { lat, lon } = CONFIG.WEATHER_LOCATION;
-                const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max&temperature_unit=fahrenheit&timezone=America%2FNew_York&forecast_days=7`;
+                const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weather_code,apparent_temperature&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max&temperature_unit=fahrenheit&timezone=America%2FNew_York&forecast_days=7`;
 
                 const response = await fetch(url);
                 if (!response.ok) throw new Error('Weather API failed');
@@ -884,7 +1311,9 @@
             }
         }
 
-        // Render Weather
+        // ============================================
+        // RENDER WEATHER
+        // ============================================
         function renderWeather(data) {
             const container = document.getElementById('weatherContent');
             const current = data.current;
@@ -914,9 +1343,39 @@
                 return 'Thunderstorm';
             };
 
-            // Check for freeze warnings (low temp below 32)
-            const tomorrowLow = daily.temperature_2m_min[1];
-            const hasFreezeWarning = tomorrowLow <= 32;
+            // Build alerts
+            const alerts = [];
+
+            // Check for freeze (any day with low <= 32)
+            daily.temperature_2m_min.slice(0, 3).forEach((low, i) => {
+                if (low <= 32) {
+                    const dayName = i === 0 ? 'Today' : i === 1 ? 'Tomorrow' : daily.time[i];
+                    alerts.push({
+                        type: 'freeze',
+                        icon: '❄️',
+                        message: `FREEZE WARNING: ${dayName} low ${Math.round(low)}°F`
+                    });
+                }
+            });
+
+            // Check for extreme heat
+            const apparentTemp = current.apparent_temperature;
+            if (apparentTemp >= 100 || current.temperature_2m >= 95) {
+                alerts.push({
+                    type: 'heat',
+                    icon: '🌡️',
+                    message: `HEAT ADVISORY: Feels like ${Math.round(apparentTemp)}°F`
+                });
+            }
+
+            // Check for storms
+            if (current.weather_code >= 95) {
+                alerts.push({
+                    type: 'storm',
+                    icon: '⛈️',
+                    message: 'STORM WARNING: Severe weather in area'
+                });
+            }
 
             const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
@@ -945,35 +1404,56 @@
                         `;
                     }).join('')}
                 </div>
-                ${hasFreezeWarning ? `
-                    <div class="freeze-warning">
-                        ❄️ FREEZE WARNING: Tomorrow's low is ${Math.round(tomorrowLow)}°F. Protect sensitive plants!
+                ${alerts.length > 0 ? `
+                    <div class="weather-alerts">
+                        ${alerts.map(alert => `
+                            <div class="weather-alert ${alert.type}">
+                                ${alert.icon} ${alert.message}
+                            </div>
+                        `).join('')}
                     </div>
                 ` : ''}
             `;
         }
 
-        // Update Last Updated
+        // ============================================
+        // UTILITY FUNCTIONS
+        // ============================================
+
+        // Security: Escape HTML to prevent XSS
+        function escapeHtml(text) {
+            if (text === null || text === undefined) return '';
+            const div = document.createElement('div');
+            div.textContent = String(text);
+            return div.innerHTML;
+        }
+
+        // Validate and clamp progress value
+        function sanitizeProgress(value) {
+            if (value === null || value === undefined) return null;
+            const num = Number(value);
+            if (isNaN(num)) return null;
+            return Math.max(0, Math.min(100, Math.round(num)));
+        }
+
         function updateLastUpdated() {
             const now = new Date();
             document.getElementById('lastUpdated').textContent =
                 `Last updated: ${now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}`;
         }
 
-        // Show No API Warning
         function showNoApiWarning() {
-            document.getElementById('vehicleList').innerHTML = `
+            const warning = `
                 <div class="empty-state">
                     <div class="empty-state-icon">⚠️</div>
                     <p>API URL not configured</p>
-                    <p style="font-size: 0.8rem; margin-top: 10px;">Set the API URL in the main dashboard settings</p>
+                    <p style="font-size: 0.8rem; margin-top: 10px; opacity: 0.7;">Set the API URL in the main dashboard settings</p>
                 </div>
             `;
-            document.getElementById('jobList').innerHTML = document.getElementById('vehicleList').innerHTML;
-            document.getElementById('salesmanList').innerHTML = document.getElementById('vehicleList').innerHTML;
+            document.getElementById('vehicleList').innerHTML = warning;
+            document.getElementById('jobList').innerHTML = warning;
         }
 
-        // Show Error
         function showError(containerId, message) {
             document.getElementById(containerId).innerHTML = `
                 <div class="empty-state">
