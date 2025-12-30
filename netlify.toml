@@ -11,6 +11,12 @@
   to = "/.netlify/functions/chat"
   status = 200
 
+# Allow direct access to tv.html
+[[redirects]]
+  from = "/tv.html"
+  to = "/tv.html"
+  status = 200
+
 # SPA fallback (optional - if you add routing later)
 [[redirects]]
   from = "/*"
