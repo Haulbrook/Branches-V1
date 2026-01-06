@@ -1227,7 +1227,8 @@
 
                 // Escape all user-provided data
                 const woNumber = escapeHtml(job.woNumber || 'N/A');
-                const jobName = escapeHtml(job.jobDescription || job.customerName || 'Untitled Job');
+                const customerName = escapeHtml(job.customerName || '');
+                const jobName = escapeHtml(job.jobDescription || 'Untitled Job');
                 const jobAddress = escapeHtml(job.jobAddress || 'No address');
                 const salesman = escapeHtml(job.salesman || 'Unassigned');
                 const crew = job.crew ? escapeHtml(job.crew) : null;
@@ -1247,7 +1248,7 @@
                 return `
                     <div class="job-item ${isUrgent ? 'urgent' : ''}">
                         <div class="job-header">
-                            <div class="job-wo">WO #${woNumber}</div>
+                            <div class="job-wo">WO #${woNumber}${customerName ? ' ' + customerName : ''}</div>
                             ${crew ? `<div class="job-crew">${crew}</div>` : ''}
                         </div>
                         <div class="job-name">${jobName}</div>
