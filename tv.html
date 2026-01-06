@@ -59,8 +59,8 @@
         /* ============================================ DASHBOARD GRID LAYOUT ============================================ */
         .dashboard {
             display: grid;
-            grid-template-columns: minmax(15vw, 1fr) 3fr;
-            grid-template-rows: 10vh 1fr 18vh;
+            grid-template-columns: minmax(25vw, 2fr) 3fr;
+            grid-template-rows: 10vh 1fr 16vh;
             gap: 1vh 1vw;
             padding: 1vh 1vw;
             height: 100vh;
@@ -233,22 +233,22 @@
         .vehicle-list {
             display: flex;
             flex-direction: column;
-            gap: clamp(2px, 0.4vh, 4px);
+            gap: clamp(4px, 0.6vh, 8px);
             overflow: hidden;
             height: 100%;
         }
 
         .fleet-section-title {
-            font-size: clamp(0.5rem, 0.8vw, 0.75rem);
+            font-size: clamp(0.45rem, 0.65vw, 0.65rem);
             color: var(--brand-light);
             font-weight: 800;
             text-transform: uppercase;
-            letter-spacing: 1px;
-            margin: clamp(2px, 0.4vh, 6px) 0 clamp(2px, 0.3vh, 4px) 0;
-            padding: clamp(2px, 0.3vh, 4px) clamp(4px, 0.5vw, 8px);
-            background: rgba(34, 197, 94, 0.1);
-            border-radius: 4px;
-            border-left: 3px solid var(--brand-primary);
+            letter-spacing: 0.5px;
+            margin: clamp(2px, 0.3vh, 4px) 0 clamp(1px, 0.2vh, 3px) 0;
+            padding: clamp(1px, 0.2vh, 3px) clamp(3px, 0.4vw, 6px);
+            background: rgba(34, 197, 94, 0.15);
+            border-radius: 3px;
+            border-left: 2px solid var(--brand-primary);
             flex-shrink: 0;
         }
 
@@ -256,89 +256,123 @@
             margin-top: 0;
         }
 
-        .vehicle-item {
-            background: var(--bg-card-elevated);
-            padding: clamp(3px, 0.5vh, 6px) clamp(6px, 0.8vw, 10px);
-            border-radius: clamp(4px, 0.6vw, 8px);
+        /* Pills container - wraps pills horizontally */
+        .vehicle-pills {
             display: flex;
-            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: clamp(4px, 0.5vw, 8px);
+        }
+
+        /* Vehicle pill style */
+        .vehicle-pill {
+            display: inline-flex;
             align-items: center;
-            border: 1px solid var(--border-subtle);
+            justify-content: center;
+            padding: clamp(6px, 0.72vh, 12px) clamp(12px, 1.2vw, 20px);
+            border-radius: 16px;
+            font-size: clamp(0.85rem, 1.3vw, 1.3rem);
+            font-weight: 900;
+            white-space: nowrap;
             transition: all 0.3s ease;
-            flex-shrink: 0;
-            min-height: 0;
+            min-width: clamp(100px, 13vw, 175px);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
         }
 
-        .vehicle-item.inactive {
-            opacity: 0.5;
+        .vehicle-pill.active {
+            background: linear-gradient(135deg, #166534, #22c55e);
+            color: white;
+            box-shadow: 0 2px 8px rgba(34, 197, 94, 0.3);
         }
 
-        .vehicle-item.in-use {
-            border-color: var(--status-in-use);
-            background: rgba(251, 191, 36, 0.1);
-            box-shadow: 0 0 15px rgba(251, 191, 36, 0.2);
-            animation: pulse-border 2s ease-in-out infinite;
+        .vehicle-pill.inactive {
+            background: linear-gradient(135deg, #991b1b, #ef4444);
+            color: white;
+            box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
         }
 
-        @keyframes pulse-border {
+        .vehicle-pill.in-use {
+            background: linear-gradient(135deg, #92400e, #fbbf24);
+            color: white;
+            box-shadow: 0 2px 8px rgba(251, 191, 36, 0.3);
+            animation: pulse-pill 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse-pill {
             0%, 100% {
-                box-shadow: 0 0 15px rgba(251, 191, 36, 0.2);
+                box-shadow: 0 2px 8px rgba(251, 191, 36, 0.3);
             }
             50% {
-                box-shadow: 0 0 25px rgba(251, 191, 36, 0.4);
+                box-shadow: 0 4px 16px rgba(251, 191, 36, 0.5);
             }
         }
 
-        .vehicle-info {
+        /* Equipment list with dropdowns - pill grid layout */
+        .equipment-list {
             display: flex;
+            flex-wrap: wrap;
+            gap: clamp(4px, 0.5vh, 6px);
+        }
+
+        .equipment-item {
+            display: inline-flex;
+            flex-direction: column;
             align-items: center;
-            gap: clamp(4px, 0.6vw, 10px);
-            overflow: hidden;
-        }
-
-        .vehicle-icon {
-            font-size: clamp(0.8rem, 1.2vw, 1.3rem);
-            flex-shrink: 0;
-        }
-
-        .vehicle-details h4 {
-            font-size: clamp(0.55rem, 0.9vw, 0.9rem);
+            justify-content: center;
+            padding: clamp(5px, 0.6vh, 10px) clamp(10px, 1vw, 17px);
+            border-radius: 14px;
+            font-size: clamp(0.65rem, 1vw, 1rem);
             font-weight: 800;
+            gap: clamp(3px, 0.3vh, 5px);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+            min-width: clamp(85px, 11vw, 145px);
+        }
+
+        .equipment-item.active {
+            background: linear-gradient(135deg, #166534, #22c55e);
+            color: white;
+        }
+
+        .equipment-item.inactive {
+            background: linear-gradient(135deg, #991b1b, #ef4444);
+            color: white;
+        }
+
+        .equipment-item.in-use {
+            background: linear-gradient(135deg, #92400e, #fbbf24);
+            color: white;
+        }
+
+        .equipment-name {
             white-space: nowrap;
+            max-width: clamp(80px, 10vw, 135px);
             overflow: hidden;
             text-overflow: ellipsis;
+            text-align: center;
+            font-weight: 900;
+            font-size: clamp(0.7rem, 1.1vw, 1.1rem);
         }
 
-        .vehicle-status {
-            flex-shrink: 0;
-        }
-
-        .status-badge {
-            display: inline-block;
-            padding: clamp(2px, 0.3vh, 4px) clamp(5px, 0.7vw, 10px);
-            border-radius: 12px;
-            font-size: clamp(0.45rem, 0.7vw, 0.7rem);
+        .job-dropdown {
+            padding: clamp(2px, 0.25vh, 4px) clamp(4px, 0.4vw, 6px);
+            border-radius: 6px;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            background: rgba(0, 0, 0, 0.4);
+            color: white;
+            font-size: clamp(0.45rem, 0.65vw, 0.65rem);
             font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+            cursor: pointer;
+            width: 100%;
+            text-align: center;
         }
 
-        .status-badge.active {
-            background: rgba(74, 222, 128, 0.2);
-            color: var(--status-active);
-            border: 1px solid rgba(74, 222, 128, 0.3);
+        .job-dropdown:focus {
+            outline: none;
+            border-color: rgba(255, 255, 255, 0.8);
         }
 
-        .status-badge.in-use {
-            background: rgba(251, 191, 36, 0.2);
-            color: var(--status-in-use);
-            border: 1px solid rgba(251, 191, 36, 0.3);
-        }
-
-        .status-badge.inactive {
-            background: rgba(107, 114, 128, 0.2);
-            color: var(--status-inactive);
-            border: 1px solid rgba(107, 114, 128, 0.3);
+        .job-dropdown option {
+            background: var(--bg-card);
+            color: var(--text-primary);
         }
 
         /* ============================================ ACTIVE JOBS (Main Column) ============================================ */
@@ -932,9 +966,10 @@
                 // Fetch all TV dashboard data in one call
                 const result = await callAPI('getTVDashboardData');
 
-                // Parse response: { success: true, response: { success: true, data: { vehicles, workOrders, ... } } }
+                // Parse response: { success: true, response: { success: true, data: { vehicles, workOrders, attachments, ... } } }
                 let vehicles = { active: [], inactive: [], machinery: [] };
                 let workOrders = [];
+                let attachments = [];
 
                 if (result.success && result.response?.success && result.response?.data) {
                     const data = result.response.data;
@@ -946,6 +981,11 @@
                             inactive: data.vehicles.inactive || [],
                             machinery: data.vehicles.machinery || []
                         };
+                    }
+
+                    // Attachments array
+                    if (data.attachments && Array.isArray(data.attachments)) {
+                        attachments = data.attachments;
                     }
 
                     // Work orders array
@@ -965,8 +1005,8 @@
                     }
                 }
 
-                dashboardData = { vehicles, workOrders };
-                renderVehicles(vehicles);
+                dashboardData = { vehicles, workOrders, attachments };
+                renderVehicles(vehicles, attachments, workOrders);
                 renderJobs(workOrders, {});
                 updateLastUpdated();
                 lastSuccessfulFetch = Date.now();
@@ -1020,7 +1060,7 @@
         // ============================================
         // RENDER VEHICLES
         // ============================================
-        function renderVehicles(vehicles) {
+        function renderVehicles(vehicles, attachments = [], workOrders = []) {
             const container = document.getElementById('vehicleList');
 
             // Defensive: ensure vehicles object has required arrays
@@ -1029,6 +1069,7 @@
                 inactive: Array.isArray(vehicles?.inactive) ? vehicles.inactive : [],
                 machinery: Array.isArray(vehicles?.machinery) ? vehicles.machinery : []
             };
+            const safeAttachments = Array.isArray(attachments) ? attachments : [];
 
             // Filter out maintenance and written-off
             const filterVehicle = (v) => {
@@ -1037,9 +1078,21 @@
                 return !status.includes('maintenance') && !status.includes('written');
             };
 
-            const trucksAndTrailers = [...safeVehicles.active, ...safeVehicles.inactive].filter(filterVehicle);
+            // Check if vehicle is a trailer by name
+            const isTrailer = (v) => {
+                const name = (v?.name || '').toLowerCase();
+                return name.includes('trailer');
+            };
+
+            // Trucks: INACTIVE only (not trailers)
+            const inactiveTrucks = safeVehicles.inactive.filter(v => filterVehicle(v) && !isTrailer(v));
+            // Trailers: ACTIVE trailers only
+            const activeTrailers = safeVehicles.active.filter(v => filterVehicle(v) && isTrailer(v));
+            // Combine for display
+            const trucksAndTrailers = [...inactiveTrucks, ...activeTrailers];
+
             const machinery = safeVehicles.machinery.filter(filterVehicle);
-            const totalCount = trucksAndTrailers.length + machinery.length;
+            const totalCount = trucksAndTrailers.length + machinery.length + safeAttachments.length;
 
             document.getElementById('vehicleCount').textContent = `${totalCount} Vehicles`;
 
@@ -1053,65 +1106,95 @@
                 return;
             }
 
-            const getVehicleIcon = (name, type) => {
-                const nameLower = (name || '').toLowerCase();
-                const typeLower = (type || '').toLowerCase();
-
-                if (nameLower.includes('trailer') || typeLower.includes('trailer')) return '🚃';
-                if (nameLower.includes('dump')) return '🚚';
-                if (nameLower.includes('excavator') || typeLower.includes('excavator')) return '🏗️';
-                if (nameLower.includes('skid') || typeLower.includes('skid')) return '🚜';
-                if (typeLower.includes('heavy')) return '🏗️';
-                return '🚛';
+            // Render a simple pill (for trucks/trailers)
+            const renderSimplePill = (vehicle, isActive, isTruck = false) => {
+                if (!vehicle) return '';
+                const isInUse = vehicle.assignedJob !== null && vehicle.assignedJob !== undefined;
+                const pillClass = isInUse ? 'in-use' : (isActive ? 'active' : 'inactive');
+                const vehicleName = vehicle.name || 'Unknown';
+                const displayName = escapeHtml(
+                    isTruck && vehicle.assetNumber ? String(vehicle.assetNumber) : vehicleName
+                );
+                return `<span class="vehicle-pill ${pillClass}">${displayName}</span>`;
             };
 
-            const renderVehicleItem = (vehicle, isActiveList) => {
-                if (!vehicle) return '';
+            // Render equipment with dropdown for job assignment
+            const renderEquipmentWithDropdown = (item, itemType) => {
+                if (!item) return '';
+                const isInUse = item.assignedJob !== null && item.assignedJob !== undefined;
+                const statusLower = (item.status || '').toLowerCase();
+                const isActive = item.active === true || statusLower === 'active' || statusLower === 'yes';
+                const pillClass = isInUse ? 'in-use' : (isActive ? 'active' : 'inactive');
+                const displayName = escapeHtml(item.name || 'Unknown');
+                const itemId = escapeHtml(item.assetNumber || item.name || Math.random().toString());
+                const currentWO = item.assignedWO || item.assignedJob?.woNumber || '';
 
-                const isInUse = vehicle.assignedJob !== null && vehicle.assignedJob !== undefined;
-                const statusLower = (vehicle.status || '').toLowerCase();
-                const isActive = isActiveList || statusLower === 'active' || statusLower === 'yes';
-                const statusClass = isInUse ? 'in-use' : (isActive ? '' : 'inactive');
-                const statusText = isInUse ? 'In Use' : (isActive ? 'Active' : 'Inactive');
-                const statusBadgeClass = isInUse ? 'in-use' : (isActive ? 'active' : 'inactive');
-                const icon = getVehicleIcon(vehicle.name, vehicle.type);
-                const typeLower = (vehicle.type || '').toLowerCase();
-                const vehicleName = vehicle.name || 'Unknown';
-                const isTruck = typeLower.includes('truck');
-                const displayName = escapeHtml(
-                    isTruck && vehicle.assetNumber ? vehicle.assetNumber : vehicleName.substring(0, 20)
-                );
+                // Build dropdown options
+                let options = `<option value="">Unassigned</option>`;
+                workOrders.forEach(wo => {
+                    const selected = (wo.woNumber == currentWO) ? 'selected' : '';
+                    options += `<option value="${wo.woNumber}" ${selected}>WO #${wo.woNumber}</option>`;
+                });
 
                 return `
-                    <div class="vehicle-item ${statusClass}">
-                        <div class="vehicle-info">
-                            <div class="vehicle-icon">${icon}</div>
-                            <div class="vehicle-details">
-                                <h4>${displayName}</h4>
-                            </div>
-                        </div>
-                        <div class="vehicle-status">
-                            <span class="status-badge ${statusBadgeClass}">${statusText}</span>
-                        </div>
+                    <div class="equipment-item ${pillClass}">
+                        <span class="equipment-name">${displayName}</span>
+                        <select class="job-dropdown" data-item-id="${itemId}" data-item-type="${itemType}" onchange="assignEquipmentToJob(this)">
+                            ${options}
+                        </select>
                     </div>
                 `;
             };
 
             let html = '';
+
+            // Trucks & Trailers section
             if (trucksAndTrailers.length > 0) {
                 html += `<div class="fleet-section-title">Trucks & Trailers</div>`;
+                html += `<div class="vehicle-pills">`;
                 html += trucksAndTrailers.map(v => {
-                    const isActive = safeVehicles.active.some(a => a && a.name === v.name);
-                    return renderVehicleItem(v, isActive);
+                    const isActive = isTrailer(v); // Trailers are active, trucks are inactive
+                    const isTruck = !isTrailer(v);
+                    return renderSimplePill(v, isActive, isTruck);
                 }).join('');
+                html += `</div>`;
             }
 
-            if (machinery.length > 0) {
+            // Heavy Equipment section (machinery + attachments)
+            if (machinery.length > 0 || safeAttachments.length > 0) {
                 html += `<div class="fleet-section-title">Heavy Equipment</div>`;
-                html += machinery.map(v => renderVehicleItem(v, false)).join('');
+                html += `<div class="equipment-list">`;
+                html += machinery.map(v => renderEquipmentWithDropdown(v, 'machinery')).join('');
+                if (safeAttachments.length > 0) {
+                    html += `</div>`;
+                    html += `<div class="fleet-section-title">Attachments</div>`;
+                    html += `<div class="equipment-list">`;
+                    html += safeAttachments.map(a => renderEquipmentWithDropdown(a, 'attachment')).join('');
+                }
+                html += `</div>`;
             }
 
             container.innerHTML = html;
+        }
+
+        // Handle equipment assignment to job
+        async function assignEquipmentToJob(selectElement) {
+            const itemId = selectElement.dataset.itemId;
+            const itemType = selectElement.dataset.itemType;
+            const woNumber = selectElement.value;
+
+            console.log(`Assigning ${itemType} ${itemId} to WO #${woNumber || 'none'}`);
+
+            // TODO: Call API to update assignment
+            // For now, just update the UI
+            const parent = selectElement.closest('.equipment-item');
+            if (woNumber) {
+                parent.classList.remove('active', 'inactive');
+                parent.classList.add('in-use');
+            } else {
+                parent.classList.remove('in-use');
+                parent.classList.add('active');
+            }
         }
 
         // ============================================
