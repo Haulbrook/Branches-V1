@@ -929,32 +929,40 @@
             }
 
             try {
-                // Fetch fleet and projects data in parallel
-                const [fleetResult, projectsResult] = await Promise.all([
-                    callAPI('getFleetReport').catch(e => ({ success: false, error: e })),
-                    callAPI('getActiveProjects').catch(e => ({ success: false, error: e }))
-                ]);
+                // Fetch all TV dashboard data in one call
+                const result = await callAPI('getTVDashboardData');
 
-                // Parse fleet data
+                // Parse response: { success: true, response: { success: true, data: { vehicles, workOrders, ... } } }
                 let vehicles = { active: [], inactive: [], machinery: [] };
-                if (fleetResult.success && fleetResult.data) {
-                    // Parse the fleet report text into structured data
-                    vehicles = parseFleetReport(fleetResult.data);
-                }
-
-                // Parse projects as work orders
                 let workOrders = [];
-                if (projectsResult.success && projectsResult.data) {
-                    workOrders = projectsResult.data.map(p => ({
-                        woNumber: p.id || p.woNumber || 'N/A',
-                        jobDescription: p.name || p.jobDescription || 'Untitled',
-                        jobAddress: p.location || p.jobAddress || '',
-                        salesman: p.salesman || p.assignedTo || '',
-                        crew: p.crew || '',
-                        notes: p.notes || '',
-                        progress: p.progress || null,
-                        priority: p.priority || ''
-                    }));
+
+                if (result.success && result.response?.success && result.response?.data) {
+                    const data = result.response.data;
+
+                    // Vehicles come pre-structured with active, inactive, machinery arrays
+                    if (data.vehicles) {
+                        vehicles = {
+                            active: data.vehicles.active || [],
+                            inactive: data.vehicles.inactive || [],
+                            machinery: data.vehicles.machinery || []
+                        };
+                    }
+
+                    // Work orders array
+                    if (data.workOrders && Array.isArray(data.workOrders)) {
+                        workOrders = data.workOrders.map(wo => ({
+                            woNumber: wo.woNumber || 'N/A',
+                            jobDescription: wo.jobDescription || 'Untitled',
+                            jobAddress: wo.jobAddress || '',
+                            salesman: wo.salesman || '',
+                            crew: wo.crew || '',
+                            notes: wo.notes || '',
+                            progress: wo.progress || null,
+                            priority: wo.priority || '',
+                            customerName: wo.customerName || '',
+                            jobStatus: wo.jobStatus || ''
+                        }));
+                    }
                 }
 
                 dashboardData = { vehicles, workOrders };
@@ -1061,7 +1069,8 @@
                 if (!vehicle) return '';
 
                 const isInUse = vehicle.assignedJob !== null && vehicle.assignedJob !== undefined;
-                const isActive = isActiveList || (vehicle.status || '').toLowerCase() === 'active';
+                const statusLower = (vehicle.status || '').toLowerCase();
+                const isActive = isActiveList || statusLower === 'active' || statusLower === 'yes';
                 const statusClass = isInUse ? 'in-use' : (isActive ? '' : 'inactive');
                 const statusText = isInUse ? 'In Use' : (isActive ? 'Active' : 'Inactive');
                 const statusBadgeClass = isInUse ? 'in-use' : (isActive ? 'active' : 'inactive');
