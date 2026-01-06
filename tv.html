@@ -297,6 +297,16 @@
             animation: pulse-pill 2s ease-in-out infinite;
         }
 
+        .vehicle-pill.in-repair {
+            background: linear-gradient(135deg, #c2410c, #f97316);
+            color: white;
+            box-shadow: 0 2px 8px rgba(249, 115, 22, 0.3);
+        }
+
+        .vehicle-pill.in-repair::before {
+            content: '\1F527 ';
+        }
+
         @keyframes pulse-pill {
             0%, 100% {
                 box-shadow: 0 2px 8px rgba(251, 191, 36, 0.3);
@@ -339,6 +349,11 @@
 
         .equipment-item.in-use {
             background: linear-gradient(135deg, #92400e, #fbbf24);
+            color: white;
+        }
+
+        .equipment-item.in-repair {
+            background: linear-gradient(135deg, #c2410c, #f97316);
             color: white;
         }
 
@@ -963,8 +978,19 @@
             }
 
             try {
-                // Fetch all TV dashboard data in one call
-                const result = await callAPI('getTVDashboardData');
+                // Fetch all TV dashboard data and repair tickets in parallel
+                const [result, repairResult] = await Promise.all([
+                    callAPI('getTVDashboardData'),
+                    callAPI('getRepairTickets').catch(() => ({ success: false }))
+                ]);
+
+                // Get set of asset IDs with open repair tickets
+                const repairAssetIds = new Set();
+                if (repairResult.success && repairResult.response?.success && repairResult.response?.data?.open) {
+                    repairResult.response.data.open.forEach(ticket => {
+                        if (ticket.assetId) repairAssetIds.add(ticket.assetId);
+                    });
+                }
 
                 // Parse response: { success: true, response: { success: true, data: { vehicles, workOrders, attachments, ... } } }
                 let vehicles = { active: [], inactive: [], machinery: [] };
@@ -1005,8 +1031,8 @@
                     }
                 }
 
-                dashboardData = { vehicles, workOrders, attachments };
-                renderVehicles(vehicles, attachments, workOrders);
+                dashboardData = { vehicles, workOrders, attachments, repairAssetIds };
+                renderVehicles(vehicles, attachments, workOrders, repairAssetIds);
                 renderJobs(workOrders, {});
                 updateLastUpdated();
                 lastSuccessfulFetch = Date.now();
@@ -1060,7 +1086,7 @@
         // ============================================
         // RENDER VEHICLES
         // ============================================
-        function renderVehicles(vehicles, attachments = [], workOrders = []) {
+        function renderVehicles(vehicles, attachments = [], workOrders = [], repairAssetIds = new Set()) {
             const container = document.getElementById('vehicleList');
 
             // Defensive: ensure vehicles object has required arrays
@@ -1070,6 +1096,7 @@
                 machinery: Array.isArray(vehicles?.machinery) ? vehicles.machinery : []
             };
             const safeAttachments = Array.isArray(attachments) ? attachments : [];
+            const safeRepairIds = repairAssetIds instanceof Set ? repairAssetIds : new Set();
 
             // Filter out maintenance and written-off
             const filterVehicle = (v) => {
@@ -1109,8 +1136,10 @@
             // Render a simple pill (for trucks/trailers)
             const renderSimplePill = (vehicle, isActive, isTruck = false) => {
                 if (!vehicle) return '';
+                const assetId = vehicle.assetNumber || vehicle.name;
+                const isInRepair = safeRepairIds.has(assetId) || safeRepairIds.has(vehicle.name);
                 const isInUse = vehicle.assignedJob !== null && vehicle.assignedJob !== undefined;
-                const pillClass = isInUse ? 'in-use' : (isActive ? 'active' : 'inactive');
+                const pillClass = isInRepair ? 'in-repair' : (isInUse ? 'in-use' : (isActive ? 'active' : 'inactive'));
                 const vehicleName = vehicle.name || 'Unknown';
                 const displayName = escapeHtml(
                     isTruck && vehicle.assetNumber ? String(vehicle.assetNumber) : vehicleName
@@ -1121,10 +1150,12 @@
             // Render equipment with dropdown for job assignment
             const renderEquipmentWithDropdown = (item, itemType) => {
                 if (!item) return '';
+                const assetId = item.assetNumber || item.name;
+                const isInRepair = safeRepairIds.has(assetId) || safeRepairIds.has(item.name);
                 const isInUse = item.assignedJob !== null && item.assignedJob !== undefined;
                 const statusLower = (item.status || '').toLowerCase();
                 const isActive = item.active === true || statusLower === 'active' || statusLower === 'yes';
-                const pillClass = isInUse ? 'in-use' : (isActive ? 'active' : 'inactive');
+                const pillClass = isInRepair ? 'in-repair' : (isInUse ? 'in-use' : (isActive ? 'active' : 'inactive'));
                 const displayName = escapeHtml(item.name || 'Unknown');
                 const itemId = escapeHtml(item.assetNumber || item.name || Math.random().toString());
                 const currentWO = item.assignedWO || item.assignedJob?.woNumber || '';
