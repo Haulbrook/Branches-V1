@@ -471,58 +471,7 @@
     <script src="js/dashboard.js?v=20251113"></script>
     <script src="js/main.js?v=20251113"></script>
 
-    <!-- Dashboard Toggle Script -->
-    <script>
-        // Initialize dashboard when DOM is ready
-        document.addEventListener('DOMContentLoaded', () => {
-            const dashboardBtn = document.getElementById('dashboardBtn');
-            const newChatBtn = document.getElementById('newChatBtn');
-            const dashboardMetrics = document.getElementById('dashboardMetrics');
-            const chatInterface = document.getElementById('chatInterface');
-            const pageTitle = document.getElementById('pageTitle');
-            const pageSubtitle = document.getElementById('pageSubtitle');
-
-            if (dashboardBtn && dashboardMetrics) {
-                // Initialize dashboard manager
-                if (window.DashboardManager) {
-                    window.dashboardManager = new DashboardManager();
-                    window.dashboardManager.init().catch(err => {
-                        console.error('Dashboard initialization error:', err);
-                    });
-                }
-
-                // Toggle to dashboard view
-                dashboardBtn.addEventListener('click', () => {
-                    dashboardMetrics.style.display = 'block';
-                    chatInterface.style.display = 'none';
-                    dashboardBtn.classList.add('active');
-                    newChatBtn.classList.remove('active');
-                    pageTitle.textContent = 'Dashboard Overview';
-                    pageSubtitle.textContent = 'Real-time metrics and analytics';
-
-                    // Refresh metrics
-                    if (window.dashboardManager) {
-                        window.dashboardManager.loadMetrics();
-                    }
-                });
-
-                // Toggle to chat view
-                newChatBtn.addEventListener('click', () => {
-                    dashboardMetrics.style.display = 'none';
-                    chatInterface.style.display = 'flex';
-                    dashboardBtn.classList.remove('active');
-                    newChatBtn.classList.add('active');
-                    pageTitle.textContent = 'Operations Dashboard';
-                    pageSubtitle.textContent = 'What can I help you with today?';
-                });
-            }
-
-            // Initialize toast manager globally
-            if (window.ToastManager) {
-                window.toastManager = new ToastManager();
-            }
-        });
-    </script>
+    <!-- Dashboard and Toast initialization handled by main.js and dashboard.js -->
 
     <!-- Service Worker Registration -->
     <!-- Only register service worker for static hosting (not in iframes or Google Apps Script) -->

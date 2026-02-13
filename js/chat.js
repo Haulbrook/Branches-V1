@@ -179,11 +179,6 @@ class ChatManager {
                         response.type = 'deconstruction';
                         response.deconstructionData = deconstructed;
 
-                        // Complete operation successfully
-                        if (this.appleOverseer && operationId) {
-                            this.appleOverseer.completeOperation(operationId, { success: true, data: deconstructed });
-                        }
-
                         return response;
                     }
                 }
@@ -223,28 +218,9 @@ class ChatManager {
                 response.forwardThinking = forwardThinking.predictions;
             }
 
-            // Complete operations successfully
-            if (this.appleOverseer) {
-                if (operationId) {
-                    this.appleOverseer.completeOperation(operationId, { success: true, data: response });
-                }
-                if (response.toolOperationId) {
-                    this.appleOverseer.completeOperation(response.toolOperationId, { success: true, data: response });
-                }
-            }
-
             return response;
 
         } catch (error) {
-            // Complete operations with error
-            if (this.appleOverseer) {
-                if (operationId) {
-                    this.appleOverseer.completeOperation(operationId, { success: false, errors: [error.message] });
-                }
-                if (response.toolOperationId) {
-                    this.appleOverseer.completeOperation(response.toolOperationId, { success: false, errors: [error.message] });
-                }
-            }
             throw error;
         }
     }
