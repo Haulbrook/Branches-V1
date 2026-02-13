@@ -562,23 +562,6 @@ function doPost(e) {
 }
 
 // =============================
-// 📊 Get Recent Activity (for dashboard)
-// =============================
-function getRecentActivity(limit = 5) {
-  // This is a placeholder - implement based on your needs
-  // Could track last modified items, recent searches, etc.
-  return [
-    {
-      type: 'inventory_update',
-      item: 'Red Mulch',
-      action: 'Stock updated',
-      timestamp: new Date().toISOString(),
-      user: 'System'
-    }
-  ];
-}
-
-// =============================
 // 🔍 Master Function - Multi-tier search
 // =============================
 function askInventory(query) {
