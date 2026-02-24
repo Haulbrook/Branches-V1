@@ -27,7 +27,7 @@
     <meta name="twitter:image" content="https://branchesv1.netlify.app/images/og-image.png">
     <meta name="twitter:image:alt" content="Deep Roots Operations Dashboard - Landscaping management platform">
 
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; style-src-elem 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://script.google.com https://script.googleusercontent.com; img-src 'self' data: https:; frame-src 'self' https://script.google.com https://script.googleusercontent.com https://dailychessmap.netlify.app;">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; style-src-elem 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://script.google.com https://script.googleusercontent.com https://api.anthropic.com; img-src 'self' data: https:; frame-src 'self' https://script.google.com https://script.googleusercontent.com https://dailychessmap.netlify.app;">
     <title>Deep Roots Operations Dashboard</title>
     <!-- Force light mode as default -->
     <script>
@@ -46,7 +46,7 @@
     <link rel="stylesheet" href="styles/skills.css?v=20251113">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Bebas+Neue&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="branches-v1-fixes.css">
 </head>
 <body>
@@ -179,11 +179,22 @@
                     <!-- Metric cards will be populated dynamically by dashboard.js -->
                 </div>
 
+                <!-- WO Stats Bar -->
+                <div class="wo-stats-bar" id="woStatsBar">
+                    <div class="wo-stat-item"><span class="wo-stat-value" id="woStatActive">—</span><span class="wo-stat-label">Active Jobs</span></div>
+                    <div class="wo-stat-item"><span class="wo-stat-value" id="woStatItems">—</span><span class="wo-stat-label">Total Items</span></div>
+                    <div class="wo-stat-item"><span class="wo-stat-value" id="woStatDone">—</span><span class="wo-stat-label">Completed</span></div>
+                    <div class="wo-stat-item wo-stat-overall"><span class="wo-stat-value" id="woStatPct">—</span><span class="wo-stat-label">Overall Progress</span></div>
+                </div>
+
                 <!-- Active Jobs Dashboard Section -->
                 <section class="active-jobs-section" aria-labelledby="active-jobs-heading">
-                    <div class="section-header">
-                        <h2 id="active-jobs-heading">Active Jobs Dashboard</h2>
-                        <p>Upload work orders and track job progress</p>
+                    <div class="section-header" style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;">
+                        <div>
+                            <h2 id="active-jobs-heading">Active Jobs Dashboard</h2>
+                            <p>Track work order progress — click a card for details</p>
+                        </div>
+                        <button class="btn btn-primary" id="addWoBtn" style="flex-shrink:0;margin-top:4px;">+ Add Work Order</button>
                     </div>
 
                     <!-- PDF Upload Zone -->
@@ -380,6 +391,23 @@
                     </div>
                 </div>
                 <div class="setting-group">
+                    <h3>Work Order Dashboard</h3>
+                    <div class="setting-item">
+                        <label for="workOrdersGasUrl">GAS Web App URL:</label>
+                        <input type="url" id="workOrdersGasUrl" placeholder="https://script.google.com/macros/s/…/exec">
+                        <p style="font-size: 12px; color: var(--text-secondary, #666); margin-top: 5px;">
+                            Deploy → New Deployment → Web App · Execute as: Me · Who has access: Anyone
+                        </p>
+                    </div>
+                    <div class="setting-item">
+                        <label for="claudeApiKey">Anthropic Claude API Key:</label>
+                        <input type="password" id="claudeApiKey" placeholder="sk-ant-…" autocomplete="off">
+                        <p style="font-size: 12px; color: var(--text-secondary, #666); margin-top: 5px;">
+                            Used for parsing work order PDFs. Stored in this browser only.
+                        </p>
+                    </div>
+                </div>
+                <div class="setting-group">
                     <h3>AI Skills Configuration</h3>
                     <div class="setting-item">
                         <label>Setup Wizard:</label>
@@ -482,6 +510,125 @@
             <button class="btn btn-secondary" id="overseerRefreshBtn">🔄 Refresh</button>
             <button class="btn btn-secondary" id="overseerReportBtn">📊 Generate Report</button>
             <button class="btn btn-secondary" id="overseerClearHistoryBtn">🗑️ Clear History</button>
+        </div>
+    </div>
+
+    <!-- WO Detail Modal -->
+    <div class="wo-modal-overlay hidden" id="woDetailModal" onclick="if(event.target===this)this.classList.add('hidden')">
+        <div class="wo-modal-box" role="dialog" aria-modal="true" aria-labelledby="woDetailTitle">
+            <div class="wo-modal-header">
+                <span class="wo-modal-title" id="woDetailTitle">WO Details</span>
+                <button class="wo-modal-close" onclick="document.getElementById('woDetailModal').classList.add('hidden')" aria-label="Close">×</button>
+            </div>
+            <div class="wo-modal-body" id="woDetailBody">
+                <div style="text-align:center;padding:40px"><div class="spinner" style="margin:auto;width:32px;height:32px;border-width:3px"></div></div>
+            </div>
+            <div class="wo-modal-footer">
+                <button class="btn btn-secondary" onclick="document.getElementById('woDetailModal').classList.add('hidden')">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Work Order Modal -->
+    <div class="wo-modal-overlay hidden" id="addWoModal" onclick="if(event.target===this)this.classList.add('hidden')">
+        <div class="wo-modal-box wo-modal-wide" role="dialog" aria-modal="true" aria-label="Add Work Order">
+            <div class="wo-modal-header">
+                <span class="wo-modal-title">Add Work Order</span>
+                <button class="wo-modal-close" onclick="document.getElementById('addWoModal').classList.add('hidden')" aria-label="Close">×</button>
+            </div>
+            <div class="wo-modal-body">
+
+                <div class="wo-input-tabs">
+                    <button class="wo-input-tab active" id="woTabPdf" onclick="window.app?.dashboard?.setInputMode('pdf')">📄 Upload PDF</button>
+                    <button class="wo-input-tab" id="woTabText" onclick="window.app?.dashboard?.setInputMode('text')">✏️ Type / Paste</button>
+                </div>
+
+                <!-- PDF mode -->
+                <div id="woPdfMode">
+                    <input type="file" id="woFileInput" accept=".pdf,application/pdf" style="display:none" onchange="window.app?.dashboard?.handleFileSelect(this.files[0])">
+                    <div class="wo-pdf-dropzone" id="woPdfDropzone"
+                         onclick="document.getElementById('woFileInput').click()"
+                         ondragover="event.preventDefault();this.classList.add('drag-over')"
+                         ondragleave="this.classList.remove('drag-over')"
+                         ondrop="event.preventDefault();this.classList.remove('drag-over');window.app?.dashboard?.handleFileSelect(event.dataTransfer.files[0])">
+                        <div class="wo-dz-icon" id="woDzIcon">📄</div>
+                        <div class="wo-dz-label" id="woDzLabel">Drop PDF here or click to browse</div>
+                        <div class="wo-dz-hint" id="woDzHint">Deep Roots work order PDFs — all fields extracted automatically</div>
+                    </div>
+                </div>
+
+                <!-- Text mode -->
+                <div id="woTextMode" class="hidden">
+                    <p class="wo-parse-hint">Describe the work order — Claude will extract all fields.<br><em>Example: "WO #2847 — Client: Bob Smith. Install flagstone patio at 123 Oak St Canton GA 30114."</em></p>
+                    <textarea class="wo-textarea" id="woRawInput" placeholder="Paste or type a work order description…" rows="5"></textarea>
+                </div>
+
+                <div style="display:flex;justify-content:flex-end;gap:8px;align-items:center;margin-top:4px;">
+                    <span id="woParseSpinner" class="spinner hidden" style="width:18px;height:18px;border-width:2px"></span>
+                    <button class="btn btn-primary" id="woBtnParse" onclick="window.app?.dashboard?.parseWithClaude()">Parse with AI →</button>
+                </div>
+
+                <div class="wo-parse-error hidden" id="woParseError"></div>
+
+                <!-- Parsed Preview -->
+                <div class="wo-parsed-preview hidden" id="woParsedPreview">
+                    <span class="wo-section-label">Work Order — Review &amp; Edit Before Saving</span>
+
+                    <div class="wo-field-grid-2">
+                        <div class="wo-preview-field"><label>WO Number</label><input type="text" id="pfWonumber" placeholder="90979"></div>
+                        <div class="wo-preview-field"><label>Job Name</label><input type="text" id="pfJobname" placeholder="Install Tree &amp; Retaining Wall"></div>
+                    </div>
+                    <div class="wo-field-grid-2">
+                        <div class="wo-preview-field"><label>Client</label><input type="text" id="pfClient" placeholder="Steve Willis"></div>
+                        <div class="wo-preview-field"><label>Category</label>
+                            <select id="pfCategory">
+                                <option value="Residential">Residential</option>
+                                <option value="Commercial">Commercial</option>
+                                <option value="HOA">HOA</option>
+                                <option value="Institutional">Institutional</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="wo-field-grid-2">
+                        <div class="wo-preview-field"><label>Status</label><input type="text" id="pfStatus" placeholder="e.g. Procurement in Process"></div>
+                        <div class="wo-preview-field"><label>Sales Rep</label><input type="text" id="pfSalesrep" placeholder="Nathan"></div>
+                    </div>
+                    <div class="wo-preview-field"><label>Address (no commas)</label><input type="text" id="pfAddress" placeholder="120 Stoney Creek Terrace Dahlonega GA 30533"></div>
+                    <div class="wo-preview-field"><label>Crew Notes</label><input type="text" id="pfJobnotes" placeholder="Must use a pick up truck"></div>
+
+                    <div>
+                        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+                            <span class="wo-section-label">Line Items (<span id="woLiCount">0</span>)</span>
+                            <button class="wo-btn-add-li" onclick="window.app?.dashboard?.addLineItemRow()">+ Add item</button>
+                        </div>
+                        <datalist id="woUnitOptions">
+                            <option value="Man Hours"><option value="Ea."><option value="Yards"><option value="Pallet">
+                            <option value="Tons"><option value="LF"><option value="Sq. Ft."><option value="Bags">
+                            <option value="Flat"><option value="Weeks"><option value="Days"><option value="Zones">
+                            <option value="Lbs"><option value="Bales">
+                        </datalist>
+                        <div class="wo-li-table-wrap">
+                            <table class="wo-li-table">
+                                <thead><tr>
+                                    <th style="width:36px">#</th>
+                                    <th style="width:24%">Item Name</th>
+                                    <th>Description</th>
+                                    <th style="width:60px">Qty</th>
+                                    <th style="width:100px">Unit</th>
+                                    <th style="width:28px"></th>
+                                </tr></thead>
+                                <tbody id="woLiTbody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <div class="wo-modal-footer">
+                <button class="btn btn-secondary" onclick="document.getElementById('addWoModal').classList.add('hidden')">Cancel</button>
+                <span id="woAddSpinner" class="spinner hidden" style="width:18px;height:18px;border-width:2px"></span>
+                <button class="btn btn-primary hidden" id="woBtnConfirmAdd" onclick="window.app?.dashboard?.confirmAddWO()">Add to Sheet →</button>
+            </div>
         </div>
     </div>
 

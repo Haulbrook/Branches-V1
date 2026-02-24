@@ -611,6 +611,11 @@ Recommendations: ${report.recommendations.length}
         // Settings
         document.getElementById('settingsBtn')?.addEventListener('click', () => {
             this.ui.showSettingsModal();
+            // Populate WO Dashboard settings (these live outside populateSettingsForm)
+            const workOrdersGasUrl = document.getElementById('workOrdersGasUrl');
+            if (workOrdersGasUrl) workOrdersGasUrl.value = localStorage.getItem('dr_gas_url') || '';
+            const claudeApiKey = document.getElementById('claudeApiKey');
+            if (claudeApiKey) claudeApiKey.value = localStorage.getItem('dr_claude_key') || '';
         });
 
         // Mobile menu
@@ -962,6 +967,12 @@ Recommendations: ${report.recommendations.length}
             localStorage.setItem('openaiApiKey', openaiApiKey.value.trim());
             console.log('✅ OpenAI API key saved');
         }
+
+        // Save Work Order Dashboard settings
+        const workOrdersGasUrl = document.getElementById('workOrdersGasUrl');
+        if (workOrdersGasUrl) localStorage.setItem('dr_gas_url', workOrdersGasUrl.value.trim());
+        const claudeApiKey = document.getElementById('claudeApiKey');
+        if (claudeApiKey && claudeApiKey.value.trim()) localStorage.setItem('dr_claude_key', claudeApiKey.value.trim());
 
         // Save to localStorage
         localStorage.setItem('dashboardSettings', JSON.stringify(settings));
