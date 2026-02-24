@@ -50,6 +50,14 @@
       "url": "https://dailychessmap.netlify.app/",
       "color": "#673AB7",
       "keywords": ["crew", "location", "map", "chess", "tracking", "coordinates", "proximity", "nearest", "closest", "team", "position", "where", "logistics", "transportation", "procurement", "emergency", "errand", "delivery", "route", "shipping"]
+    },
+    "activeJobs": {
+      "_comment": "Active Jobs Dashboard - reads/writes to the Active Work Orders sheet via the inventory backend",
+      "name": "Active Jobs Dashboard",
+      "description": "Work order management with PDF parsing and progress tracking",
+      "icon": "📋",
+      "sheetId": "13bnntgZiXdCA2KQvJXpIBA1rCBzx3ZmeKakzYFFg7QA",
+      "color": "#FF5722"
     }
   },
   "ai": {

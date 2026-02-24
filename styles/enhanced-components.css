@@ -612,9 +612,9 @@
 }
 
 /* ============================================
-   RECENT ACTIVITY SECTION
+   ACTIVE JOBS SECTION
    ============================================ */
-.recent-activity-section {
+.active-jobs-section {
   margin-top: var(--space-8);
   background: var(--surface-primary);
   border-radius: var(--radius-lg);
@@ -643,180 +643,296 @@
 }
 
 /* ============================================
-   ACTIVITY LIST
+   PDF UPLOAD ZONE
    ============================================ */
-.activity-list {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-4);
-}
-
-.activity-item {
-  display: flex;
-  align-items: flex-start;
-  gap: var(--space-4);
-  padding: var(--space-4);
-  background: var(--surface-secondary);
-  border-radius: var(--radius-md);
-  border-left: 4px solid var(--border-color);
+.pdf-upload-zone {
+  border: 2px dashed var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: var(--space-8) var(--space-6);
+  text-align: center;
+  cursor: pointer;
   transition: all var(--transition-base);
+  background: var(--surface-secondary);
+  margin-bottom: var(--space-6);
 }
 
-.activity-item:hover {
-  background: var(--surface-hover);
-  transform: translateX(4px);
-  box-shadow: var(--shadow-sm);
+.pdf-upload-zone:hover,
+.pdf-upload-zone.drag-over {
+  border-color: var(--primary-color, #2196F3);
+  background: var(--info-light, #e3f2fd);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
 }
 
-.activity-item.success {
-  border-left-color: var(--success);
+.pdf-upload-zone:focus-visible {
+  outline: 2px solid var(--primary-color, #2196F3);
+  outline-offset: 2px;
 }
 
-.activity-item.warning {
-  border-left-color: var(--warning);
+.upload-icon {
+  font-size: 3rem;
+  margin-bottom: var(--space-3);
 }
 
-.activity-item.error {
-  border-left-color: var(--error);
-}
-
-.activity-item.info {
-  border-left-color: var(--info);
-}
-
-/* ============================================
-   ACTIVITY ICON
-   ============================================ */
-.activity-icon {
-  flex-shrink: 0;
-  width: 40px;
-  height: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: var(--radius-md);
+.upload-text {
   font-size: var(--font-size-lg);
-  background: var(--surface-tertiary);
-  border: 2px solid var(--border-color);
-}
-
-.activity-icon.success {
-  background: var(--success-light);
-  border-color: var(--success);
-  color: var(--success);
-}
-
-.activity-icon.warning {
-  background: var(--warning-light);
-  border-color: var(--warning);
-  color: var(--warning);
-}
-
-.activity-icon.error {
-  background: var(--error-light);
-  border-color: var(--error);
-  color: var(--error);
-}
-
-.activity-icon.info {
-  background: var(--info-light);
-  border-color: var(--info);
-  color: var(--info);
-}
-
-/* ============================================
-   ACTIVITY CONTENT
-   ============================================ */
-.activity-content {
-  flex: 1;
-  min-width: 0; /* Allow text truncation */
-}
-
-.activity-header {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-  flex-wrap: wrap;
-  margin-bottom: var(--space-2);
-}
-
-.activity-title {
   font-weight: var(--font-weight-semibold);
   color: var(--text-primary);
-  font-size: var(--font-size-base);
+  margin: 0 0 var(--space-2);
 }
 
-.activity-badge {
-  display: inline-flex;
+.upload-hint {
+  font-size: var(--font-size-sm);
+  color: var(--text-tertiary);
+  margin: 0;
+}
+
+/* ============================================
+   UPLOAD PROGRESS
+   ============================================ */
+.upload-progress {
+  margin-bottom: var(--space-6);
+  text-align: center;
+}
+
+.upload-progress-bar {
+  height: 6px;
+  background: var(--surface-tertiary);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+  margin-bottom: var(--space-3);
+}
+
+.upload-progress-fill {
+  height: 100%;
+  background: var(--primary-color, #2196F3);
+  border-radius: var(--radius-full);
+  animation: indeterminateProgress 1.5s ease infinite;
+  width: 40%;
+}
+
+@keyframes indeterminateProgress {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(350%); }
+}
+
+.upload-status {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+/* ============================================
+   PREVIEW PANEL
+   ============================================ */
+.preview-panel {
+  background: var(--surface-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: var(--space-6);
+  margin-bottom: var(--space-6);
+}
+
+.preview-header {
+  display: flex;
+  justify-content: space-between;
   align-items: center;
+  margin-bottom: var(--space-4);
+  padding-bottom: var(--space-4);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.preview-header h3 {
+  margin: 0;
+  font-size: var(--font-size-xl);
+  color: var(--text-primary);
+}
+
+.preview-actions {
+  display: flex;
+  gap: var(--space-3);
+}
+
+.preview-wo-details {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+}
+
+.preview-field {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+}
+
+.preview-field strong {
+  color: var(--text-primary);
+}
+
+.preview-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--font-size-sm);
+}
+
+.preview-table th,
+.preview-table td {
+  padding: var(--space-2) var(--space-3);
+  text-align: left;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.preview-table th {
+  background: var(--surface-tertiary);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+}
+
+/* ============================================
+   JOB CARDS GRID
+   ============================================ */
+.job-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: var(--space-5);
+}
+
+.job-card {
+  background: var(--surface-secondary);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
+  border-left: 4px solid var(--border-color);
+  transition: all var(--transition-base);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.job-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.job-card.success { border-left-color: var(--success); }
+.job-card.warning { border-left-color: var(--warning); }
+.job-card.info { border-left-color: var(--info); }
+
+.job-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.job-wo-number {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
+  color: var(--text-secondary);
+  font-family: monospace;
+}
+
+.job-status-badge {
+  display: inline-flex;
   padding: var(--space-1) var(--space-3);
   border-radius: var(--radius-full);
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-medium);
-  background: var(--surface-tertiary);
-  color: var(--text-secondary);
-  border: 1px solid var(--border-color);
+  background: var(--success-light, #e8f5e9);
+  color: var(--success, #2e7d32);
+  border: 1px solid var(--success, #2e7d32);
 }
 
-.activity-badge.success {
-  background: var(--success-light);
-  color: var(--success);
-  border-color: var(--success);
+.job-status-badge.completed {
+  background: var(--info-light, #e3f2fd);
+  color: var(--info, #1565c0);
+  border-color: var(--info, #1565c0);
 }
 
-.activity-badge.warning {
-  background: var(--warning-light);
-  color: var(--warning);
-  border-color: var(--warning);
+.job-status-badge.on-hold {
+  background: var(--warning-light, #fff3e0);
+  color: var(--warning, #e65100);
+  border-color: var(--warning, #e65100);
 }
 
-.activity-badge.error {
-  background: var(--error-light);
-  color: var(--error);
-  border-color: var(--error);
+.job-status-badge.procurement {
+  background: #f3e5f5;
+  color: #7b1fa2;
+  border-color: #7b1fa2;
 }
 
-.activity-badge.info {
-  background: var(--info-light);
-  color: var(--info);
-  border-color: var(--info);
+.job-card-title {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+  margin: 0;
+  line-height: 1.3;
 }
 
-.activity-details {
+.job-card-details {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.job-detail-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
   font-size: var(--font-size-sm);
   color: var(--text-secondary);
-  margin-bottom: var(--space-2);
-  line-height: 1.5;
 }
 
-.activity-meta {
+.job-detail-icon {
+  flex-shrink: 0;
+  width: 20px;
+  text-align: center;
+}
+
+/* ============================================
+   PROGRESS BAR (Job Cards)
+   ============================================ */
+.job-card-progress {
+  margin-top: auto;
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--border-color);
+}
+
+.progress-bar-container {
   display: flex;
   align-items: center;
   gap: var(--space-3);
+  margin-bottom: var(--space-2);
+}
+
+.progress-bar {
+  flex: 1;
+  height: 8px;
+  background: var(--surface-tertiary);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  border-radius: var(--radius-full);
+  transition: width 0.5s ease;
+  background: var(--info, #1565c0);
+}
+
+.progress-bar-fill.success { background: var(--success, #2e7d32); }
+.progress-bar-fill.warning { background: var(--warning, #e65100); }
+.progress-bar-fill.info { background: var(--info, #1565c0); }
+
+.progress-percentage {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
+  color: var(--text-primary);
+  min-width: 36px;
+  text-align: right;
+}
+
+.progress-label {
   font-size: var(--font-size-xs);
   color: var(--text-tertiary);
-}
-
-.activity-time {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-1);
-}
-
-.activity-time::before {
-  content: '🕒';
-  font-size: 0.9em;
-}
-
-.activity-user {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-1);
-}
-
-.activity-user::before {
-  content: '👤';
-  font-size: 0.9em;
 }
 
 /* ============================================
@@ -886,19 +1002,26 @@
     padding: var(--space-4);
   }
 
-  .recent-activity-section {
+  .active-jobs-section {
     padding: var(--space-4);
   }
 
-  .activity-item {
-    flex-direction: column;
-    align-items: flex-start;
+  .job-cards-grid {
+    grid-template-columns: 1fr;
   }
 
-  .activity-icon {
-    width: 36px;
-    height: 36px;
-    font-size: var(--font-size-base);
+  .pdf-upload-zone {
+    padding: var(--space-6) var(--space-4);
+  }
+
+  .preview-wo-details {
+    grid-template-columns: 1fr;
+  }
+
+  .preview-header {
+    flex-direction: column;
+    gap: var(--space-3);
+    align-items: flex-start;
   }
 
   .section-header h2 {

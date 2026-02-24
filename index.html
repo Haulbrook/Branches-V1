@@ -179,22 +179,52 @@
                     <!-- Metric cards will be populated dynamically by dashboard.js -->
                 </div>
 
-                <!-- Recent Activity Section -->
-                <section class="recent-activity-section" aria-labelledby="activity-heading">
+                <!-- Active Jobs Dashboard Section -->
+                <section class="active-jobs-section" aria-labelledby="active-jobs-heading">
                     <div class="section-header">
-                        <h2 id="activity-heading">Recent Activity</h2>
-                        <p>Last 5 inventory and fleet changes</p>
+                        <h2 id="active-jobs-heading">Active Jobs Dashboard</h2>
+                        <p>Upload work orders and track job progress</p>
                     </div>
-                    <div class="activity-list" id="activityList" role="feed" aria-label="Recent activity feed" aria-busy="true">
-                        <!-- Activity items will be populated dynamically -->
+
+                    <!-- PDF Upload Zone -->
+                    <div class="pdf-upload-zone" id="pdfUploadZone" role="button" tabindex="0" aria-label="Drop a PDF here or click to upload">
+                        <div class="upload-icon" aria-hidden="true">📄</div>
+                        <p class="upload-text">Drop a work order PDF here or click to upload</p>
+                        <p class="upload-hint">Supports single PDF files up to 10MB</p>
+                        <input type="file" id="pdfFileInput" accept=".pdf" class="sr-only" aria-label="Select PDF file">
+                    </div>
+
+                    <!-- Upload Progress Indicator (hidden by default) -->
+                    <div class="upload-progress hidden" id="uploadProgress">
+                        <div class="upload-progress-bar">
+                            <div class="upload-progress-fill" id="uploadProgressFill"></div>
+                        </div>
+                        <p class="upload-status" id="uploadStatus">Parsing PDF...</p>
+                    </div>
+
+                    <!-- Preview Panel (hidden by default) -->
+                    <div class="preview-panel hidden" id="previewPanel">
+                        <div class="preview-header">
+                            <h3>Parsed Work Order Preview</h3>
+                            <div class="preview-actions">
+                                <button class="btn btn-secondary" id="previewCancelBtn">Cancel</button>
+                                <button class="btn btn-primary" id="previewConfirmBtn">Confirm & Save</button>
+                            </div>
+                        </div>
+                        <div class="preview-content" id="previewContent">
+                            <!-- Filled dynamically with parsed work order data -->
+                        </div>
+                    </div>
+
+                    <!-- Job Cards Grid -->
+                    <div class="job-cards-grid" id="jobCardsGrid" role="list" aria-label="Active jobs" aria-busy="true">
+                        <!-- Job cards populated dynamically -->
                         <div class="loading-skeleton" aria-hidden="true">
                             <div class="skeleton-item"></div>
                             <div class="skeleton-item"></div>
                             <div class="skeleton-item"></div>
-                            <div class="skeleton-item"></div>
-                            <div class="skeleton-item"></div>
                         </div>
-                        <span class="sr-only">Loading recent activity...</span>
+                        <span class="sr-only">Loading active jobs...</span>
                     </div>
                 </section>
             </section>

@@ -8,15 +8,17 @@ class DashboardManager {
         this.metrics = new Map();
         this.refreshInterval = null;
         this.updateInterval = 30000; // 30 seconds
+        this.pendingWorkOrder = null;
     }
 
     async init() {
         // Render empty states immediately
         this.renderMetricsCards();
-        this.renderRecentActivity();
+        this.renderJobCards();
 
         // Setup listeners first so navigation always works
         this.setupEventListeners();
+        this.setupPDFUpload();
         this.setupAutoRefresh();
 
         // Load data in background (non-blocking)
@@ -26,10 +28,10 @@ class DashboardManager {
             console.warn('Failed to load metrics:', error);
         });
 
-        this.loadRecentActivity().then(() => {
-            this.renderRecentActivity();
+        this.loadActiveJobs().then(() => {
+            this.renderJobCards();
         }).catch(error => {
-            console.warn('Failed to load recent activity:', error);
+            console.warn('Failed to load active jobs:', error);
         });
     }
 
@@ -106,164 +108,314 @@ class DashboardManager {
         };
     }
 
+    // ═══════════════════════════════════════════════════════════════
+    // ACTIVE JOBS DASHBOARD
+    // ═══════════════════════════════════════════════════════════════
+
     /**
-     * Load recent activity from backend
+     * Load active jobs from backend
      */
-    async loadRecentActivity() {
+    async loadActiveJobs() {
         try {
             const api = window.app?.api;
             if (!api) {
-                console.warn('API not available for activity loading');
+                console.warn('API not available for jobs loading');
                 return;
             }
 
-            // Check if any endpoints are configured
             if (!this.hasConfiguredEndpoints()) {
-                console.log('No endpoints configured - skipping activity load');
-                this.metrics.set('recentActivity', []);
+                console.log('No endpoints configured - skipping jobs load');
+                this.metrics.set('activeJobs', []);
                 return;
             }
 
-            // Load recent inventory changes
-            const recentActivity = await api.callGoogleScript('inventory', 'getRecentActivity', [5]);
-
-            this.metrics.set('recentActivity', recentActivity);
+            const result = await api.callGoogleScript('inventory', 'getActiveJobs', []);
+            const jobs = (result && result.jobs) ? result.jobs : (Array.isArray(result) ? result : []);
+            this.metrics.set('activeJobs', jobs);
 
         } catch (error) {
-            // Only show error if it's not about missing endpoints
             if (!error.message.includes('No Google Apps Script endpoint')) {
-                console.error('Failed to load recent activity:', error);
+                console.error('Failed to load active jobs:', error);
             }
-            // Set empty array as fallback
-            this.metrics.set('recentActivity', []);
+            this.metrics.set('activeJobs', []);
         }
     }
 
     /**
-     * Render recent activity list
+     * Render job cards grid
      */
-    renderRecentActivity() {
-        const container = document.getElementById('activityList');
+    renderJobCards() {
+        const container = document.getElementById('jobCardsGrid');
         if (!container) {
-            console.warn('Activity list container not found');
+            console.warn('Job cards container not found');
             return;
         }
 
-        let activities = this.metrics.get('recentActivity') || [];
+        const jobs = this.metrics.get('activeJobs') || [];
 
-        // Show sample data if no real data available
-        if (activities.length === 0) {
-            activities = this.getSampleActivityData();
+        if (jobs.length === 0) {
+            container.innerHTML = `
+                <div class="empty-state" style="grid-column: 1 / -1;">
+                    <div class="empty-icon">📋</div>
+                    <p>No active jobs</p>
+                    <span class="empty-hint">Upload a work order PDF above to get started</span>
+                </div>`;
+            return;
         }
 
-        const activityHTML = activities.map(activity => this.createActivityItem(activity)).join('');
-        container.innerHTML = activityHTML;
+        container.innerHTML = jobs.map(job => this.createJobCard(job)).join('');
     }
 
     /**
-     * Get sample activity data for demonstration
+     * Create a single job card HTML
      */
-    getSampleActivityData() {
-        const now = Date.now();
-        return [
-            {
-                action: 'added',
-                itemName: 'Boxwood - 3 Gallon',
-                details: 'Added 50 units to Yard A',
-                timestamp: new Date(now - 2 * 60 * 60 * 1000), // 2 hours ago
-                user: 'John Smith'
-            },
-            {
-                action: 'maintenance',
-                itemName: 'Truck #3',
-                details: 'Scheduled for oil change',
-                timestamp: new Date(now - 5 * 60 * 60 * 1000), // 5 hours ago
-                user: 'Mike Johnson'
-            },
-            {
-                action: 'removed',
-                itemName: 'Rake - Standard',
-                details: 'Removed 2 units (broken)',
-                timestamp: new Date(now - 24 * 60 * 60 * 1000), // 1 day ago
-                user: 'Sarah Williams'
-            },
-            {
-                action: 'returned',
-                itemName: 'Wheelbarrow #5',
-                details: 'Returned to service after repair',
-                timestamp: new Date(now - 2 * 24 * 60 * 60 * 1000), // 2 days ago
-                user: 'Tom Davis'
-            },
-            {
-                action: 'added',
-                itemName: 'Holly - 5 Gallon',
-                details: 'Added 30 units to Yard B',
-                timestamp: new Date(now - 3 * 24 * 60 * 60 * 1000), // 3 days ago
-                user: 'Chris Brown'
-            }
-        ];
-    }
-
-    /**
-     * Create activity item HTML
-     */
-    createActivityItem(activity) {
-        const { action, itemName, details, timestamp, user } = activity;
-
-        // Determine icon and color based on action type
-        const actionMap = {
-            'added': { icon: '➕', color: 'success', label: 'Added' },
-            'removed': { icon: '➖', color: 'error', label: 'Removed' },
-            'edited': { icon: '✏️', color: 'info', label: 'Edited' },
-            'broken': { icon: '⚠️', color: 'warning', label: 'Marked as Broken' },
-            'out_of_service': { icon: '🔴', color: 'error', label: 'Out of Service' },
-            'maintenance': { icon: '🔧', color: 'warning', label: 'In Maintenance' },
-            'returned': { icon: '✅', color: 'success', label: 'Returned to Service' }
-        };
-
-        const actionInfo = actionMap[action] || { icon: '📝', color: 'info', label: action };
-        const timeAgo = this.formatTimeAgo(timestamp);
+    createJobCard(job) {
+        const progress = job.progress ?? 0;
+        const progressColor = progress >= 75 ? 'success' : progress >= 40 ? 'warning' : 'info';
+        const statusClass = (job.status || '').toLowerCase().replace(/\s+/g, '-');
 
         return `
-            <div class="activity-item ${actionInfo.color}">
-                <div class="activity-icon ${actionInfo.color}">
-                    ${actionInfo.icon}
+            <div class="job-card ${progressColor}" role="listitem">
+                <div class="job-card-header">
+                    <span class="job-wo-number">WO #${this.escapeHtml(job.woNumber || 'N/A')}</span>
+                    <span class="job-status-badge ${statusClass}">${this.escapeHtml(job.status || 'Active')}</span>
                 </div>
-                <div class="activity-content">
-                    <div class="activity-header">
-                        <span class="activity-title">${itemName}</span>
-                        <span class="activity-badge ${actionInfo.color}">${actionInfo.label}</span>
+                <h3 class="job-card-title">${this.escapeHtml(job.jobName || 'Untitled Job')}</h3>
+                <div class="job-card-details">
+                    <div class="job-detail-row">
+                        <span class="job-detail-icon">👤</span>
+                        <span>${this.escapeHtml(job.clientName || 'No client')}</span>
                     </div>
-                    <div class="activity-details">${details || 'No additional details'}</div>
-                    <div class="activity-meta">
-                        <span class="activity-time">${timeAgo}</span>
-                        ${user ? `<span class="activity-user">by ${user}</span>` : ''}
+                    <div class="job-detail-row">
+                        <span class="job-detail-icon">📍</span>
+                        <span>${this.escapeHtml(job.address || 'No address')}</span>
+                    </div>
+                    <div class="job-detail-row">
+                        <span class="job-detail-icon">🏷️</span>
+                        <span>${this.escapeHtml(job.category || 'General')}</span>
+                    </div>
+                    <div class="job-detail-row">
+                        <span class="job-detail-icon">💼</span>
+                        <span>${this.escapeHtml(job.salesRep || 'Unassigned')}</span>
                     </div>
                 </div>
-            </div>
-        `;
+                <div class="job-card-progress">
+                    <div class="progress-bar-container">
+                        <div class="progress-bar">
+                            <div class="progress-bar-fill ${progressColor}" style="width: ${progress}%"></div>
+                        </div>
+                        <span class="progress-percentage">${progress}%</span>
+                    </div>
+                    <span class="progress-label">${this.escapeHtml(job.progressLabel || (job.tasksComplete || 0) + ' / ' + (job.tasksTotal || 0) + ' tasks complete')}</span>
+                </div>
+            </div>`;
     }
 
     /**
-     * Format timestamp as relative time
+     * Escape HTML to prevent XSS
      */
-    formatTimeAgo(timestamp) {
-        if (!timestamp) return 'Recently';
+    escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
 
-        const now = new Date();
-        const activityTime = new Date(timestamp);
-        const diffMs = now - activityTime;
-        const diffSec = Math.floor(diffMs / 1000);
-        const diffMin = Math.floor(diffSec / 60);
-        const diffHour = Math.floor(diffMin / 60);
-        const diffDay = Math.floor(diffHour / 24);
+    // ═══════════════════════════════════════════════════════════════
+    // PDF UPLOAD & PARSE
+    // ═══════════════════════════════════════════════════════════════
 
-        if (diffSec < 60) return 'Just now';
-        if (diffMin < 60) return `${diffMin} minute${diffMin !== 1 ? 's' : ''} ago`;
-        if (diffHour < 24) return `${diffHour} hour${diffHour !== 1 ? 's' : ''} ago`;
-        if (diffDay < 7) return `${diffDay} day${diffDay !== 1 ? 's' : ''} ago`;
+    /**
+     * Setup PDF upload zone event listeners
+     */
+    setupPDFUpload() {
+        const dropZone = document.getElementById('pdfUploadZone');
+        const fileInput = document.getElementById('pdfFileInput');
+        if (!dropZone || !fileInput) return;
 
-        return activityTime.toLocaleDateString();
+        // Click to upload
+        dropZone.addEventListener('click', () => fileInput.click());
+        dropZone.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                fileInput.click();
+            }
+        });
+
+        // Drag and drop
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('drag-over');
+        });
+        dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('drag-over');
+            const file = e.dataTransfer.files[0];
+            if (file && file.type === 'application/pdf') {
+                this.handlePDFFile(file);
+            } else {
+                this.showToast('Please upload a PDF file', 'warning');
+            }
+        });
+
+        // File input change
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) this.handlePDFFile(file);
+            fileInput.value = ''; // Reset so same file can be re-selected
+        });
+
+        // Preview panel buttons
+        document.getElementById('previewConfirmBtn')?.addEventListener('click', () => this.confirmWorkOrder());
+        document.getElementById('previewCancelBtn')?.addEventListener('click', () => this.cancelPreview());
+    }
+
+    /**
+     * Handle a selected PDF file: read as base64, send to backend for Claude parsing
+     */
+    async handlePDFFile(file) {
+        if (file.size > 10 * 1024 * 1024) {
+            this.showToast('File too large. Maximum 10MB.', 'error');
+            return;
+        }
+
+        const progressEl = document.getElementById('uploadProgress');
+        const statusEl = document.getElementById('uploadStatus');
+        progressEl?.classList.remove('hidden');
+        if (statusEl) statusEl.textContent = 'Reading PDF...';
+
+        try {
+            const base64 = await this.readFileAsBase64(file);
+            if (statusEl) statusEl.textContent = 'Parsing with AI... This may take a moment.';
+
+            const api = window.app?.api;
+            if (!api) throw new Error('API not available');
+
+            const result = await api.callGoogleScript('inventory', 'parsePDFWithClaude', [base64]);
+
+            if (result && result.success === false) {
+                throw new Error(result.error || 'Failed to parse PDF');
+            }
+
+            this.pendingWorkOrder = result;
+            this.showPreview(result);
+            progressEl?.classList.add('hidden');
+
+        } catch (error) {
+            console.error('PDF processing error:', error);
+            this.showToast('Failed to parse PDF: ' + error.message, 'error');
+            progressEl?.classList.add('hidden');
+        }
+    }
+
+    /**
+     * Read a file as base64 string (without data: prefix)
+     */
+    readFileAsBase64(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => {
+                const base64 = reader.result.split(',')[1];
+                resolve(base64);
+            };
+            reader.onerror = reject;
+            reader.readAsDataURL(file);
+        });
+    }
+
+    /**
+     * Show parsed work order data in preview panel
+     */
+    showPreview(data) {
+        const panel = document.getElementById('previewPanel');
+        const content = document.getElementById('previewContent');
+        if (!panel || !content) return;
+
+        const wo = data.workOrder || {};
+        const items = data.lineItems || [];
+
+        let html = `
+            <div class="preview-wo-details">
+                <div class="preview-field"><strong>WO #:</strong> ${this.escapeHtml(wo.woNumber || 'N/A')}</div>
+                <div class="preview-field"><strong>Job:</strong> ${this.escapeHtml(wo.jobName || '')}</div>
+                <div class="preview-field"><strong>Client:</strong> ${this.escapeHtml(wo.clientName || '')}</div>
+                <div class="preview-field"><strong>Category:</strong> ${this.escapeHtml(wo.category || '')}</div>
+                <div class="preview-field"><strong>Address:</strong> ${this.escapeHtml(wo.address || '')}</div>
+                <div class="preview-field"><strong>Sales Rep:</strong> ${this.escapeHtml(wo.salesRep || '')}</div>
+            </div>`;
+
+        if (items.length > 0) {
+            html += `
+                <h4 style="margin: var(--space-4) 0 var(--space-2);">Line Items (${items.length})</h4>
+                <table class="preview-table">
+                    <thead><tr><th>Item</th><th>Qty</th><th>Unit</th><th>Price</th><th>Total</th></tr></thead>
+                    <tbody>
+                        ${items.map(li => `<tr>
+                            <td>${this.escapeHtml(li.item || '')}</td>
+                            <td>${li.quantity || 0}</td>
+                            <td>${this.escapeHtml(li.unit || '')}</td>
+                            <td>$${(li.unitPrice || 0).toFixed(2)}</td>
+                            <td>$${(li.total || 0).toFixed(2)}</td>
+                        </tr>`).join('')}
+                    </tbody>
+                </table>`;
+        }
+
+        content.innerHTML = html;
+        panel.classList.remove('hidden');
+    }
+
+    /**
+     * Confirm and write the pending work order to Google Sheets
+     */
+    async confirmWorkOrder() {
+        if (!this.pendingWorkOrder) return;
+
+        const confirmBtn = document.getElementById('previewConfirmBtn');
+        if (confirmBtn) {
+            confirmBtn.disabled = true;
+            confirmBtn.textContent = 'Saving...';
+        }
+
+        try {
+            const api = window.app?.api;
+            if (!api) throw new Error('API not available');
+
+            // Write work order header
+            await api.callGoogleScript('inventory', 'writeWorkOrder', [this.pendingWorkOrder.workOrder]);
+
+            // Write line items if present
+            if (this.pendingWorkOrder.lineItems?.length > 0) {
+                await api.callGoogleScript('inventory', 'writeLineItems', [{
+                    woNumber: this.pendingWorkOrder.workOrder.woNumber,
+                    items: this.pendingWorkOrder.lineItems
+                }]);
+            }
+
+            this.showToast('Work order saved successfully!', 'success');
+            this.cancelPreview();
+
+            // Refresh job cards
+            await this.loadActiveJobs();
+            this.renderJobCards();
+
+        } catch (error) {
+            console.error('Failed to save work order:', error);
+            this.showToast('Failed to save: ' + error.message, 'error');
+        } finally {
+            if (confirmBtn) {
+                confirmBtn.disabled = false;
+                confirmBtn.textContent = 'Confirm & Save';
+            }
+        }
+    }
+
+    /**
+     * Cancel preview and clear pending data
+     */
+    cancelPreview() {
+        this.pendingWorkOrder = null;
+        document.getElementById('previewPanel')?.classList.add('hidden');
     }
 
     /**
@@ -346,8 +498,8 @@ class DashboardManager {
         this.refreshInterval = setInterval(async () => {
             await this.loadMetrics();
             this.renderMetricsCards();
-            await this.loadRecentActivity();
-            this.renderRecentActivity();
+            await this.loadActiveJobs();
+            this.renderJobCards();
         }, this.updateInterval);
     }
 

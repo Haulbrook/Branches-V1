@@ -755,7 +755,7 @@ Recommendations: ${report.recommendations.length}
 
         // Update header
         document.getElementById('pageTitle').textContent = 'Operations Dashboard';
-        document.getElementById('pageSubtitle').textContent = 'Overview of inventory, fleet, and recent activity';
+        document.getElementById('pageSubtitle').textContent = 'Overview of inventory, fleet, and active jobs';
 
         // Hide tool action buttons
         document.getElementById('toolBackBtn').style.display = 'none';
@@ -766,8 +766,8 @@ Recommendations: ${report.recommendations.length}
         if (this.dashboard) {
             this.dashboard.loadMetrics();
             this.dashboard.renderMetricsCards();
-            this.dashboard.loadRecentActivity();
-            this.dashboard.renderRecentActivity();
+            this.dashboard.loadActiveJobs();
+            this.dashboard.renderJobCards();
         }
     }
 

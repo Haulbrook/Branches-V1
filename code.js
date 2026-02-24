@@ -47,6 +47,12 @@ const CONFIG = {
   KNOWLEDGE_SHEET_NAME: "Sheet1",
   TRUCK_SHEET_NAME: "Master",
   CREW_SCHEDULE_SHEET_NAME: "Sheet1",
+  ACTIVE_JOBS_SHEET_ID: "13bnntgZiXdCA2KQvJXpIBA1rCBzx3ZmeKakzYFFg7QA",
+  ACTIVE_JOBS_SHEET_NAME: "Active Work Orders",
+  WORK_ORDERS_SHEET_NAME: "Work Orders",
+  LINE_ITEMS_SHEET_NAME: "Line Items",
+  CLAUDE_API_KEY: PropertiesService.getScriptProperties().getProperty('CLAUDE_API_KEY') || "",
+  CLAUDE_MODEL: "claude-sonnet-4-20250514",
   OPENAI_API_KEY: "", // Replace with your actual API key
   OPENAI_MODEL: "gpt-4",
   SYSTEM_PROMPT: "You are the internal operations assistant for Deep Roots Landscape, a landscaping company. " +
@@ -525,26 +531,39 @@ function doPost(e) {
         result = getArchivedProjects();
         break;
 
+      case 'parsePDFWithClaude':
+        result = parsePDFWithClaude(params[0]);
+        break;
+
+      case 'writeWorkOrder':
+        result = writeWorkOrder(params[0]);
+        break;
+
+      case 'writeLineItems':
+        result = writeLineItems(params[0]);
+        break;
+
+      case 'getActiveJobs':
+        result = getActiveJobs();
+        break;
+
       default:
         throw new Error('Unknown function: ' + functionName);
     }
 
-    // Return successful response with CORS headers
+    // Return successful response
     return ContentService.createTextOutput(
       JSON.stringify({
         success: true,
         response: result
       })
     )
-    .setMimeType(ContentService.MimeType.JSON)
-    .setHeader('Access-Control-Allow-Origin', '*')
-    .setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
-    .setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    .setMimeType(ContentService.MimeType.JSON);
 
   } catch (error) {
     Logger.log("API Error: " + error.toString());
 
-    // Return error response with CORS headers
+    // Return error response
     return ContentService.createTextOutput(
       JSON.stringify({
         success: false,
@@ -554,10 +573,7 @@ function doPost(e) {
         }
       })
     )
-    .setMimeType(ContentService.MimeType.JSON)
-    .setHeader('Access-Control-Allow-Origin', '*')
-    .setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
-    .setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    .setMimeType(ContentService.MimeType.JSON);
   }
 }
 
@@ -2557,3 +2573,350 @@ function getArchivedProjects() {
     return ErrorHandler.createErrorResponse(error, 'getArchivedProjects');
   }
 }
+
+// ═══════════════════════════════════════════════════════════════════════
+// 📋 ACTIVE JOBS DASHBOARD FUNCTIONS
+// ═══════════════════════════════════════════════════════════════════════
+
+/**
+ * Get active jobs from the Active Work Orders sheet with progress data.
+ * Reads all rows, identifies checkbox columns, and computes completion percentages.
+ */
+function getActiveJobs() {
+  try {
+    const ss = SpreadsheetApp.openById(CONFIG.ACTIVE_JOBS_SHEET_ID);
+    const sheet = ss.getSheetByName(CONFIG.ACTIVE_JOBS_SHEET_NAME);
+
+    if (!sheet) {
+      return { success: true, jobs: [], count: 0 };
+    }
+
+    const data = sheet.getDataRange().getValues();
+    if (data.length < 2) {
+      return { success: true, jobs: [], count: 0 };
+    }
+
+    const headers = data[0].map(function(h) { return String(h).trim().toLowerCase(); });
+
+    // Find key column indices
+    var colMap = {
+      woNumber: findCol(headers, ['wo number', 'wo #', 'wo', 'work order', 'wonumber']),
+      jobName: findCol(headers, ['job name', 'job description', 'jobname', 'description', 'project']),
+      clientName: findCol(headers, ['client', 'customer', 'client name', 'customer name']),
+      category: findCol(headers, ['category', 'type', 'job type']),
+      status: findCol(headers, ['status', 'job status']),
+      address: findCol(headers, ['address', 'job address', 'location', 'site address']),
+      salesRep: findCol(headers, ['sales rep', 'salesman', 'sales', 'rep', 'sales person'])
+    };
+
+    // Identify checkbox columns (columns with TRUE/FALSE boolean values)
+    var checkboxCols = [];
+    for (var c = 0; c < headers.length; c++) {
+      var hasCheckbox = false;
+      for (var r = 1; r < Math.min(data.length, 10); r++) {
+        var val = data[r][c];
+        if (val === true || val === false) {
+          hasCheckbox = true;
+          break;
+        }
+      }
+      if (hasCheckbox) {
+        checkboxCols.push(c);
+      }
+    }
+
+    var jobs = [];
+    for (var i = 1; i < data.length; i++) {
+      var row = data[i];
+
+      // Skip empty rows
+      var woNum = colMap.woNumber >= 0 ? String(row[colMap.woNumber] || '').trim() : '';
+      if (!woNum && colMap.jobName >= 0 && !String(row[colMap.jobName] || '').trim()) continue;
+
+      // Count checkbox progress
+      var checked = 0;
+      var total = checkboxCols.length;
+      for (var j = 0; j < checkboxCols.length; j++) {
+        if (row[checkboxCols[j]] === true) {
+          checked++;
+        }
+      }
+      var percent = total > 0 ? Math.round((checked / total) * 100) : 0;
+
+      jobs.push({
+        woNumber: woNum || 'N/A',
+        jobName: colMap.jobName >= 0 ? String(row[colMap.jobName] || 'Untitled Job') : 'Untitled Job',
+        clientName: colMap.clientName >= 0 ? String(row[colMap.clientName] || '') : '',
+        category: colMap.category >= 0 ? String(row[colMap.category] || '') : '',
+        status: colMap.status >= 0 ? String(row[colMap.status] || 'Active') : 'Active',
+        address: colMap.address >= 0 ? String(row[colMap.address] || '') : '',
+        salesRep: colMap.salesRep >= 0 ? String(row[colMap.salesRep] || '') : '',
+        progress: percent,
+        tasksComplete: checked,
+        tasksTotal: total,
+        progressLabel: total > 0 ? checked + ' / ' + total + ' tasks complete' : 'No tasks tracked'
+      });
+    }
+
+    return {
+      success: true,
+      jobs: jobs,
+      count: jobs.length
+    };
+
+  } catch (error) {
+    Logger.log('Error in getActiveJobs: ' + error.toString());
+    return { success: false, error: error.toString(), jobs: [], count: 0 };
+  }
+}
+
+/**
+ * Helper: find a column index by checking multiple possible header names.
+ */
+function findCol(headers, possibleNames) {
+  for (var i = 0; i < possibleNames.length; i++) {
+    var idx = headers.indexOf(possibleNames[i]);
+    if (idx >= 0) return idx;
+  }
+  return -1;
+}
+
+/**
+ * Parse a PDF using the Claude API.
+ * Accepts a base64-encoded PDF string, sends it to Claude with extraction instructions,
+ * and returns structured JSON with work order and line item data.
+ */
+function parsePDFWithClaude(base64PDF) {
+  try {
+    if (!base64PDF) {
+      return { success: false, error: 'No PDF data provided' };
+    }
+
+    if (!CONFIG.CLAUDE_API_KEY) {
+      return { success: false, error: 'Claude API key not configured' };
+    }
+
+    var systemPrompt = 'You are a work order data extraction assistant for Deep Roots Landscape, a landscaping company. ' +
+      'You will receive a PDF of a work order. Extract all relevant information and return it as a single JSON object.\n\n' +
+      'DATA RULES:\n' +
+      '- Strip commas from all text fields\n' +
+      '- Preserve original line numbers from the PDF (do not renumber)\n' +
+      '- Infer category from client name pattern (Residential / Commercial / HOA / Institutional)\n' +
+      '- Separate quantity numeric value from unit string\n' +
+      '- Leave importedAt and lastUpdated blank\n\n' +
+      'Return ONLY valid JSON in this exact structure (no markdown, no explanation):\n' +
+      '{\n' +
+      '  "workOrder": {\n' +
+      '    "woNumber": "string",\n' +
+      '    "jobName": "string",\n' +
+      '    "clientName": "string",\n' +
+      '    "category": "Residential|Commercial|HOA|Institutional",\n' +
+      '    "status": "string or empty",\n' +
+      '    "address": "string",\n' +
+      '    "salesRep": "string"\n' +
+      '  },\n' +
+      '  "lineItems": [\n' +
+      '    {\n' +
+      '      "lineNumber": number,\n' +
+      '      "item": "string",\n' +
+      '      "description": "string",\n' +
+      '      "quantity": number,\n' +
+      '      "unit": "string",\n' +
+      '      "unitPrice": number,\n' +
+      '      "total": number\n' +
+      '    }\n' +
+      '  ]\n' +
+      '}\n\n' +
+      'If you cannot parse the PDF, return: { "error": "Could not parse this PDF" }';
+
+    var payload = {
+      model: CONFIG.CLAUDE_MODEL,
+      max_tokens: 4096,
+      system: systemPrompt,
+      messages: [
+        {
+          role: 'user',
+          content: [
+            {
+              type: 'document',
+              source: {
+                type: 'base64',
+                media_type: 'application/pdf',
+                data: base64PDF
+              }
+            },
+            {
+              type: 'text',
+              text: 'Please extract all work order information and line items from this PDF.'
+            }
+          ]
+        }
+      ]
+    };
+
+    var options = {
+      method: 'post',
+      contentType: 'application/json',
+      headers: {
+        'x-api-key': CONFIG.CLAUDE_API_KEY,
+        'anthropic-version': '2023-06-01'
+      },
+      payload: JSON.stringify(payload),
+      muteHttpExceptions: true
+    };
+
+    var response = UrlFetchApp.fetch('https://api.anthropic.com/v1/messages', options);
+    var responseCode = response.getResponseCode();
+    var responseText = response.getContentText();
+
+    if (responseCode !== 200) {
+      Logger.log('Claude API error: ' + responseCode + ' - ' + responseText);
+      return { success: false, error: 'Claude API returned status ' + responseCode };
+    }
+
+    var json = JSON.parse(responseText);
+
+    // Extract text content from Claude response
+    var textContent = '';
+    if (json.content && json.content.length > 0) {
+      for (var i = 0; i < json.content.length; i++) {
+        if (json.content[i].type === 'text') {
+          textContent = json.content[i].text;
+          break;
+        }
+      }
+    }
+
+    if (!textContent) {
+      return { success: false, error: 'No text content in Claude response' };
+    }
+
+    // Parse the JSON from Claude's response (strip any markdown code fences)
+    var cleanedText = textContent.replace(/```json\s*/g, '').replace(/```\s*/g, '').trim();
+    var parsed = JSON.parse(cleanedText);
+
+    if (parsed.error) {
+      return { success: false, error: parsed.error };
+    }
+
+    return {
+      success: true,
+      workOrder: parsed.workOrder || {},
+      lineItems: parsed.lineItems || []
+    };
+
+  } catch (error) {
+    Logger.log('Error in parsePDFWithClaude: ' + error.toString());
+    return { success: false, error: error.toString() };
+  }
+}
+
+/**
+ * Write a parsed work order header to the "Work Orders" tab.
+ */
+function writeWorkOrder(data) {
+  try {
+    if (!data) {
+      return { success: false, error: 'No work order data provided' };
+    }
+
+    var ss = SpreadsheetApp.openById(CONFIG.ACTIVE_JOBS_SHEET_ID);
+    var sheet = ss.getSheetByName(CONFIG.WORK_ORDERS_SHEET_NAME);
+
+    // Create sheet with headers if it doesn't exist
+    if (!sheet) {
+      sheet = ss.insertSheet(CONFIG.WORK_ORDERS_SHEET_NAME);
+      sheet.getRange(1, 1, 1, 9).setValues([[
+        'WO Number', 'Job Name', 'Client Name', 'Category', 'Status',
+        'Address', 'Sales Rep', 'Imported At', 'Last Updated'
+      ]]);
+      sheet.getRange(1, 1, 1, 9).setFontWeight('bold').setBackground('#2E7D32').setFontColor('white');
+    }
+
+    // Strip commas from text fields
+    var clean = function(val) { return String(val || '').replace(/,/g, ''); };
+
+    var now = new Date();
+    sheet.appendRow([
+      clean(data.woNumber),
+      clean(data.jobName),
+      clean(data.clientName),
+      clean(data.category),
+      clean(data.status),
+      clean(data.address),
+      clean(data.salesRep),
+      now,
+      now
+    ]);
+
+    return {
+      success: true,
+      woNumber: data.woNumber,
+      message: 'Work order saved successfully'
+    };
+
+  } catch (error) {
+    Logger.log('Error in writeWorkOrder: ' + error.toString());
+    return { success: false, error: error.toString() };
+  }
+}
+
+/**
+ * Write parsed line items to the "Line Items" tab.
+ * Expects: { woNumber: "string", items: [...] }
+ */
+function writeLineItems(data) {
+  try {
+    if (!data || !data.items || data.items.length === 0) {
+      return { success: false, error: 'No line items provided' };
+    }
+
+    var ss = SpreadsheetApp.openById(CONFIG.ACTIVE_JOBS_SHEET_ID);
+    var sheet = ss.getSheetByName(CONFIG.LINE_ITEMS_SHEET_NAME);
+
+    // Create sheet with headers if it doesn't exist
+    if (!sheet) {
+      sheet = ss.insertSheet(CONFIG.LINE_ITEMS_SHEET_NAME);
+      sheet.getRange(1, 1, 1, 8).setValues([[
+        'WO Number', 'Line #', 'Item', 'Description', 'Quantity',
+        'Unit', 'Unit Price', 'Total'
+      ]]);
+      sheet.getRange(1, 1, 1, 8).setFontWeight('bold').setBackground('#1565C0').setFontColor('white');
+    }
+
+    var clean = function(val) { return String(val || '').replace(/,/g, ''); };
+    var woNumber = clean(data.woNumber);
+
+    var rows = [];
+    for (var i = 0; i < data.items.length; i++) {
+      var item = data.items[i];
+      rows.push([
+        woNumber,
+        item.lineNumber || (i + 1),
+        clean(item.item),
+        clean(item.description),
+        item.quantity || 0,
+        clean(item.unit),
+        item.unitPrice || 0,
+        item.total || 0
+      ]);
+    }
+
+    if (rows.length > 0) {
+      var startRow = sheet.getLastRow() + 1;
+      sheet.getRange(startRow, 1, rows.length, 8).setValues(rows);
+    }
+
+    return {
+      success: true,
+      woNumber: woNumber,
+      count: rows.length,
+      message: rows.length + ' line items saved successfully'
+    };
+
+  } catch (error) {
+    Logger.log('Error in writeLineItems: ' + error.toString());
+    return { success: false, error: error.toString() };
+  }
+}
+
