@@ -46,13 +46,22 @@ class APIManager {
         const originalFetch = window.fetch;
         window.fetch = async (...args) => {
             const [url, options = {}] = args;
-            
-            // Add common headers
-            const headers = {
-                'Content-Type': 'application/json',
-                'X-Dashboard-Version': '1.0.0',
-                ...options.headers
-            };
+
+            // GAS endpoints do not support CORS preflight (OPTIONS).
+            // Adding Content-Type: application/json or any custom header
+            // triggers a preflight and breaks all GAS calls.
+            // Skip those headers for any script.google.com URL.
+            const urlStr = typeof url === 'string' ? url : (url?.href || '');
+            const isGAS = urlStr.includes('script.google.com') ||
+                          urlStr.includes('script.googleusercontent.com');
+
+            const headers = isGAS
+                ? { ...options.headers }
+                : {
+                    'Content-Type': 'application/json',
+                    'X-Dashboard-Version': '1.0.0',
+                    ...options.headers
+                  };
             
             const config = {
                 ...options,
