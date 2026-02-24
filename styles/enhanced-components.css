@@ -1787,3 +1787,38 @@
 .active-jobs-section .empty-hint {
   color: #5a5d4e;
 }
+
+/* ============================================
+   FULL-BLEED DASHBOARD LAYOUT
+   Makes Active Jobs fill the entire content area
+   ============================================ */
+.dashboard-view {
+  padding: 0 !important;
+  max-width: none !important;
+  margin: 0 !important;
+}
+
+/* Hide empty metrics grid — it has no data and takes up space */
+#metricsGrid {
+  display: none !important;
+}
+
+/* Stats bar flush to top, no gap */
+.wo-stats-bar {
+  margin-top: 0 !important;
+  border-radius: 0 !important;
+  border-top: none !important;
+  border-left: none !important;
+  border-right: none !important;
+}
+
+/* Active jobs section fills remaining height, no inset rounding */
+.active-jobs-section {
+  margin-top: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  border-left: none !important;
+  border-right: none !important;
+  border-bottom: none !important;
+  min-height: calc(100vh - 120px) !important;
+}
