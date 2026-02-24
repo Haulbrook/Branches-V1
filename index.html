@@ -36,14 +36,14 @@
         }
     </script>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌱</text></svg>">
-    <link rel="stylesheet" href="styles/main.css?v=20251113">
-    <link rel="stylesheet" href="styles/components.css?v=20251113">
+    <link rel="stylesheet" href="styles/main.css?v=20260224">
+    <link rel="stylesheet" href="styles/components.css?v=20260224">
     <!-- Enhanced v2.0 Professional Components -->
-    <link rel="stylesheet" href="styles/enhanced-theme.css?v=20251113">
-    <link rel="stylesheet" href="styles/enhanced-components.css?v=20251113">
+    <link rel="stylesheet" href="styles/enhanced-theme.css?v=20260224">
+    <link rel="stylesheet" href="styles/enhanced-components.css?v=20260224">
     <!-- AI Skills Styles -->
-    <link rel="stylesheet" href="styles/wizard.css?v=20251113">
-    <link rel="stylesheet" href="styles/skills.css?v=20251113">
+    <link rel="stylesheet" href="styles/wizard.css?v=20260224">
+    <link rel="stylesheet" href="styles/skills.css?v=20260224">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Bebas+Neue&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -197,34 +197,9 @@
                         <button class="btn btn-primary" id="addWoBtn" style="flex-shrink:0;margin-top:4px;">+ Add Work Order</button>
                     </div>
 
-                    <!-- PDF Upload Zone -->
-                    <div class="pdf-upload-zone" id="pdfUploadZone" role="button" tabindex="0" aria-label="Drop a PDF here or click to upload">
-                        <div class="upload-icon" aria-hidden="true">📄</div>
-                        <p class="upload-text">Drop a work order PDF here or click to upload</p>
-                        <p class="upload-hint">Supports single PDF files up to 10MB</p>
-                        <input type="file" id="pdfFileInput" accept=".pdf" class="sr-only" aria-label="Select PDF file">
-                    </div>
-
-                    <!-- Upload Progress Indicator (hidden by default) -->
-                    <div class="upload-progress hidden" id="uploadProgress">
-                        <div class="upload-progress-bar">
-                            <div class="upload-progress-fill" id="uploadProgressFill"></div>
-                        </div>
-                        <p class="upload-status" id="uploadStatus">Parsing PDF...</p>
-                    </div>
-
-                    <!-- Preview Panel (hidden by default) -->
-                    <div class="preview-panel hidden" id="previewPanel">
-                        <div class="preview-header">
-                            <h3>Parsed Work Order Preview</h3>
-                            <div class="preview-actions">
-                                <button class="btn btn-secondary" id="previewCancelBtn">Cancel</button>
-                                <button class="btn btn-primary" id="previewConfirmBtn">Confirm & Save</button>
-                            </div>
-                        </div>
-                        <div class="preview-content" id="previewContent">
-                            <!-- Filled dynamically with parsed work order data -->
-                        </div>
+                    <!-- Legacy PDF Upload Zone — hidden; modal flow used instead -->
+                    <div class="pdf-upload-zone hidden" id="pdfUploadZone" aria-hidden="true" style="display:none">
+                        <input type="file" id="pdfFileInput" accept=".pdf" class="sr-only">
                     </div>
 
                     <!-- Job Cards Grid -->

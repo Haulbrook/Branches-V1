@@ -1678,3 +1678,112 @@
   height: 14px !important;
   border-width: 2px !important;
 }
+
+/* ============================================
+   ACTIVE JOBS — DARK PALETTE
+   Matches reference Work Order Dashboard aesthetic
+   ============================================ */
+
+/* Dark container */
+.active-jobs-section {
+  background: #111410;
+  border-color: #2e3329;
+}
+
+.active-jobs-section .section-header {
+  border-bottom-color: #2e3329;
+}
+
+.active-jobs-section .section-header h2 {
+  color: #e8ead4;
+}
+
+.active-jobs-section .section-header p {
+  color: #7a7d6a;
+}
+
+/* Dark stats bar */
+.wo-stats-bar {
+  background: #1a1d17;
+  border-color: #2e3329;
+}
+
+.wo-stat-value {
+  color: #7eb83a;
+}
+
+.wo-stat-label {
+  color: #7a7d6a;
+}
+
+.wo-stat-overall .wo-stat-value {
+  color: #e8ead4;
+}
+
+/* Dark cards */
+.wo-card {
+  background: #1a1d17;
+  border-color: #2e3329;
+}
+
+.wo-card:hover {
+  border-color: #7eb83a;
+  box-shadow: 0 4px 20px rgba(126, 184, 58, 0.12);
+}
+
+.wo-number {
+  color: #7a7d6a;
+}
+
+.wo-job-name {
+  color: #e8ead4;
+}
+
+.wo-client {
+  color: #7a7d6a;
+}
+
+.progress-track {
+  background: #222620;
+}
+
+.wo-item-count {
+  color: #7a7d6a;
+}
+
+.wo-pct.p-zero     { color: #7a7d6a; }
+.wo-pct.p-partial  { color: #7eb83a; }
+.wo-pct.p-complete { color: #3a8a5a; }
+
+.wo-details-hint {
+  color: #5a5d4e;
+}
+
+/* Dark badges */
+.wo-badge.not-started {
+  background: #222620;
+  color: #7a7d6a;
+}
+
+.wo-badge.in-progress {
+  background: rgba(126, 184, 58, 0.15);
+  color: #7eb83a;
+}
+
+.wo-badge.complete {
+  background: rgba(58, 138, 90, 0.2);
+  color: #3a8a5a;
+}
+
+/* Empty state inside dark section */
+.active-jobs-section .empty-state {
+  color: #7a7d6a;
+}
+
+.active-jobs-section .empty-state p {
+  color: #e8ead4;
+}
+
+.active-jobs-section .empty-hint {
+  color: #5a5d4e;
+}
