@@ -1682,9 +1682,11 @@
 /* ============================================================
    DEEP ROOTS DESIGN SYSTEM
    CSS custom properties from deep-roots-design-reference.md
-   Applied to the Active Jobs section and all WO modals.
+   Applied GLOBALLY — overrides Branches-V1 light-theme vars so
+   the entire app matches the DR dark aesthetic.
    ============================================================ */
 :root {
+  /* ---- DR design tokens ---- */
   --dr-bg:       #111410;
   --dr-surface:  #1a1d17;
   --dr-surface2: #222620;
@@ -1695,6 +1697,70 @@
   --dr-accent2:  #5a8a28;
   --dr-success:  #3a8a5a;
   --dr-danger:   #cc4444;
+
+  /* ---- main.css variable overrides ---- */
+  --background-color: #111410;
+  --surface-color:    #1a1d17;
+  --text-primary:     #e8ead4;
+  --text-secondary:   #7a7d6a;
+  --border-color:     #2e3329;
+  --primary-color:    #7eb83a;
+  --secondary-color:  #7eb83a;
+  --accent-color:     #7eb83a;
+
+  /* ---- enhanced-theme.css: remap gray scale for dark theme ---- */
+  --gray-50:  #1a1d17;   /* lightest surface    */
+  --gray-100: #222620;   /* nested surface      */
+  --gray-200: #2e3329;   /* borders             */
+  --gray-300: #3a3d33;
+  --gray-400: #4a4d42;
+  --gray-500: #5a5d4e;
+  --gray-600: #7a7d6a;   /* muted / labels      */
+  --gray-700: #9a9d8e;
+  --gray-800: #c0c2b2;
+  --gray-900: #e8ead4;   /* primary text        */
+
+  /* ---- enhanced-theme.css: surface / text / border overrides ---- */
+  --surface-primary:   #1a1d17;
+  --surface-secondary: #222620;
+  --surface-tertiary:  #222620;
+  --surface-elevated:  #1a1d17;
+  --surface-hover:     #2e3329;
+  --surface-overlay:   rgba(0, 0, 0, 0.82);
+
+  --text-tertiary:  #7a7d6a;
+  --text-disabled:  #4a4d42;
+  --text-inverse:   #111410;
+
+  --border-color-hover: #3a3d33;
+  --divider-color:      #2e3329;
+
+  /* ---- enhanced-theme.css: brand color overrides ---- */
+  --brand-primary:       #7eb83a;
+  --brand-primary-dark:  #5a8a28;
+  --brand-primary-light: #7eb83a;
+  --brand-secondary:     #5a8a28;
+  --brand-accent:        #7eb83a;
+
+  /* ---- Semantic colors adjusted for dark bg ---- */
+  --success:       #3a8a5a;
+  --success-light: #1a2e20;
+  --error:         #cc4444;
+  --error-light:   #2a1010;
+  --warning:       #d97c1a;
+  --warning-light: #2a1c08;
+  --info:          #2a86b8;
+  --info-light:    #0a1a24;
+
+  /* ---- Shadows deepen on dark backgrounds ---- */
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.5);
+  --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.6);
+  --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.7);
+  --shadow-xl: 0 12px 24px rgba(0, 0, 0, 0.8);
+
+  /* ---- Glow adjusted for DR green ---- */
+  --glow-primary: 0 0 20px rgba(126, 184, 58, 0.25);
 }
 
 /* ============================================================
