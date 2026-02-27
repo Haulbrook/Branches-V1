@@ -78,8 +78,8 @@ class APIManager {
                 const response = await originalFetch(url, config);
                 clearTimeout(timeoutId);
                 
-                // Global response handling
-                if (!response.ok) {
+                // Global response handling — skip for opaque (no-cors) responses which always have status 0
+                if (!response.ok && response.type !== 'opaque') {
                     throw new Error(`HTTP ${response.status}: ${response.statusText}`);
                 }
                 
@@ -309,6 +309,26 @@ User: "schedule tomorrow" → Call open_tool with toolId='scheduler'`;
                 }
             }
         ];
+    }
+
+    /**
+     * Claude Agent Integration
+     * Calls a deployed Claude agent via GET (Apps Script web app)
+     */
+    async callAgent(agentKey, query, sessionId) {
+        const agentConfig = window.app?.config?.agents?.[agentKey];
+        if (!agentConfig?.url) {
+            throw new Error(`Agent '${agentKey}' not configured`);
+        }
+
+        const params = new URLSearchParams({
+            q: query,
+            session: sessionId || 'branches-' + Date.now()
+        });
+        const url = agentConfig.url + '?' + params.toString();
+
+        const response = await fetch(url);
+        return response.json();
     }
 
     // Generic HTTP methods

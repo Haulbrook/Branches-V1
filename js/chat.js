@@ -152,6 +152,17 @@ class ChatManager {
     async processMessage(message) {
         let response = { content: '', type: 'general' };
 
+        // Check if a Claude agent should handle this (inventory/repair)
+        const agentRoute = this.determineAgentRoute(message);
+        if (agentRoute) {
+            try {
+                return await this.processWithAgent(agentRoute.agentKey, message);
+            } catch (error) {
+                console.error(`Agent '${agentRoute.agentKey}' failed, falling back:`, error);
+                // Fall through to OpenAI / keyword matching
+            }
+        }
+
         // Try OpenAI first if API key is configured
         const hasOpenAI = localStorage.getItem('openaiApiKey');
         if (hasOpenAI) {
@@ -332,6 +343,80 @@ class ChatManager {
             content: aiResponse.content,
             type: 'ai_response',
             usage: aiResponse.usage
+        };
+    }
+
+    /**
+     * Determine if a Claude agent should handle this message
+     * Returns { agentKey } or null
+     */
+    determineAgentRoute(message) {
+        const agents = window.app?.config?.agents;
+        if (!agents) return null;
+
+        const messageLower = message.toLowerCase();
+        const words = messageLower.split(/\s+/);
+        let bestAgent = null;
+        let bestScore = 0;
+
+        for (const [agentKey, agentConfig] of Object.entries(agents)) {
+            if (!agentConfig.keywords || !agentConfig.url) continue;
+
+            let score = 0;
+            for (const keyword of agentConfig.keywords) {
+                if (words.includes(keyword)) {
+                    score += 2; // exact word match
+                } else if (messageLower.includes(keyword)) {
+                    score += 1; // substring match
+                }
+            }
+
+            if (score > bestScore) {
+                bestScore = score;
+                bestAgent = agentKey;
+            }
+        }
+
+        // Require at least one keyword match (score >= 1)
+        return bestScore >= 1 ? { agentKey: bestAgent } : null;
+    }
+
+    /**
+     * Send message to a Claude agent and format the response
+     */
+    async processWithAgent(agentKey, message) {
+        const api = window.app?.api;
+        if (!api) throw new Error('API manager not available');
+
+        const agentConfig = window.app?.config?.agents?.[agentKey];
+        const agentName = agentConfig?.name || agentKey;
+
+        const sessionId = this.currentConversationId || 'branches-' + Date.now();
+        const data = await api.callAgent(agentKey, message, sessionId);
+
+        // Build the display content
+        const responseText = data.response || data.error || 'No response from agent.';
+        const confidence = data.confidence;
+        const sources = data.sources;
+
+        // Build badge line
+        let badge = `<div class="agent-badge" style="display:inline-flex;align-items:center;gap:6px;margin-bottom:8px;padding:3px 10px;border-radius:12px;background:rgba(76,175,80,0.12);font-size:0.82em;color:#4CAF50;">`;
+        badge += `<strong>${agentName}</strong>`;
+        if (confidence != null) {
+            const pct = Math.round(confidence * 100);
+            badge += ` · ${pct}% confidence`;
+        }
+        badge += `</div>\n\n`;
+
+        return {
+            content: badge + responseText,
+            type: 'agent_response',
+            toolId: null,
+            shouldOpenTool: false,
+            agentKey,
+            agentName,
+            confidence,
+            sources
         };
     }
 
@@ -603,6 +688,21 @@ class ChatManager {
         // Return HTML table directly without markdown formatting
         if (type === 'inventory_table') {
             return content;
+        }
+
+        // Agent responses: badge is HTML, rest is markdown — split and format
+        if (type === 'agent_response') {
+            const badgeEnd = content.indexOf('</div>');
+            if (badgeEnd !== -1) {
+                const badge = content.slice(0, badgeEnd + 6);
+                const rest = content.slice(badgeEnd + 6).replace(/^\n+/, '');
+                const formatted = rest
+                    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                    .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                    .replace(/`(.*?)`/g, '<code>$1</code>')
+                    .replace(/\n/g, '<br>');
+                return badge + formatted;
+            }
         }
 
         // Basic markdown-like formatting

@@ -11,7 +11,7 @@
       "name": "Clippings - Inventory Management",
       "description": "Search inventory, manage stock, track equipment",
       "icon": "🌱",
-      "url": "https://script.google.com/macros/s/AKfycbzFqpAfOXNMd25IPaqTHC_rdRlaWD9Ucl9lB-KjDDX0GD7SfKEgR81mH-gJSkBUf-f4/exec",
+      "url": "https://script.google.com/macros/s/AKfycbwquZHokxQctl4UuiKRXuJ9TRr9ImB1sLSuIjSklyqSUc4K3_GQcWZBArVa3dE7gk1P/exec",
       "color": "#4CAF50",
       "keywords": ["inventory", "plants", "stock", "equipment", "supplies"]
     },
@@ -57,6 +57,7 @@
       "description": "Work order management with PDF parsing and progress tracking",
       "icon": "📋",
       "sheetId": "13bnntgZiXdCA2KQvJXpIBA1rCBzx3ZmeKakzYFFg7QA",
+      "gasUrl": "https://script.google.com/macros/s/AKfycbxWHqo7-YySZyMKrGTQMcnhhEtg4s_p57o5XhP-9tmxU8aSEBDvQ1CKq1l52I1Te6MneQ/exec",
       "color": "#FF5722"
     }
   },
@@ -76,6 +77,18 @@
     "enableDeconstructionSkill": true,
     "enableForwardThinkerSkill": true,
     "enableAppleOverseer": true
+  },
+  "agents": {
+    "inventory": {
+      "name": "Clippings",
+      "url": "https://script.google.com/macros/s/AKfycbxa-ldx8OZwPIUh5Bty8tuI91K0eLYqG3DvY7k2RuUp32_ybjcO7m2HsPi4O-m8OaMi/exec",
+      "keywords": ["inventory", "stock", "plants", "supplies", "materials", "mulch", "fertilizer", "arborvitae", "truck", "fleet", "mower"]
+    },
+    "repair": {
+      "name": "GradeBot",
+      "url": "https://script.google.com/macros/s/AKfycbyfn5brMiPgDd6IZDnNxfXZhQgJqEb-1zC8aSGMOMbE8UayiGgv4E7CGA6wrs0V0XhY/exec",
+      "keywords": ["repair", "replace", "asset", "maintenance", "broken", "fix", "cost", "lifecycle", "grading", "grade"]
+    }
   },
   "deployment": {
     "_comment": "Deployment strategy: Backend (code.js) goes to Google Apps Script. Frontend (this dashboard) goes to GitHub Pages or Netlify.",

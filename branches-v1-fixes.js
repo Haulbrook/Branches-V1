@@ -228,8 +228,9 @@
         if (e.key === 'Enter' && !e.shiftKey) {
           const settings = JSON.parse(localStorage.getItem('dashboardSettings') || '{}');
           const hasApiKey = settings.claudeApiKey || settings.openaiApiKey;
-          
-          if (!hasApiKey) {
+          const hasAgents = window.app?.config?.agents && Object.keys(window.app.config.agents).length > 0;
+
+          if (!hasApiKey && !hasAgents) {
             e.preventDefault();
             
             // Show friendly message

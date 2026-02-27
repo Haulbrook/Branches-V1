@@ -455,3 +455,49 @@
 .overseer-tooltip:hover::after {
   opacity: 1;
 }
+
+/* ============================================================
+   FIX: Chat Interface Layout — fill viewport, scroll internally
+   ============================================================ */
+
+/* When chat is visible, prevent main-content from scrolling */
+.main-content:has(.chat-interface:not(.hidden)) {
+  overflow: hidden !important;
+}
+
+.chat-interface {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.chat-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;        /* allow flex child to shrink below content size */
+  overflow: hidden;
+}
+
+.chat-history {
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
+}
+
+.chat-input-container {
+  flex-shrink: 0;       /* never collapse the input area */
+}
+
+/* ============================================================
+   FIX: Chat input text color — white for dark theme
+   ============================================================ */
+
+.chat-input {
+  color: #ffffff !important;
+}
+
+.chat-input::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
