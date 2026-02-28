@@ -2085,3 +2085,92 @@
 .wo-btn-del-li       { color: var(--dr-muted);  }
 .wo-btn-del-li:hover { color: var(--dr-danger); }
 .wo-btn-add-li       { color: var(--dr-accent); }
+
+/* ============================================================
+   WEATHER ALERT BANNER
+   ============================================================ */
+
+.weather-alert-banner {
+    display: none;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 0 0 16px;
+    padding: 14px 18px;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 0.9rem;
+    letter-spacing: 0.02em;
+    line-height: 1.4;
+    border-left: 5px solid transparent;
+}
+
+.weather-alert-banner:not(:empty) {
+    display: flex;
+}
+
+.weather-alert-banner.freeze {
+    background: #dbeafe;
+    border-left-color: #2563eb;
+    color: #1e3a5f;
+}
+
+.weather-alert-banner.heat {
+    background: #fef3c7;
+    border-left-color: #d97706;
+    color: #78350f;
+}
+
+.weather-alert-banner.storm {
+    background: #fce7f3;
+    border-left-color: #9d174d;
+    color: #500724;
+}
+
+.weather-alert-msg {
+    display: block;
+    width: 100%;
+}
+
+/* ---- Hide top header bar ---- */
+.main-header { display: none !important; }
+
+/* ---- Sidebar: force light text on dark background ---- */
+.sidebar { color: #d0d2bc; }
+.sidebar .logo-text { color: #e8ead4; }
+.sidebar .nav-section h3 { color: rgba(210, 215, 185, 0.5); }
+.sidebar .nav-item { color: #d0d2bc; }
+.sidebar .nav-item:hover { color: #e8ead4; background-color: rgba(255,255,255,0.06); }
+.sidebar .nav-badge { background: rgba(255,255,255,0.08); color: #9a9c8a; }
+.sidebar .sidebar-toggle span { background-color: #d0d2bc; }
+.sidebar .user-name { color: #d0d2bc; }
+.sidebar .user-email { color: #7a7d6a; }
+
+/* ===== Activity Feed ===== */
+.activity-feed-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 320px;
+  overflow-y: auto;
+}
+.activity-entry {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 6px 12px;
+  align-items: baseline;
+  padding: 8px 12px;
+  background: var(--surface, #1e1e2e);
+  border-radius: 6px;
+  font-size: 0.83rem;
+}
+.activity-action {
+  font-weight: 600;
+  color: var(--accent, #7c9ef5);
+  white-space: nowrap;
+}
+.activity-item   { color: var(--text-primary, #e0e0e0); }
+.activity-details{ color: var(--text-secondary, #aaa); grid-column: 2; }
+.activity-time   { color: var(--text-muted, #666); white-space: nowrap; font-size: 0.78rem; }
+.activity-singleops .activity-action { color: #82c96e; }
+.activity-placeholder { color: var(--text-secondary, #aaa); font-size: 0.85rem; padding: 12px; }
+.feed-timestamp { font-size: 0.75rem; color: var(--text-muted, #666); margin-left: 8px; }

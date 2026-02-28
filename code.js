@@ -436,7 +436,8 @@ function doGet(e) {
     '</body></html>';
 
   return HtmlService.createHtmlOutput(html)
-    .setTitle("Deep Roots Inventory Backend API");
+    .setTitle("Deep Roots Inventory Backend API")
+    .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
 }
 
 // =============================
@@ -655,9 +656,15 @@ function searchInventory(query) {
     const ss = SpreadsheetApp.openById(CONFIG.INVENTORY_SHEET_ID);
     const sheet = ss.getSheetByName(CONFIG.INVENTORY_SHEET_NAME);
     const data = sheet.getDataRange().getValues();
-    
+
     if (data.length < 2) return null; // No data beyond headers
-    
+
+    // Locate price columns by header name so the indices are safe regardless of sheet layout
+    const hdrs = data[0].map(h => String(h).toLowerCase().trim());
+    const costCol    = hdrs.indexOf('wholesale cost');   // -1 when column absent
+    const retailCol  = hdrs.indexOf('retail price');
+    const updatedCol = hdrs.indexOf('price updated');
+
     // Parse quantity request from query
     const quantityRequest = parseQuantityFromQuery(query);
     
@@ -741,6 +748,9 @@ function searchInventory(query) {
           minStock: minStock,
           isLowStock: isLowStock,
           availabilityStatus: availabilityStatus,
+          wholesaleCost: costCol >= 0    ? (data[i][costCol]    || null) : null,
+          retailPrice:   retailCol >= 0  ? (data[i][retailCol]  || null) : null,
+          priceUpdated:  updatedCol >= 0 ? (data[i][updatedCol] || null) : null,
           score: matchScore
         });
       }
@@ -782,9 +792,14 @@ function searchInventory(query) {
       if (r.notes) {
         entry += ` • Notes: ${r.notes}`;
       }
+      if (r.wholesaleCost) {
+        entry += ` • Cost: $${r.wholesaleCost}`;
+        if (r.retailPrice) entry += ` → Retail: $${r.retailPrice}`;
+        if (r.priceUpdated) entry += ` (as of ${r.priceUpdated})`;
+      }
       return entry;
     }).join("\n");
-    
+
     // Cache the result
     cache.put(cacheKey, response, CONFIG.CACHE_DURATION);
     
@@ -2918,5 +2933,75 @@ function writeLineItems(data) {
     Logger.log('Error in writeLineItems: ' + error.toString());
     return { success: false, error: error.toString() };
   }
+}
+
+/**
+ * Polls SingleOps for today's job statuses and writes updates to Activity Log.
+ * Designed to run on a 30-minute time-based trigger.
+ *
+ * Prerequisites:
+ *   Script Properties → SINGLEOPS_API_KEY  (Bearer token from SingleOps Settings → API)
+ *   Triggers → pollSingleOpsJobs → Time-driven → Every 30 minutes
+ */
+function pollSingleOpsJobs() {
+  var apiKey = PropertiesService.getScriptProperties()
+                                .getProperty('SINGLEOPS_API_KEY');
+  if (!apiKey) {
+    Logger.log('pollSingleOpsJobs: SINGLEOPS_API_KEY not set in Script Properties. Skipping.');
+    return;
+  }
+
+  var today = Utilities.formatDate(new Date(), 'America/New_York', 'yyyy-MM-dd');
+
+  var response;
+  try {
+    response = UrlFetchApp.fetch(
+      'https://api.singleops.com/api/v1/work_orders?scheduled_date=' + today + '&status=all',
+      {
+        headers: {
+          'Authorization': 'Bearer ' + apiKey,
+          'Content-Type': 'application/json'
+        },
+        muteHttpExceptions: true
+      }
+    );
+  } catch (e) {
+    Logger.log('pollSingleOpsJobs: fetch error — ' + e.toString());
+    return;
+  }
+
+  if (response.getResponseCode() !== 200) {
+    Logger.log('pollSingleOpsJobs: HTTP ' + response.getResponseCode());
+    return;
+  }
+
+  var jobs;
+  try {
+    var parsed = JSON.parse(response.getContentText());
+    jobs = parsed.work_orders || parsed.data || parsed || [];
+  } catch (e) {
+    Logger.log('pollSingleOpsJobs: JSON parse error — ' + e.toString());
+    return;
+  }
+
+  if (!Array.isArray(jobs)) {
+    Logger.log('pollSingleOpsJobs: unexpected response shape');
+    return;
+  }
+
+  jobs.forEach(function(job) {
+    var jobLabel = 'Job ' + (job.id || job.work_order_number || '?') + ': ' + (job.title || job.name || 'Untitled');
+    var status   = job.status || 'unknown';
+    var crew     = job.crew_name || job.assigned_crew || 'Unassigned';
+    var address  = job.location_address || job.service_address || '';
+
+    logActivity(
+      'SingleOps: ' + status,
+      jobLabel,
+      [crew, address].filter(Boolean).join(' • ')
+    );
+  });
+
+  Logger.log('pollSingleOpsJobs: logged ' + jobs.length + ' jobs');
 }
 

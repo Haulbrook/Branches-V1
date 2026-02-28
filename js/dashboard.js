@@ -11,9 +11,13 @@ class DashboardManager {
         this.pendingWorkOrder = null;
         this.selectedPdfFile = null;
 
-        // Config getters reading from localStorage (set via Settings panel)
+        // Config getters: localStorage first, then config.json fallback
         this.woCfg = {
-            get gasUrl()    { return localStorage.getItem('dr_gas_url')    || ''; },
+            get gasUrl()    {
+                return localStorage.getItem('dr_gas_url')
+                    || window.app?.config?.services?.activeJobs?.gasUrl
+                    || '';
+            },
             get claudeKey() { return localStorage.getItem('dr_claude_key') || ''; }
         };
     }
@@ -40,6 +44,9 @@ class DashboardManager {
         }).catch(error => {
             console.warn('Failed to load active jobs:', error);
         });
+
+        this.checkWeather();
+        this.loadActivityFeed();
     }
 
     /**
@@ -203,7 +210,7 @@ class DashboardManager {
         const sc  = pct === 0 ? 'not-started' : (pct === 100 ? 'complete' : 'in-progress');
         const sl  = pct === 0 ? 'Not Started'  : (pct === 100 ? 'Complete'  : 'In Progress');
         const fc  = pct === 0 ? 'p-zero'        : (pct === 100 ? 'p-complete': 'p-partial');
-        const client = this.getDetail(job, 'client', 'Client', 'clientName', 'ClientName', 'customer', 'Customer');
+        const client = this.getDetail(job, 'customerName', 'CustomerName', 'customer', 'Customer', 'client', 'Client', 'clientName', 'ClientName');
 
         const card = document.createElement('div');
         card.className = 'wo-card';
@@ -287,7 +294,7 @@ class DashboardManager {
         const fc  = pct === 0 ? 'p-zero' : (pct === 100 ? 'p-complete' : 'p-partial');
 
         let metaHtml = '';
-        const detailClient  = this.getDetail(wo, 'client', 'Client', 'clientName', 'ClientName', 'customer', 'Customer', 'Customer Name', 'customerName');
+        const detailClient  = this.getDetail(wo, 'customerName', 'CustomerName', 'customer', 'Customer', 'client', 'Client', 'clientName', 'ClientName');
         const detailAddress = this.getDetail(wo, 'address', 'Address', 'location', 'Location', 'Job Address', 'jobAddress', 'JobAddress');
         if (detailClient)  metaHtml += `<span>${this.escapeHtml(detailClient)}</span>`;
         if (detailAddress) metaHtml += `<span>${this.escapeHtml(detailAddress)}</span>`;
@@ -693,14 +700,24 @@ RESPOND with ONLY a valid JSON object — no markdown, no explanation:
     }
 
     /**
-     * Case-insensitive key lookup against wo.details object
+     * Case-insensitive key lookup: checks top-level wo properties first, then wo.details
      */
     getDetail(wo, ...keys) {
+        // Check top-level properties first (e.g. job.client set on add or returned by GAS)
+        for (const k of keys) {
+            if (wo[k] && typeof wo[k] === 'string') return wo[k];
+        }
+        const normKeys = keys.map(k => k.toLowerCase().replace(/[\s_]+/g, ''));
+        for (const [k, v] of Object.entries(wo)) {
+            if (k === 'details' || !v || typeof v !== 'string') continue;
+            const normK = String(k).toLowerCase().replace(/[\s_]+/g, '');
+            if (normKeys.includes(normK)) return v;
+        }
+        // Then check wo.details
         if (!wo.details) return '';
         for (const k of keys) {
             if (wo.details[k]) return wo.details[k];
         }
-        const normKeys = keys.map(k => k.toLowerCase().replace(/[\s_]+/g, ''));
         for (const [k, v] of Object.entries(wo.details)) {
             const normK = String(k).toLowerCase().replace(/[\s_]+/g, '');
             if (v && normKeys.includes(normK)) return v;
@@ -804,6 +821,8 @@ RESPOND with ONLY a valid JSON object — no markdown, no explanation:
             await this.loadActiveJobs();
             this.renderJobCards();
         }, this.updateInterval);
+
+        this.weatherInterval = setInterval(() => this.checkWeather(), 30 * 60 * 1000);
     }
 
     /**
@@ -862,6 +881,111 @@ RESPOND with ONLY a valid JSON object — no markdown, no explanation:
         if (this.refreshInterval) {
             clearInterval(this.refreshInterval);
         }
+    }
+
+    /**
+     * Check Open-Meteo for freeze/heat/storm alerts and update the banner
+     */
+    async checkWeather() {
+        const banner = document.getElementById('weatherAlertBanner');
+        if (!banner) return;
+
+        try {
+            const url = 'https://api.open-meteo.com/v1/forecast?latitude=34.2979&longitude=-83.8241' +
+                '&daily=temperature_2m_max,temperature_2m_min,apparent_temperature_max,weather_code' +
+                '&temperature_unit=fahrenheit&forecast_days=3&timezone=America%2FNew_York';
+
+            const res = await fetch(url);
+            if (!res.ok) throw new Error('Weather fetch failed: ' + res.status);
+            const data = await res.json();
+
+            const mins  = data.daily.temperature_2m_min        || [];
+            const maxes = data.daily.temperature_2m_max        || [];
+            const feels = data.daily.apparent_temperature_max  || [];
+            const codes = data.daily.weather_code              || [];
+
+            const alerts = [];
+            let bannerType = '';
+
+            // Freeze check — any of next 3 days at or below 32°F
+            if (mins.some(t => t <= 32)) {
+                const low = Math.min(...mins).toFixed(0);
+                alerts.push('FREEZE WARNING: Low of ' + low + '°F forecast — protect equipment & plants');
+                bannerType = 'freeze';
+            }
+
+            // Heat check — apparent temp ≥ 100 OR actual ≥ 95
+            if (feels.some(t => t >= 100) || maxes.some(t => t >= 95)) {
+                const hi = Math.max(...feels).toFixed(0);
+                alerts.push('HEAT ADVISORY: Feels like ' + hi + '°F — hydration breaks required');
+                if (!bannerType) bannerType = 'heat';
+            }
+
+            // Storm check — weather code ≥ 95 (thunderstorm)
+            if (codes.some(c => c >= 95)) {
+                alerts.push('STORM ALERT: Thunderstorms in forecast — review outdoor schedule');
+                if (!bannerType) bannerType = 'storm';
+            }
+
+            if (alerts.length > 0) {
+                banner.className = 'weather-alert-banner ' + bannerType;
+                banner.innerHTML = alerts.map(a => '<span class="weather-alert-msg">&#9888; ' + a + '</span>').join('');
+                // Also show toast for immediate attention
+                const ui = window.app?.ui;
+                if (ui) alerts.forEach(a => ui.showNotification(a, 'warning'));
+            } else {
+                banner.className = 'weather-alert-banner';
+                banner.innerHTML = '';
+            }
+        } catch (err) {
+            console.warn('Weather check failed:', err);
+        }
+    }
+
+    async loadActivityFeed() {
+        // getRecentActivity lives in the Clippings/inventory GAS (doPost uses function/parameters keys)
+        const gasUrl = window.app?.config?.services?.inventory?.url;
+        if (!gasUrl) return;
+
+        try {
+            const res = await fetch(gasUrl, {
+                method: 'POST',
+                body: JSON.stringify({ function: 'getRecentActivity', parameters: [10] })
+            });
+            const json = await res.json();
+            if (!json.success) return;
+
+            const activities = Array.isArray(json.response) ? json.response : [];
+            this.renderActivityFeed(activities);
+
+            const ts = document.getElementById('activityFeedTimestamp');
+            if (ts) ts.textContent = 'Updated ' + new Date().toLocaleTimeString();
+        } catch (e) {
+            console.warn('Activity feed load failed:', e);
+        }
+    }
+
+    renderActivityFeed(activities) {
+        const list = document.getElementById('activityFeedList');
+        if (!list) return;
+
+        if (!activities.length) {
+            list.innerHTML = '<div class="activity-placeholder">No recent activity.</div>';
+            return;
+        }
+
+        list.innerHTML = activities.map(a => {
+            const time = a.timestamp
+                ? new Date(a.timestamp).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })
+                : '';
+            const actionClass = (a.action || '').toLowerCase().includes('singleops') ? 'activity-singleops' : '';
+            return `<div class="activity-entry ${actionClass}">
+      <span class="activity-action">${this.escapeHtml(a.action || '')}</span>
+      <span class="activity-item">${this.escapeHtml(a.itemName || '')}</span>
+      ${a.details ? `<span class="activity-details">${this.escapeHtml(a.details)}</span>` : ''}
+      <span class="activity-time">${time}</span>
+    </div>`;
+        }).join('');
     }
 
     /**
