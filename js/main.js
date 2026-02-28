@@ -759,13 +759,6 @@ Recommendations: ${report.recommendations.length}
         document.getElementById('dashboardBtn')?.classList.add('active');
 
         // Update header
-        document.getElementById('pageTitle').textContent = 'Operations Dashboard';
-        document.getElementById('pageSubtitle').textContent = 'Overview of inventory, fleet, and active jobs';
-
-        // Hide tool action buttons
-        document.getElementById('toolBackBtn').style.display = 'none';
-        document.getElementById('toolRefreshBtn').style.display = 'none';
-        document.getElementById('toolFullscreenBtn').style.display = 'none';
 
         // Refresh dashboard if available
         if (this.dashboard) {
@@ -790,13 +783,6 @@ Recommendations: ${report.recommendations.length}
         document.getElementById('newChatBtn')?.classList.add('active');
 
         // Update header
-        document.getElementById('pageTitle').textContent = 'Operations Dashboard';
-        document.getElementById('pageSubtitle').textContent = 'What can I help you with today?';
-
-        // Hide tool action buttons
-        document.getElementById('toolBackBtn').style.display = 'none';
-        document.getElementById('toolRefreshBtn').style.display = 'none';
-        document.getElementById('toolFullscreenBtn').style.display = 'none';
 
         // Focus chat input
         const chatInput = document.getElementById('chatInput');
@@ -837,16 +823,10 @@ Recommendations: ${report.recommendations.length}
         document.querySelector(`[data-tool="${toolId}"]`).classList.add('active');
         
         // Update header and tool info
-        document.getElementById('pageTitle').textContent = tool.name;
-        document.getElementById('pageSubtitle').textContent = tool.description;
         document.getElementById('toolIcon').textContent = tool.icon;
         document.getElementById('toolTitle').textContent = tool.name;
         document.getElementById('toolDescription').textContent = tool.description;
 
-        // Show tool action buttons in header
-        document.getElementById('toolBackBtn').style.display = 'block';
-        document.getElementById('toolRefreshBtn').style.display = 'block';
-        document.getElementById('toolFullscreenBtn').style.display = 'block';
 
         // Load tool in iframe
         this.loadToolInIframe(tool.url);
