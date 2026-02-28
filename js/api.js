@@ -47,21 +47,19 @@ class APIManager {
         window.fetch = async (...args) => {
             const [url, options = {}] = args;
 
-            // GAS endpoints do not support CORS preflight (OPTIONS).
-            // Adding Content-Type: application/json or any custom header
-            // triggers a preflight and breaks all GAS calls.
-            // Skip those headers for any script.google.com URL.
+            // Only add custom headers for same-origin requests.
+            // Any cross-origin request (GAS, open-meteo, etc.) with custom
+            // headers triggers a CORS preflight that most APIs reject.
             const urlStr = typeof url === 'string' ? url : (url?.href || '');
-            const isGAS = urlStr.includes('script.google.com') ||
-                          urlStr.includes('script.googleusercontent.com');
+            const isSameOrigin = urlStr.startsWith('/') || urlStr.startsWith(window.location.origin);
 
-            const headers = isGAS
-                ? { ...options.headers }
-                : {
+            const headers = isSameOrigin
+                ? {
                     'Content-Type': 'application/json',
                     'X-Dashboard-Version': '1.0.0',
                     ...options.headers
-                  };
+                  }
+                : { ...options.headers };
             
             const config = {
                 ...options,
