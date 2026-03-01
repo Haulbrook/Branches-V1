@@ -399,6 +399,14 @@ function addMinStockColumn() {
 // 🌐 Entry Point: Web App
 // =============================
 function doGet(e) {
+  // Handle routeQuery via GET (avoids Apps Script POST redirect issue)
+  var params = e ? e.parameter : {};
+  if (params.route) {
+    var result = routeQuery(params.route);
+    return ContentService.createTextOutput(JSON.stringify({ success: true, response: result }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+
   // This is the backend API - the dashboard is deployed separately to GitHub Pages
   // If someone visits this URL directly, show them a helpful message
 
@@ -546,6 +554,10 @@ function doPost(e) {
 
       case 'getActiveJobs':
         result = getActiveJobs();
+        break;
+
+      case 'routeQuery':
+        result = routeQuery(params[0]);
         break;
 
       default:
@@ -2694,6 +2706,75 @@ function findCol(headers, possibleNames) {
     if (idx >= 0) return idx;
   }
   return -1;
+}
+
+// =============================
+// 🧭 Haiku-powered query router
+// =============================
+/**
+ * Route a user query to the correct Claude agent using a cheap Haiku call.
+ * Returns { agent: "inventory"|"repair"|"jobs"|null, reason: "brief reason" }
+ */
+function routeQuery(query) {
+  var apiKey = CONFIG.CLAUDE_API_KEY;
+  if (!apiKey) return { agent: null, reason: "No API key configured" };
+
+  var agents = {
+    inventory: "Clippings — inventory, plants, stock, supplies, materials, mulch, fertilizer, fleet, trucks, mowers, equipment quantities",
+    repair: "GradeBot — equipment repair vs replace decisions, asset condition, maintenance cost analysis, lifecycle grading",
+    jobs: "Foreman — active work orders, job progress, WO status, line items, crew dispatch, client jobs, what's almost done"
+  };
+
+  var agentList = Object.keys(agents).map(function(k) {
+    return k + ": " + agents[k];
+  }).join("\n");
+
+  var systemPrompt = "You are a query router. Given a user message, determine which agent (if any) should handle it.\n\n" +
+    "Available agents:\n" + agentList + "\n\n" +
+    "Return ONLY valid JSON: {\"agent\": \"inventory|repair|jobs|null\", \"reason\": \"brief reason\"}\n" +
+    "Return agent: null for general questions, greetings, or queries that don't match any agent.";
+
+  var payload = {
+    model: "claude-haiku-4-5-20251001",
+    max_tokens: 128,
+    temperature: 0.0,
+    system: systemPrompt,
+    messages: [{ role: "user", content: query }]
+  };
+
+  try {
+    var response = UrlFetchApp.fetch("https://api.anthropic.com/v1/messages", {
+      method: "post",
+      contentType: "application/json",
+      headers: {
+        "x-api-key": apiKey,
+        "anthropic-version": "2023-06-01"
+      },
+      payload: JSON.stringify(payload),
+      muteHttpExceptions: true
+    });
+
+    var responseCode = response.getResponseCode();
+    if (responseCode !== 200) {
+      Logger.log("routeQuery API error: " + responseCode);
+      return { agent: null, reason: "API error " + responseCode };
+    }
+
+    var text = JSON.parse(response.getContentText()).content[0].text;
+    var match = text.match(/\{[\s\S]*\}/);
+    var result = match ? JSON.parse(match[0]) : { agent: null, reason: "Could not parse response" };
+
+    // Normalize "null" string to actual null
+    if (result.agent === "null" || result.agent === "") {
+      result.agent = null;
+    }
+
+    Logger.log("routeQuery: '" + query + "' → " + (result.agent || "none") + " (" + (result.reason || "") + ")");
+    return result;
+  } catch (e) {
+    Logger.log("routeQuery error: " + e.message);
+    return { agent: null, reason: "Router error: " + e.message };
+  }
 }
 
 /**

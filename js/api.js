@@ -329,6 +329,20 @@ User: "schedule tomorrow" → Call open_tool with toolId='scheduler'`;
         return response.json();
     }
 
+    /**
+     * Haiku-powered query routing
+     * Calls backend to determine which agent should handle a query
+     */
+    async routeQuery(query) {
+        const backendUrl = window.app?.config?.services?.inventory?.url;
+        if (!backendUrl) return null;
+
+        const params = new URLSearchParams({ route: query });
+        const response = await fetch(backendUrl + '?' + params.toString());
+        const data = await response.json();
+        return data.response;  // { agent: "inventory"|"repair"|"jobs"|null, reason: "..." }
+    }
+
     // Generic HTTP methods
     async makeRequest(method, url, data = null, options = {}) {
         const cacheKey = `${method}:${url}:${JSON.stringify(data)}`;

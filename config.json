@@ -11,7 +11,7 @@
       "name": "Clippings - Inventory Management",
       "description": "Search inventory, manage stock, track equipment",
       "icon": "🌱",
-      "url": "https://script.google.com/macros/s/AKfycbwquZHokxQctl4UuiKRXuJ9TRr9ImB1sLSuIjSklyqSUc4K3_GQcWZBArVa3dE7gk1P/exec",
+      "url": "https://script.google.com/macros/s/AKfycbzmTe18gSrdI8Ztl_ZoSo4HcXCwmntylvG6mqOAetDjWjUdHeTejKgP9WKTp7-0OHGH/exec",
       "color": "#4CAF50",
       "keywords": ["inventory", "plants", "stock", "equipment", "supplies"]
     },
@@ -81,16 +81,19 @@
   "agents": {
     "inventory": {
       "name": "Clippings",
+      "description": "Inventory, plants, stock, supplies, fleet, trucks",
       "url": "https://script.google.com/macros/s/AKfycbxa-ldx8OZwPIUh5Bty8tuI91K0eLYqG3DvY7k2RuUp32_ybjcO7m2HsPi4O-m8OaMi/exec",
       "keywords": ["inventory", "stock", "plants", "supplies", "materials", "mulch", "fertilizer", "arborvitae", "truck", "fleet", "mower"]
     },
     "repair": {
       "name": "GradeBot",
+      "description": "Equipment repair vs replace, asset grading, maintenance costs",
       "url": "https://script.google.com/macros/s/AKfycbyfn5brMiPgDd6IZDnNxfXZhQgJqEb-1zC8aSGMOMbE8UayiGgv4E7CGA6wrs0V0XhY/exec",
       "keywords": ["repair", "replace", "asset", "maintenance", "broken", "fix", "cost", "lifecycle", "grading", "grade"]
     },
     "jobs": {
       "name": "Foreman",
+      "description": "Active work orders, job progress, line items, crew dispatch",
       "url": "https://script.google.com/macros/s/AKfycbw--Ytyivigc5-8H668fPfJhh_PVTC7C0ZGksMnIUcZaURkFyeAfYjTsDLQ6SfFldIoVQ/exec",
       "keywords": ["job", "jobs", "work order", "wo", "task", "tasks", "progress", "active", "client", "drainage", "planting", "landscape job", "line items", "crew", "dispatch", "almost done"]
     }

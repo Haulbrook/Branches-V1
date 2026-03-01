@@ -152,8 +152,27 @@ class ChatManager {
     async processMessage(message) {
         let response = { content: '', type: 'general' };
 
-        // Check if a Claude agent should handle this (inventory/repair)
-        const agentRoute = this.determineAgentRoute(message);
+        // Step 1: Try Haiku-powered agent routing via backend
+        let agentRoute = null;
+        try {
+            const api = window.app?.api;
+            if (api) {
+                const routeResult = await api.routeQuery(message);
+                if (routeResult && routeResult.agent) {
+                    agentRoute = { agentKey: routeResult.agent };
+                    console.log(`Haiku router → ${routeResult.agent} (${routeResult.reason})`);
+                }
+            }
+        } catch (error) {
+            console.warn('Haiku router failed, falling back to keywords:', error);
+        }
+
+        // Step 2: Fallback to keyword matching if Haiku didn't route
+        if (!agentRoute) {
+            agentRoute = this.determineAgentRoute(message);
+        }
+
+        // Step 3: If we have an agent route, process with agent
         if (agentRoute) {
             try {
                 return await this.processWithAgent(agentRoute.agentKey, message);
