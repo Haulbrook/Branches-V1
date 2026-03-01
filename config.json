@@ -88,6 +88,11 @@
       "name": "GradeBot",
       "url": "https://script.google.com/macros/s/AKfycbyfn5brMiPgDd6IZDnNxfXZhQgJqEb-1zC8aSGMOMbE8UayiGgv4E7CGA6wrs0V0XhY/exec",
       "keywords": ["repair", "replace", "asset", "maintenance", "broken", "fix", "cost", "lifecycle", "grading", "grade"]
+    },
+    "jobs": {
+      "name": "Foreman",
+      "url": "https://script.google.com/macros/s/AKfycbw--Ytyivigc5-8H668fPfJhh_PVTC7C0ZGksMnIUcZaURkFyeAfYjTsDLQ6SfFldIoVQ/exec",
+      "keywords": ["job", "jobs", "work order", "wo", "task", "tasks", "progress", "active", "client", "drainage", "planting", "landscape job", "line items", "crew", "dispatch", "almost done"]
     }
   },
   "deployment": {
