@@ -221,8 +221,9 @@ function addRepair(repairData) {
       totalCost,                   // J - Total Cost
       newRunningTotal,             // K - Running Total
       percentOfReplacement,        // L - % of Replacement
-      '',                          // M - Days Since Last
-      repairData.notes || ''       // N - Notes
+      '',                                        // M - Days Since Last
+      repairData.notes || '',                    // N - Notes
+      repairData.outsideVendorName || ''         // O - Outside Vendor Name
     ]);
 
     updateAssetTotals(repairData.assetId);

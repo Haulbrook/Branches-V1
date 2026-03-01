@@ -262,9 +262,14 @@
                             <option value="">Select rate type...</option>
                             <option value="80">Standard Rate - $80/hour</option>
                             <option value="120">Senior Rate - $120/hour</option>
-                            <option value="150">Emergency Rate - $150/hour</option>
+                            <option value="150">Outside Vendor Rate - $150/hour</option>
                         </select>
                         <input type="hidden" id="laborRate" value="0">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="outsideVendorName">Shop / Vendor Name</label>
+                        <input type="text" id="outsideVendorName" class="form-control" placeholder="e.g. Puckett's Auto — leave blank if in-house">
                     </div>
 
                     <div class="cost-preview" id="costPreview" style="display: none;">
