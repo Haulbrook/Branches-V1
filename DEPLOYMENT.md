@@ -234,13 +234,32 @@ curl -X POST YOUR_BACKEND_URL \
 
 ## 🔄 Making Updates
 
-### Update Backend
+### Update Backend via clasp
 
-1. Edit code.js in Google Apps Script
+```bash
+cd Branches-V1
+clasp push --force
+clasp version "description of changes"
+clasp deploy -i DEPLOYMENT_ID -V VERSION_NUMBER -d "description"
+```
+
+> **WARNING: `clasp push` CONVERTS WEB APP DEPLOYMENTS TO LIBRARY TYPE.**
+> After every `clasp push`, you MUST go to the Apps Script editor and
+> re-create the Web App deployment manually:
+> 1. Deploy > New deployment > Type: Web app
+> 2. Execute as: Me, Access: Anyone
+> 3. Deploy — this gives a NEW URL
+> 4. Update config.json with the new URL and push to GitHub
+>
+> This affects ALL Apps Script projects (Branches backend, Foreman, Clippings, GradeBot).
+> There is no workaround — it's a known clasp bug.
+
+### Update Backend manually
+
+1. Edit code.js in Google Apps Script editor
 2. Save changes
-3. Create new deployment OR use existing deployment
-   - Existing: Changes apply automatically
-   - New: Update config.json with new URL
+3. Deploy > Manage deployments > update version
+   - This does NOT change the URL or deployment type
 
 ### Update Frontend
 
@@ -251,7 +270,7 @@ curl -X POST YOUR_BACKEND_URL \
    git commit -m "Update dashboard"
    git push origin main
    ```
-3. GitHub Pages/Netlify auto-deploys (wait 2-3 min)
+3. Netlify auto-deploys (wait 30-60 sec)
 
 ---
 

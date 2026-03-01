@@ -16,8 +16,14 @@
  *
  * DEPLOYMENT:
  * 1. Deploy this file to Google Apps Script as Web App
- * 2. Set permissions: Execute as "User", Access "Anyone"
+ * 2. Set permissions: Execute as "Me", Access "Anyone"
  * 3. Copy deployment URL to frontend config.json
+ *
+ * CLASP WARNING:
+ * `clasp push` converts Web App deployments to Library type.
+ * After every clasp push, you MUST re-create the Web App deployment
+ * manually in the Apps Script editor (Deploy > New deployment > Web app).
+ * This generates a NEW URL — update config.json accordingly.
  *
  * API ENDPOINTS:
  * - askInventory(query)          - Search inventory
