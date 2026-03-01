@@ -94,7 +94,7 @@
     "jobs": {
       "name": "Foreman",
       "description": "Active work orders, job progress, line items, crew dispatch",
-      "url": "https://script.google.com/macros/s/AKfycbw--Ytyivigc5-8H668fPfJhh_PVTC7C0ZGksMnIUcZaURkFyeAfYjTsDLQ6SfFldIoVQ/exec",
+      "url": "https://script.google.com/macros/s/AKfycbyE90S18qOnAtgcwqbd0H5WwadOW7GzdAjfKPWOdHvJYB3FtRqeyi7-20xjdAxEBp6xBQ/exec",
       "keywords": ["job", "jobs", "work order", "wo", "task", "tasks", "progress", "active", "client", "drainage", "planting", "landscape job", "line items", "crew", "dispatch", "almost done"]
     }
   },
