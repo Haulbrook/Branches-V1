@@ -55,16 +55,10 @@
 
     <!-- Loading Screen -->
     <div id="loadingScreen" class="loading-screen" role="status" aria-live="polite" aria-label="Loading application">
-        <div class="loading-content">
-            <div class="logo-animated" aria-hidden="true">🌱</div>
-            <h2>Deep Roots Operations</h2>
-            <div class="loading-dots" aria-hidden="true">
-                <span></span>
-                <span></span>
-                <span></span>
-            </div>
-            <span class="sr-only">Loading, please wait...</span>
-        </div>
+        <video id="introVideo" class="intro-video" autoplay muted playsinline>
+            <source src="assets/intro.mp4" type="video/mp4">
+        </video>
+        <span class="sr-only">Loading, please wait...</span>
     </div>
 
     <!-- Main Application -->

@@ -25,6 +25,10 @@ class DashboardApp {
         this.forwardThinkerSkill = null;
         this.appleOverseer = null;
 
+        // Intro video state
+        this.appReady = false;
+        this.videoEnded = false;
+
         this.init();
     }
 
@@ -87,13 +91,9 @@ class DashboardApp {
             // Start proactive suggestions (if forward thinker is enabled)
             this.startProactiveSuggestions();
 
-            // Hide loading screen and show app
-            setTimeout(() => {
-                this.showLoadingScreen(false);
-                this.isInitialized = true;
-                console.log('✅ Dashboard App initialized successfully');
-                this.showWelcomeMessage();
-            }, 1500);
+            // Wait for intro video to finish, then show app
+            this.appReady = true;
+            this.tryRevealApp();
 
         } catch (error) {
             console.error('❌ Failed to initialize Dashboard App:', error);
@@ -1009,13 +1009,41 @@ Recommendations: ${report.recommendations.length}
     showLoadingScreen(show) {
         const loading = document.getElementById('loadingScreen');
         const app = document.getElementById('app');
-        
+
         if (show) {
             loading.style.display = 'flex';
             app.classList.add('hidden');
+
+            // Listen for intro video end
+            const video = document.getElementById('introVideo');
+            if (video) {
+                video.addEventListener('ended', () => {
+                    this.videoEnded = true;
+                    this.tryRevealApp();
+                }, { once: true });
+                // Fallback in case video fails to load/play
+                video.addEventListener('error', () => {
+                    this.videoEnded = true;
+                    this.tryRevealApp();
+                }, { once: true });
+            } else {
+                this.videoEnded = true;
+            }
         } else {
-            loading.style.display = 'none';
-            app.classList.remove('hidden');
+            loading.classList.add('fade-out');
+            setTimeout(() => {
+                loading.style.display = 'none';
+                app.classList.remove('hidden');
+            }, 1400);
+        }
+    }
+
+    tryRevealApp() {
+        if (this.appReady && this.videoEnded) {
+            this.showLoadingScreen(false);
+            this.isInitialized = true;
+            console.log('✅ Dashboard App initialized successfully');
+            this.showWelcomeMessage();
         }
     }
 
