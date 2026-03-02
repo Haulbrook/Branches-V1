@@ -18,6 +18,7 @@ branches-v1-fixes.css
 _headers
 _redirects
 build.sh
+inject-env.js
 .git/**
 .github/**
 .netlify/**
