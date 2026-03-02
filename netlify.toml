@@ -3,7 +3,7 @@
 
 [build]
   # Inject API keys from Netlify environment variables into app.config.json
-  command = "echo build-ok"
+  command = "node inject-env.js"
   publish = "."
 
 [build.environment]
