@@ -183,7 +183,7 @@ class ChatManager {
         }
 
         // Try OpenAI first if API key is configured
-        const hasOpenAI = localStorage.getItem('openaiApiKey');
+        const hasOpenAI = window.app?.config?.ai?.openaiApiKey || localStorage.getItem('openaiApiKey');
         if (hasOpenAI) {
             try {
                 const result = await this.processWithOpenAI(message);

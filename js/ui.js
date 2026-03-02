@@ -269,13 +269,12 @@ class UIManager {
             if (chessmapUrl) chessmapUrl.value = config.chessmap?.url || '';
         }
 
-        // Load OpenAI API Key
+        // Load OpenAI API Key — config.json first, localStorage fallback
         const openaiApiKey = document.getElementById('openaiApiKey');
         if (openaiApiKey) {
+            const configKey = window.app?.config?.ai?.openaiApiKey;
             const savedKey = localStorage.getItem('openaiApiKey');
-            if (savedKey) {
-                openaiApiKey.value = savedKey;
-            }
+            openaiApiKey.value = configKey || savedKey || '';
         }
 
         // Load theme preference
@@ -296,6 +295,11 @@ class UIManager {
 
             if (enableForwardThinker) {
                 enableForwardThinker.checked = appConfig.enableForwardThinkerSkill !== false;
+            }
+
+            const enableAppleOverseer = document.getElementById('enableAppleOverseer');
+            if (enableAppleOverseer) {
+                enableAppleOverseer.checked = appConfig.enableAppleOverseer !== false;
             }
         }
     }

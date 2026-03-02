@@ -2,9 +2,8 @@
 # https://docs.netlify.com/configure-builds/file-based-configuration/
 
 [build]
-  # No build command needed - this is a static site (explicit empty command to override UI settings)
-  # No build command needed - this is a static HTML/CSS/JS site
-  command = ""
+  # Inject API keys from Netlify environment variables into config.json
+  command = "bash build.sh"
   publish = "."
 
   # Skip build if no changes to frontend files
@@ -22,7 +21,7 @@
     X-XSS-Protection = "1; mode=block"
     Referrer-Policy = "strict-origin-when-cross-origin"
     # Allow connections to Google Apps Script backend
-    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; style-src-elem 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://script.google.com https://script.googleusercontent.com https://api.anthropic.com https://api.open-meteo.com; img-src 'self' data: https:; frame-src 'self' https://script.google.com https://script.googleusercontent.com https://dailychessmap.netlify.app;"
+    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; style-src-elem 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://script.google.com https://script.googleusercontent.com https://api.anthropic.com https://api.openai.com https://api.open-meteo.com; img-src 'self' data: https:; frame-src 'self' https://script.google.com https://script.googleusercontent.com https://dailychessmap.netlify.app;"
 
 # Cache static assets
 [[headers]]

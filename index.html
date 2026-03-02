@@ -14,7 +14,7 @@
     <meta property="og:url" content="https://branchesv1.netlify.app/">
     <meta property="og:title" content="Deep Roots Operations Dashboard">
     <meta property="og:description" content="Unified landscaping operations dashboard - inventory management, crew scheduling, tool checkout, and AI-powered assistance.">
-    <meta property="og:image" content="https://branchesv1.netlify.app/images/og-image.png">
+    <meta property="og:image" content="https://branchesv1.netlify.app/images/og-image.svg">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
     <meta property="og:image:alt" content="Deep Roots Operations Dashboard - Landscaping management platform">
@@ -24,10 +24,10 @@
     <meta name="twitter:url" content="https://branchesv1.netlify.app/">
     <meta name="twitter:title" content="Deep Roots Operations Dashboard">
     <meta name="twitter:description" content="Unified landscaping operations dashboard - inventory management, crew scheduling, tool checkout, and AI-powered assistance.">
-    <meta name="twitter:image" content="https://branchesv1.netlify.app/images/og-image.png">
+    <meta name="twitter:image" content="https://branchesv1.netlify.app/images/og-image.svg">
     <meta name="twitter:image:alt" content="Deep Roots Operations Dashboard - Landscaping management platform">
 
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; style-src-elem 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://script.google.com https://script.googleusercontent.com https://api.anthropic.com https://api.open-meteo.com; img-src 'self' data: https:; frame-src 'self' https://script.google.com https://script.googleusercontent.com https://dailychessmap.netlify.app;">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; style-src-elem 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://script.google.com https://script.googleusercontent.com https://api.anthropic.com https://api.openai.com https://api.open-meteo.com; img-src 'self' data: https:; frame-src 'self' https://script.google.com https://script.googleusercontent.com https://dailychessmap.netlify.app;">
     <title>Deep Roots Operations Dashboard</title>
     <!-- Force light mode as default -->
     <script>
@@ -135,12 +135,19 @@
                         <div class="user-email" id="userEmail">...</div>
                     </div>
                 </div>
+                <button id="overseerBtn" class="settings-btn" aria-label="Open Apple Overseer" style="margin-right:4px;">🍎<span id="overseerStatusBadge" class="overseer-status-badge"></span></button>
                 <button id="settingsBtn" class="settings-btn" aria-label="Open settings">⚙️</button>
             </div>
         </aside>
 
         <!-- Main Content -->
         <main id="main-content" class="main-content" role="main" aria-label="Main content area">
+            <!-- Mobile menu button (visible on small screens when sidebar is hidden) -->
+            <button id="mobileMenuBtn" class="mobile-menu-btn" aria-label="Open navigation menu">
+                <span></span><span></span><span></span>
+            </button>
+            <!-- Connection status indicator -->
+            <div id="statusIndicator" class="status-indicator online" title="Connected" aria-live="polite"></div>
 
             <!-- Dashboard View -->
             <section id="dashboardView" class="dashboard-view" aria-labelledby="dashboard-heading">
@@ -282,9 +289,9 @@
                         </div>
                     </div>
                     <div class="tool-actions" role="toolbar" aria-label="Tool actions">
-                        <button id="toolBackBtn2" class="tool-btn" aria-label="Back to Dashboard">← Back to Dashboard</button>
-                        <button id="toolRefreshBtn2" class="tool-btn" aria-label="Refresh tool">🔄 Refresh</button>
-                        <button id="toolFullscreenBtn2" class="tool-btn" aria-label="Toggle fullscreen">⛶ Fullscreen</button>
+                        <button id="toolBackBtn" class="tool-btn" aria-label="Back to Dashboard">← Back to Dashboard</button>
+                        <button id="toolRefreshBtn" class="tool-btn" aria-label="Refresh tool">🔄 Refresh</button>
+                        <button id="toolFullscreenBtn" class="tool-btn" aria-label="Toggle fullscreen">⛶ Fullscreen</button>
                     </div>
                 </div>
                 <div class="tool-iframe-container">

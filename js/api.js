@@ -138,7 +138,8 @@ class APIManager {
      * Calls OpenAI API for intelligent chat responses
      */
     async callOpenAI(message, context = {}) {
-        const apiKey = localStorage.getItem('openaiApiKey');
+        const apiKey = window.app?.config?.ai?.openaiApiKey
+            || localStorage.getItem('openaiApiKey');
 
         if (!apiKey) {
             throw new Error('OpenAI API key not configured. Please add it in Settings.');

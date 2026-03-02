@@ -11,14 +11,18 @@ class DashboardManager {
         this.pendingWorkOrder = null;
         this.selectedPdfFile = null;
 
-        // Config getters: localStorage first, then config.json fallback
+        // Config getters: config.json first, then localStorage fallback
         this.woCfg = {
             get gasUrl()    {
-                return localStorage.getItem('dr_gas_url')
-                    || window.app?.config?.services?.activeJobs?.gasUrl
+                return window.app?.config?.services?.activeJobs?.gasUrl
+                    || localStorage.getItem('dr_gas_url')
                     || '';
             },
-            get claudeKey() { return localStorage.getItem('dr_claude_key') || ''; }
+            get claudeKey() {
+                return window.app?.config?.ai?.claudeApiKey
+                    || localStorage.getItem('dr_claude_key')
+                    || '';
+            }
         };
     }
 

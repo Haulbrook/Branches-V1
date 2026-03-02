@@ -17,6 +17,7 @@ branches-v1-fixes.js
 branches-v1-fixes.css
 _headers
 _redirects
+build.sh
 .git/**
 .github/**
 .netlify/**

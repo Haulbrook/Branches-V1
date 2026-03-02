@@ -63,6 +63,8 @@
   },
   "ai": {
     "enabled": true,
+    "openaiApiKey": "__OPENAI_API_KEY__",
+    "claudeApiKey": "__CLAUDE_API_KEY__",
     "fallbackMessage": "I can help you with inventory, grading decisions, scheduling, tool rentals, logistics planning, or crew location tracking. What would you like to do?",
     "routingPrompt": "Analyze this query and determine which tool would be most helpful: inventory management, plant grading, scheduling, tool checkout, logistics planning, or crew location map. Return only: 'inventory', 'grading', 'scheduler', 'tools', 'logistics', 'chessmap', or 'general'."
   },

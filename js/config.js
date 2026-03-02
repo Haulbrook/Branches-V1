@@ -322,6 +322,15 @@ class ConfigManager {
                     color: "#9C27B0",
                     keywords: ["tools", "rental", "checkout", "equipment", "maintenance"],
                     enabled: true
+                },
+                chessmap: {
+                    name: "DRL Chess Map & Logistics",
+                    description: "Real-time crew location tracking, logistics planning, and vendor proximity",
+                    icon: "♟️",
+                    url: "",
+                    color: "#673AB7",
+                    keywords: ["crew", "location", "map", "chess", "tracking", "logistics"],
+                    enabled: true
                 }
             },
             ui: {

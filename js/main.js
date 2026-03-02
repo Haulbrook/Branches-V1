@@ -519,20 +519,20 @@ Recommendations: ${report.recommendations.length}
     }
 
     updateToolURLs() {
-        // For each service, use localStorage URL if available, otherwise use config.json URL
+        // For each service, config.json is the source of truth.
+        // localStorage is only used as fallback if config.json has no URL.
         Object.keys(this.config.services).forEach(key => {
             const localStorageKey = `${key}Url`;
-            const savedUrl = localStorage.getItem(localStorageKey);
             const configUrl = this.config.services[key]?.url;
+            const savedUrl = localStorage.getItem(localStorageKey);
 
-            if (savedUrl) {
-                // Use saved URL from localStorage
-                this.config.services[key].url = savedUrl;
-            } else if (configUrl) {
-                // No saved URL, use config.json URL and save it to localStorage
+            if (configUrl) {
+                // config.json has a URL — use it (authoritative)
                 this.config.services[key].url = configUrl;
-                localStorage.setItem(localStorageKey, configUrl);
-                console.log(`✅ Initialized ${key}Url from config.json:`, configUrl.substring(0, 50) + '...');
+            } else if (savedUrl) {
+                // No config.json URL, fall back to localStorage
+                this.config.services[key].url = savedUrl;
+                console.log(`⚠️ ${key}Url from localStorage (no config.json value)`);
             }
         });
     }
@@ -611,11 +611,11 @@ Recommendations: ${report.recommendations.length}
         // Settings
         document.getElementById('settingsBtn')?.addEventListener('click', () => {
             this.ui.showSettingsModal();
-            // Populate WO Dashboard settings (these live outside populateSettingsForm)
+            // Populate WO Dashboard settings — config.json first, localStorage fallback
             const workOrdersGasUrl = document.getElementById('workOrdersGasUrl');
-            if (workOrdersGasUrl) workOrdersGasUrl.value = localStorage.getItem('dr_gas_url') || '';
+            if (workOrdersGasUrl) workOrdersGasUrl.value = this.config?.services?.activeJobs?.gasUrl || localStorage.getItem('dr_gas_url') || '';
             const claudeApiKey = document.getElementById('claudeApiKey');
-            if (claudeApiKey) claudeApiKey.value = localStorage.getItem('dr_claude_key') || '';
+            if (claudeApiKey) claudeApiKey.value = this.config?.ai?.claudeApiKey || localStorage.getItem('dr_claude_key') || '';
         });
 
         // Mobile menu
@@ -1079,7 +1079,8 @@ Recommendations: ${report.recommendations.length}
                 inventory: { name: "Inventory Management", icon: "🌱", url: "", color: "#4CAF50" },
                 grading: { name: "Grade & Sell", icon: "⭐", url: "", color: "#FF9800" },
                 scheduler: { name: "Scheduler", icon: "📅", url: "", color: "#2196F3" },
-                tools: { name: "Tool Checkout", icon: "🔧", url: "", color: "#9C27B0" }
+                tools: { name: "Tool Checkout", icon: "🔧", url: "", color: "#9C27B0" },
+                chessmap: { name: "DRL Chess Map & Logistics", icon: "♟️", url: "", color: "#673AB7" }
             },
             ai: {
                 enabled: true,
