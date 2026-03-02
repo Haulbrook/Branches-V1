@@ -9,6 +9,9 @@
   # Skip build if no changes to frontend files
   ignore = "git diff --quiet HEAD^ HEAD -- . ':!code.js' ':!README.md'"
 
+  # Prevent auto-detection of Hugo or other frameworks
+  framework = "#custom"
+
 [build.environment]
   NODE_VERSION = "18"
 
