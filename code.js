@@ -2726,17 +2726,18 @@ function routeQuery(query) {
   if (!apiKey) return { agent: null, reason: "No API key configured" };
 
   var agents = {
-    inventory: "Clippings — inventory, plants, stock, supplies, materials, mulch, fertilizer, fleet, trucks, mowers, equipment quantities",
+    inventory: "Clippings — inventory, plants, stock, supplies, materials, mulch, fertilizer, fleet, trucks, mowers, equipment quantities, tool checkout",
     repair: "GradeBot — equipment repair vs replace decisions, asset condition, maintenance cost analysis, lifecycle grading",
-    jobs: "Foreman — active work orders, job progress, WO status, line items, crew dispatch, client jobs, what's almost done"
+    jobs: "Foreman — active work orders, job progress, WO status, line items, crew dispatch, client jobs, customer/client name lookups, what's almost done"
   };
 
   var agentList = Object.keys(agents).map(function(k) {
     return k + ": " + agents[k];
   }).join("\n");
 
-  var systemPrompt = "You are a query router. Given a user message, determine which agent (if any) should handle it.\n\n" +
+  var systemPrompt = "You are a query router for a landscaping company. Given a user message, determine which agent (if any) should handle it.\n\n" +
     "Available agents:\n" + agentList + "\n\n" +
+    "IMPORTANT: If the user sends a company name, person name, or location name without other context, route to 'jobs' — they are likely looking up a client or job site.\n\n" +
     "Return ONLY valid JSON: {\"agent\": \"inventory|repair|jobs|null\", \"reason\": \"brief reason\"}\n" +
     "Return agent: null for general questions, greetings, or queries that don't match any agent.";
 
