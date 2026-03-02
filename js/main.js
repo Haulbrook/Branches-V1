@@ -519,20 +519,23 @@ Recommendations: ${report.recommendations.length}
     }
 
     updateToolURLs() {
-        // For each service, use localStorage URL if available, otherwise use config.json URL
+        // Always use config.json URLs — they are the source of truth.
+        // localStorage is only used if the user explicitly set a custom URL
+        // via the setup wizard (marked with a 'Custom' suffix key).
         Object.keys(this.config.services).forEach(key => {
             const localStorageKey = `${key}Url`;
+            const customKey = `${key}Url_custom`;
             const savedUrl = localStorage.getItem(localStorageKey);
+            const isCustom = localStorage.getItem(customKey) === 'true';
             const configUrl = this.config.services[key]?.url;
 
-            if (savedUrl) {
-                // Use saved URL from localStorage
+            if (isCustom && savedUrl) {
+                // User explicitly set a custom URL — respect it
                 this.config.services[key].url = savedUrl;
             } else if (configUrl) {
-                // No saved URL, use config.json URL and save it to localStorage
+                // Always sync from config.json and update localStorage
                 this.config.services[key].url = configUrl;
                 localStorage.setItem(localStorageKey, configUrl);
-                console.log(`✅ Initialized ${key}Url from config.json:`, configUrl.substring(0, 50) + '...');
             }
         });
     }
