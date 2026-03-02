@@ -2,7 +2,7 @@
 # https://docs.netlify.com/configure-builds/file-based-configuration/
 
 [build]
-  # Inject API keys from Netlify environment variables into config.json
+  # Inject API keys from Netlify environment variables into app.config.json
   command = "node inject-env.js"
   publish = "."
 

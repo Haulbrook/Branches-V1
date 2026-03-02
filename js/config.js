@@ -24,7 +24,7 @@ class ConfigManager {
     async loadConfig() {
         try {
             // Try to load from external config file first
-            const response = await fetch('config.json');
+            const response = await fetch('app.config.json');
             if (response.ok) {
                 const externalConfig = await response.json();
                 this.config = this.mergeConfigs(this.defaultConfig, externalConfig);

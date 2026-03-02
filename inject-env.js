@@ -5,7 +5,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const configPath = path.join(__dirname, 'config.json');
+const configPath = path.join(__dirname, 'app.config.json');
 
 try {
   let cfg = fs.readFileSync(configPath, 'utf8');

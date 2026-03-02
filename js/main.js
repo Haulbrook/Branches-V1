@@ -498,8 +498,8 @@ Recommendations: ${report.recommendations.length}
 
     async loadConfiguration() {
         try {
-            // Load from config.json
-            const response = await fetch('config.json');
+            // Load from app.config.json
+            const response = await fetch('app.config.json');
             this.config = await response.json();
             
             // Merge with localStorage settings
